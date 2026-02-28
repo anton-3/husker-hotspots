@@ -45,7 +45,7 @@ export function CampusMap() {
   });
 
   const [day, setDay] = useState<DayOfWeek>("Wednesday");
-  const [timeIndex, setTimeIndex] = useState(20); // 10:00 AM default
+  const [timeIndex, setTimeIndex] = useState(40); // 10:00 AM default (40 = 10*4)
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
@@ -60,7 +60,11 @@ export function CampusMap() {
   const [densityLoading, setDensityLoading] = useState(false);
 
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
-  const playIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTickTimeRef = useRef<number>(0);
+
+  // Smooth play progress 0–1 within current 15min tick (for slider animation only)
+  const [smoothProgress, setSmoothProgress] = useState(0);
+  const displayValue = Math.min(95, timeIndex + smoothProgress);
 
   // Generate timeline data (memoized per day)
   const timeline = useMemo(() => generateDayTimeline(day), [day]);
@@ -70,17 +74,36 @@ export function CampusMap() {
     [currentSnapshot, timeline]
   );
 
-  // Play/pause timeline
+  // Play/pause timeline: rAF drives smooth slider; time still advances every 15min
   useEffect(() => {
-    if (isPlaying) {
-      playIntervalRef.current = setInterval(() => {
-        setTimeIndex((prev) => (prev >= 47 ? 0 : prev + 1));
-      }, 1000 / playSpeed);
+    if (!isPlaying) {
+      setSmoothProgress(0);
+      return;
     }
-    return () => {
-      if (playIntervalRef.current) clearInterval(playIntervalRef.current);
+    lastTickTimeRef.current = Date.now();
+    let rafId: number;
+    const tickDuration = 500 / playSpeed;
+    const tick = () => {
+      const now = Date.now();
+      let elapsed = now - lastTickTimeRef.current;
+      if (elapsed >= tickDuration) {
+        setTimeIndex((prev) => (prev >= 95 ? 0 : prev + 1));
+        lastTickTimeRef.current = now;
+        elapsed = 0;
+      }
+      setSmoothProgress(Math.min(elapsed / tickDuration, 1));
+      rafId = requestAnimationFrame(tick);
     };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
   }, [isPlaying, playSpeed]);
+
+  const handleIndexChange = useCallback((value: number) => {
+    const idx = Math.round(Math.min(95, Math.max(0, value)));
+    setTimeIndex(idx);
+    setSmoothProgress(0);
+    lastTickTimeRef.current = Date.now();
+  }, []);
 
   // Fetch combined density from API when day or time changes
   useEffect(() => {
@@ -423,8 +446,8 @@ export function CampusMap() {
 
       {/* Timeline slider */}
       <TimelineSlider
-        currentIndex={timeIndex}
-        onIndexChange={setTimeIndex}
+        currentIndex={displayValue}
+        onIndexChange={handleIndexChange}
         isPlaying={isPlaying}
         onPlayToggle={() => setIsPlaying((p) => !p)}
         playSpeed={playSpeed}

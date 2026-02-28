@@ -7,7 +7,7 @@ import type { DayOfWeek } from "@/lib/map/config";
 import { DAYS_OF_WEEK } from "@/lib/map/config";
 
 interface TimelineSliderProps {
-  currentIndex: number;
+  currentIndex: number; // Can be decimal for smooth play animation
   onIndexChange: (index: number) => void;
   isPlaying: boolean;
   onPlayToggle: () => void;
@@ -30,11 +30,11 @@ export function TimelineSlider({
   timeLabel,
 }: TimelineSliderProps) {
   const skipBack = useCallback(() => {
-    onIndexChange(Math.max(0, currentIndex - 2));
+    onIndexChange(Math.max(0, Math.floor(currentIndex) - 1));
   }, [currentIndex, onIndexChange]);
 
   const skipForward = useCallback(() => {
-    onIndexChange(Math.min(47, currentIndex + 2));
+    onIndexChange(Math.min(95, Math.floor(currentIndex) + 1));
   }, [currentIndex, onIndexChange]);
 
   const dayShort = useMemo(
@@ -122,9 +122,9 @@ export function TimelineSlider({
             <Slider
               value={[currentIndex]}
               onValueChange={([v]) => onIndexChange(v)}
-              max={47}
+              max={95}
               min={0}
-              step={1}
+              step={0.01}
               className="cursor-pointer"
             />
           </div>
