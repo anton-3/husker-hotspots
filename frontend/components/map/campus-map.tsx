@@ -52,6 +52,7 @@ export function CampusMap() {
   const [hoveredBuildingId, setHoveredBuildingId] = useState<string | null>(null);
   const [insightsOpen, setInsightsOpen] = useState(true);
   const [showSources, setShowSources] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(true);
   const [activeSources, setActiveSources] = useState<Set<DataSourceId>>(
     new Set(DATA_SOURCES.map((s) => s.id))
   );
@@ -262,6 +263,20 @@ export function CampusMap() {
     setHoveredBuildingId(null);
   }, []);
 
+  // Toggle heatmap visibility with 'h' key
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "h" || e.key === "H") {
+        const target = e.target as HTMLElement;
+        if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        setShowHeatmap((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   // Current building occupancy data
   const selectedBuildingOccupancy = selectedBuilding
     ? currentSnapshot?.buildings.find(
@@ -364,37 +379,39 @@ export function CampusMap() {
         </Source>
 
         {/* Heatmap (on top) */}
-        <Source id="heatmap-data" type="geojson" data={heatmapGeoJSON}>
-          <Layer
-            id="heatmap-layer"
-            type="heatmap"
-            paint={{
-              "heatmap-weight": ["get", "weight"],
-              "heatmap-intensity": 1.8,
-              "heatmap-color": [
-                "interpolate",
-                ["linear"],
-                ["heatmap-density"],
-                0,
-                "rgba(0,0,0,0)",
-                0.1,
-                "rgba(59,130,246,0.35)",
-                0.25,
-                "rgba(34,197,94,0.45)",
-                0.45,
-                "rgba(234,179,8,0.55)",
-                0.6,
-                "rgba(249,115,22,0.7)",
-                0.8,
-                "rgba(239,68,68,0.85)",
-                1,
-                "rgba(220,38,38,0.95)",
-              ],
-              "heatmap-radius": 45,
-              "heatmap-opacity": 0.85,
-            }}
-          />
-        </Source>
+        {showHeatmap && (
+          <Source id="heatmap-data" type="geojson" data={heatmapGeoJSON}>
+            <Layer
+              id="heatmap-layer"
+              type="heatmap"
+              paint={{
+                "heatmap-weight": ["get", "weight"],
+                "heatmap-intensity": 1.8,
+                "heatmap-color": [
+                  "interpolate",
+                  ["linear"],
+                  ["heatmap-density"],
+                  0,
+                  "rgba(0,0,0,0)",
+                  0.1,
+                  "rgba(59,130,246,0.35)",
+                  0.25,
+                  "rgba(34,197,94,0.45)",
+                  0.45,
+                  "rgba(234,179,8,0.55)",
+                  0.6,
+                  "rgba(249,115,22,0.7)",
+                  0.8,
+                  "rgba(239,68,68,0.85)",
+                  1,
+                  "rgba(220,38,38,0.95)",
+                ],
+                "heatmap-radius": 45,
+                "heatmap-opacity": 0.85,
+              }}
+            />
+          </Source>
+        )}
       </Map>
 
       {/* Data source toggles */}
