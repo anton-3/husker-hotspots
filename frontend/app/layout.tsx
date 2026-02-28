@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UNL Campus Activity Heatmap",
+  title: "Husker Hustle | UNL Campus Activity Intelligence",
   description:
-    "Interactive 3D campus map with activity heatmap timeline. Predict patterns in student behavior and campus activity with proactive insights.",
+    "Husker Hustle is an AI-ready campus activity intelligence surface for UNL that blends Mapbox, deck.gl, and timeline analytics to reveal patterns in student behavior and surface proactive insights.",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-b from-red-950 via-zinc-950 to-zinc-950 text-zinc-50`}
       >
         {children}
       </body>

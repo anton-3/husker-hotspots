@@ -109,29 +109,88 @@ export default function Home() {
   );
 
   return (
-    <main className="relative h-screen w-full">
-      <CampusMap
-        mapRef={mapRef}
-        layers={layers}
-        onClick={handleMapClick}
-      />
-      <div className="absolute bottom-4 left-4 right-4 z-10 flex justify-center md:left-1/2 md:right-auto md:w-80 md:-translate-x-1/2">
-        <HeatmapTimeline
-          timeRange={timeRange}
-          currentTime={currentTime}
-          onTimeChange={setCurrentTime}
-          isPlaying={isPlaying}
-          onPlayPause={handlePlayPause}
-        />
-      </div>
-      {selectedBuilding && (
-        <div className="absolute top-4 left-4 z-10 w-72 max-w-[calc(100%-2rem)]">
-          <BuildingDetail
-            building={selectedBuilding}
-            onClose={() => setSelectedBuilding(null)}
+    <main className="relative flex h-screen w-full flex-col overflow-hidden">
+      <header className="pointer-events-none relative z-20 flex items-start justify-between px-4 pt-4 md:px-8">
+        <div className="pointer-events-auto rounded-2xl bg-zinc-950/70 px-4 py-3 shadow-lg ring-1 ring-white/10 backdrop-blur">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-300">
+            Husker Hustle
+          </p>
+          <h1 className="mt-1 text-lg font-semibold text-zinc-50 md:text-2xl">
+            Campus activity intelligence for UNL
+          </h1>
+          <p className="mt-1 max-w-xl text-xs text-zinc-300 md:text-sm">
+            Explore how students move across campus throughout the day with a
+            live heatmap, building overlays, and a scrubbable timeline.
+          </p>
+        </div>
+        <div className="pointer-events-auto hidden shrink-0 gap-3 rounded-2xl bg-zinc-950/70 px-4 py-3 text-xs text-zinc-300 shadow-lg ring-1 ring-white/10 backdrop-blur md:flex">
+          <div>
+            <p className="font-semibold text-zinc-100">Signals fused</p>
+            <p>Class schedules · room reservations · testing · game days</p>
+          </div>
+        </div>
+      </header>
+
+      <section className="relative mt-2 flex-1">
+        <div className="absolute inset-0">
+          <CampusMap
+            mapRef={mapRef}
+            layers={layers}
+            onClick={handleMapClick}
           />
         </div>
-      )}
+
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col">
+          <div className="flex flex-1 items-start justify-end px-4 pt-24 md:px-8">
+            <div className="pointer-events-auto hidden w-64 rounded-2xl bg-zinc-950/70 p-3 text-xs text-zinc-300 shadow-lg ring-1 ring-white/10 backdrop-blur md:block">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-red-300">
+                Heatmap legend
+              </p>
+              <p className="mb-2">
+                Bright areas indicate higher modeled activity intensity over the
+                current time window. Darker areas are calmer.
+              </p>
+              <ul className="space-y-1">
+                <li>
+                  <span className="inline-block h-2 w-2 rounded-full bg-amber-400" />
+                  <span className="ml-2 align-middle">Lecture & exam traffic</span>
+                </li>
+                <li>
+                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+                  <span className="ml-2 align-middle">Clubs, events, reservations</span>
+                </li>
+                <li>
+                  <span className="inline-block h-2 w-2 rounded-full bg-sky-400" />
+                  <span className="ml-2 align-middle">Game-day and spike scenarios</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex items-end justify-center px-4 pb-4 md:justify-center md:px-0">
+            <div className="pointer-events-auto w-full max-w-xl rounded-2xl bg-zinc-950/80 p-3 shadow-2xl ring-1 ring-white/10 backdrop-blur">
+              <HeatmapTimeline
+                timeRange={timeRange}
+                currentTime={currentTime}
+                onTimeChange={setCurrentTime}
+                isPlaying={isPlaying}
+                onPlayPause={handlePlayPause}
+              />
+            </div>
+          </div>
+        </div>
+
+        {selectedBuilding && (
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-start px-4 pt-28 md:px-8">
+            <div className="pointer-events-auto w-80 max-w-[calc(100%-2rem)] rounded-2xl bg-zinc-950/80 p-3 shadow-xl ring-1 ring-white/10 backdrop-blur">
+              <BuildingDetail
+                building={selectedBuilding}
+                onClose={() => setSelectedBuilding(null)}
+              />
+            </div>
+          </div>
+        )}
+      </section>
     </main>
   );
 }
