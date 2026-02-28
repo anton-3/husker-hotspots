@@ -21,6 +21,25 @@ export const BUILDING_ZOOM = 18;
 /** Pitch when focused on a building */
 export const BUILDING_PITCH = 60;
 
+/** View state for intro fly-in (zoomed out, lower pitch) */
+export const INTRO_VIEW_STATE = {
+  ...MAP_CENTER,
+  zoom: 14,
+  pitch: 30,
+  bearing: 0,
+} as const;
+
+/** Duration for intro fly-in animation (ms) */
+export const INTRO_FLY_DURATION_MS = 2500;
+
+/** Duration for building flyTo animation (ms) */
+export const BUILDING_FLY_DURATION_MS = 1800;
+
+/** Ease-out quartic for flyTo; Mapbox accepts (t) => number, t in [0,1]. */
+export function easeOutQuartic(t: number): number {
+  return 1 - Math.pow(1 - t, 4);
+}
+
 /** Optional bounds for UNL City Campus (southwest and northeast) */
 export const CAMPUS_BOUNDS = {
   southwest: [-96.708, 40.812] as [number, number],
