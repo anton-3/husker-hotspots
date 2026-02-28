@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import Map, { NavigationControl, type MapRef } from "react-map-gl";
+import Map, { NavigationControl, Layer, type MapRef } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { DEFAULT_VIEW_STATE } from "@/lib/mapConfig";
+import { DEFAULT_VIEW_STATE, CAMPUS_MAX_BOUNDS } from "@/lib/mapConfig";
 import { useMapboxToken } from "./useMapboxToken";
 import { MapboxOverlay } from "./MapboxOverlay";
 import type { LayersList, PickingInfo } from "deck.gl";
@@ -23,6 +23,7 @@ export function CampusMap({
 }: CampusMapProps) {
   const { token, ready } = useMapboxToken();
   const [mounted, setMounted] = useState(false);
+  const [styleLoaded, setStyleLoaded] = useState(false);
   const internalRef = useRef<MapRef | null>(null);
   const mapRef = externalRef ?? internalRef;
 
@@ -51,10 +52,44 @@ export function CampusMap({
       ref={mapRef}
       mapboxAccessToken={token}
       initialViewState={DEFAULT_VIEW_STATE}
-      mapStyle="mapbox://styles/mapbox/standard"
+      mapStyle="mapbox://styles/mapbox/streets-v12"
       style={{ width: "100%", height: "100%" }}
+      maxBounds={CAMPUS_MAX_BOUNDS}
       reuseMaps
+      onLoad={() => setStyleLoaded(true)}
     >
+      {styleLoaded && (
+        <Layer
+          id="3d-buildings"
+          type="fill-extrusion"
+          source="composite"
+          source-layer="building"
+          filter={["==", "extrude", "true"]}
+          minzoom={15}
+          paint={{
+            "fill-extrusion-color": "#aaa",
+            "fill-extrusion-height": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              15,
+              0,
+              15.05,
+              ["get", "height"],
+            ],
+            "fill-extrusion-base": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              15,
+              0,
+              15.05,
+              ["get", "min_height"],
+            ],
+            "fill-extrusion-opacity": 0.9,
+          }}
+        />
+      )}
       <MapboxOverlay interleaved layers={layers} onClick={onClick} />
       <NavigationControl position="top-right" />
     </Map>
