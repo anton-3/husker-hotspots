@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import Map, { NavigationControl } from "react-map-gl";
+import Map, { Source, Layer, NavigationControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { MAP_CONFIG, DATA_SOURCES, type DataSourceId, type DayOfWeek } from "@/lib/map/config";
@@ -10,18 +10,28 @@ import {
   generateDayTimeline,
   generateInsights,
   type TimelineSnapshot,
+  type HeatmapPoint,
 } from "@/lib/map/mock-data";
+import { fetchDensity } from "@/lib/api/density";
+import {
+  heatmapPointsToGeoJSON,
+  getBuildingFootprintsGeoJSON,
+} from "@/lib/map/geojson";
 
-import { DeckGLOverlay } from "./deck-overlay";
-import { useMapLayers } from "./heatmap-layer";
 import { TimelineSlider } from "./timeline-slider";
 import { InsightsPanel } from "./insights-panel";
 import { DataSourceToggle } from "./data-source-toggle";
 import { Legend } from "./legend";
 import { BuildingPopup } from "./building-popup";
 import { MapPin, Layers } from "lucide-react";
+import type { MapLayerMouseEvent } from "mapbox-gl";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+const EMPTY_HEATMAP_GEOJSON: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+  type: "FeatureCollection",
+  features: [],
+};
 
 export function CampusMap() {
   console.log("[v0] CampusMap rendering, token exists:", !!MAPBOX_TOKEN);
@@ -46,6 +56,8 @@ export function CampusMap() {
     new Set(DATA_SOURCES.map((s) => s.id))
   );
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [densityHeatmapPoints, setDensityHeatmapPoints] = useState<HeatmapPoint[] | null>(null);
+  const [densityLoading, setDensityLoading] = useState(false);
 
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const playIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -69,6 +81,50 @@ export function CampusMap() {
       if (playIntervalRef.current) clearInterval(playIntervalRef.current);
     };
   }, [isPlaying, playSpeed]);
+
+  // Fetch combined density from API when day or time changes
+  useEffect(() => {
+    const snapshot = timeline[timeIndex];
+    if (!snapshot) return;
+    const time = `${String(snapshot.time.hour).padStart(2, "0")}:${String(snapshot.time.minute).padStart(2, "0")}`;
+    setDensityLoading(true);
+    fetchDensity({ time, weekday: day })
+      .then((res) => {
+        setDensityHeatmapPoints(res.heatmap_points as HeatmapPoint[]);
+      })
+      .catch(() => {
+        setDensityHeatmapPoints(null);
+      })
+      .finally(() => {
+        setDensityLoading(false);
+      });
+  }, [day, timeIndex, timeline]);
+
+  // Heatmap data as GeoJSON for Mapbox native heatmap layer
+  const heatmapPoints = densityHeatmapPoints ?? currentSnapshot?.heatmapPoints ?? [];
+  const heatmapPointsFiltered = useMemo(() => {
+    if (activeSources.size === 7) return heatmapPoints;
+    const ratio = activeSources.size / 7;
+    return heatmapPoints.map((p) => ({ ...p, weight: p.weight * ratio }));
+  }, [heatmapPoints, activeSources]);
+  const heatmapGeoJSON = useMemo(
+    () =>
+      heatmapPointsFiltered.length > 0
+        ? heatmapPointsToGeoJSON(heatmapPointsFiltered)
+        : EMPTY_HEATMAP_GEOJSON,
+    [heatmapPointsFiltered]
+  );
+
+  // Building footprints as GeoJSON for Mapbox fill layer
+  const buildingGeoJSON = useMemo(
+    () =>
+      getBuildingFootprintsGeoJSON(
+        currentSnapshot?.buildings ?? [],
+        selectedBuilding?.id ?? null,
+        hoveredBuildingId
+      ),
+    [currentSnapshot?.buildings, selectedBuilding?.id, hoveredBuildingId]
+  );
 
   // Building click handler - fly to building
   const handleBuildingClick = useCallback(
@@ -169,16 +225,35 @@ export function CampusMap() {
     }
   }, []);
 
-  // Deck.gl layers
-  const deckLayers = useMapLayers({
-    heatmapPoints: currentSnapshot?.heatmapPoints ?? [],
-    buildingOccupancies: currentSnapshot?.buildings ?? [],
-    selectedBuildingId: selectedBuilding?.id ?? null,
-    hoveredBuildingId,
-    activeSources,
-    onBuildingClick: handleBuildingClick,
-    onBuildingHover: setHoveredBuildingId,
-  });
+  // Map click: building select or deselect
+  const handleMapClick = useCallback(
+    (e: MapLayerMouseEvent) => {
+      const features = e.features;
+      if (features?.length) {
+        const props = features[0].properties as { id?: string } | null;
+        const buildingId = props?.id;
+        const building = buildingId ? BUILDINGS.find((b) => b.id === buildingId) : undefined;
+        if (building) {
+          handleBuildingClick(building);
+          return;
+        }
+      }
+      if (selectedBuilding) {
+        handleCloseBuilding();
+      }
+    },
+    [handleBuildingClick, handleCloseBuilding, selectedBuilding]
+  );
+
+  // Map mouse move: hover building
+  const handleMapMouseMove = useCallback((e: MapLayerMouseEvent) => {
+    const props = e.features?.[0]?.properties as { id?: string } | null;
+    setHoveredBuildingId(props?.id ?? null);
+  }, []);
+
+  const handleMapMouseLeave = useCallback(() => {
+    setHoveredBuildingId(null);
+  }, []);
 
   // Current building occupancy data
   const selectedBuildingOccupancy = selectedBuilding
@@ -259,11 +334,60 @@ export function CampusMap() {
         maxZoom={MAP_CONFIG.maxZoom}
         antialias
         onLoad={handleMapLoad}
+        onClick={handleMapClick}
+        onMouseMove={handleMapMouseMove}
+        onMouseLeave={handleMapMouseLeave}
+        interactiveLayerIds={["building-footprints-fill"]}
         style={{ width: "100%", height: "100%" }}
         cursor={hoveredBuildingId ? "pointer" : "grab"}
       >
         <NavigationControl position="top-right" style={{ marginTop: 80 }} />
-        {mapLoaded && <DeckGLOverlay layers={deckLayers} />}
+
+        {/* Building footprints (under heatmap) */}
+        <Source id="building-footprints" type="geojson" data={buildingGeoJSON}>
+          <Layer
+            id="building-footprints-fill"
+            type="fill"
+            paint={{
+              "fill-color": ["get", "fillColor"],
+              "fill-opacity": 1,
+              "fill-outline-color": ["get", "lineColor"],
+            }}
+          />
+        </Source>
+
+        {/* Heatmap (on top) */}
+        <Source id="heatmap-data" type="geojson" data={heatmapGeoJSON}>
+          <Layer
+            id="heatmap-layer"
+            type="heatmap"
+            paint={{
+              "heatmap-weight": ["get", "weight"],
+              "heatmap-intensity": 1.8,
+              "heatmap-color": [
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0,
+                "rgba(0,0,0,0)",
+                0.1,
+                "rgba(59,130,246,0.35)",
+                0.25,
+                "rgba(34,197,94,0.45)",
+                0.45,
+                "rgba(234,179,8,0.55)",
+                0.6,
+                "rgba(249,115,22,0.7)",
+                0.8,
+                "rgba(239,68,68,0.85)",
+                1,
+                "rgba(220,38,38,0.95)",
+              ],
+              "heatmap-radius": 45,
+              "heatmap-opacity": 0.85,
+            }}
+          />
+        </Source>
       </Map>
 
       {/* Data source toggles */}
