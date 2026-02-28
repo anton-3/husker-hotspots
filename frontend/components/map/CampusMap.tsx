@@ -2,10 +2,11 @@
 
 import { useRef, useState, useEffect } from "react";
 import Map, { NavigationControl, Layer, type MapRef } from "react-map-gl";
+import type { Map as MapboxMap } from "mapbox-gl";
+import { MapboxOverlay as DeckMapboxOverlay } from "@deck.gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { DEFAULT_VIEW_STATE, CAMPUS_MAX_BOUNDS } from "@/lib/mapConfig";
 import { useMapboxToken } from "./useMapboxToken";
-import { MapboxOverlay } from "./MapboxOverlay";
 import type { LayersList, PickingInfo } from "deck.gl";
 
 export interface CampusMapProps {
@@ -13,6 +14,18 @@ export interface CampusMapProps {
   mapRef?: React.RefObject<MapRef | null>;
   onBuildingClick?: (buildingId: string) => void;
   onClick?: (info: PickingInfo) => void;
+  /** Initial camera; defaults to DEFAULT_VIEW_STATE. Use INTRO_VIEW_STATE for intro fly-in. */
+  initialViewState?: {
+    latitude: number;
+    longitude: number;
+    zoom: number;
+    pitch: number;
+    bearing: number;
+  };
+  /** Called when the map style has loaded (after setFog/setTerrain). Use to run intro fly. */
+  onMapLoad?: (map: MapboxMap) => void;
+  /** Mapbox style URL; defaults to dark. */
+  mapStyle?: string;
 }
 
 export function CampusMap({
@@ -20,15 +33,37 @@ export function CampusMap({
   mapRef: externalRef,
   onBuildingClick,
   onClick,
+  initialViewState = DEFAULT_VIEW_STATE,
+  onMapLoad,
+  mapStyle = "mapbox://styles/mapbox/light-v11",
 }: CampusMapProps) {
   const { token, ready } = useMapboxToken();
   const [mounted, setMounted] = useState(false);
   const [styleLoaded, setStyleLoaded] = useState(false);
   const internalRef = useRef<MapRef | null>(null);
   const mapRef = externalRef ?? internalRef;
+  const deckOverlayRef = useRef<{ overlay: InstanceType<typeof DeckMapboxOverlay>; map: MapboxMap } | null>(null);
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Keep deck overlay props in sync; overlay is created in onLoad, so this runs after first load
+  useEffect(() => {
+    const entry = deckOverlayRef.current;
+    if (!entry) return;
+    entry.overlay.setProps({ interleaved: true, layers, onClick });
+  }, [layers, onClick]);
+
+  // Remove overlay on unmount
+  useEffect(() => {
+    return () => {
+      const entry = deckOverlayRef.current;
+      if (entry) {
+        entry.map.removeControl(entry.overlay);
+        deckOverlayRef.current = null;
+      }
+    };
   }, []);
 
   // Same output on server and first client render to avoid hydration mismatch
@@ -51,15 +86,49 @@ export function CampusMap({
     <Map
       ref={mapRef}
       mapboxAccessToken={token}
-      initialViewState={DEFAULT_VIEW_STATE}
-      mapStyle="mapbox://styles/mapbox/streets-v12"
+      initialViewState={initialViewState}
+      mapStyle={mapStyle}
       style={{ width: "100%", height: "100%" }}
       maxBounds={CAMPUS_MAX_BOUNDS}
       reuseMaps
-      onLoad={() => setStyleLoaded(true)}
+      onLoad={() => {
+        setStyleLoaded(true);
+        const map = mapRef.current?.getMap();
+        if (!map) return;
+        map.setFog({
+          range: [-1, 2],
+          "horizon-blend": 0.3,
+          color: "white",
+          "high-color": "#add8e6",
+          "space-color": "#d8f2ff",
+          "star-intensity": 0,
+        });
+        if (!map.getSource("mapbox-dem")) {
+          map.addSource("mapbox-dem", {
+            type: "raster-dem",
+            url: "mapbox://mapbox.terrain-rgb",
+            tileSize: 512,
+            maxzoom: 14,
+          });
+          map.setTerrain({
+            source: "mapbox-dem",
+            exaggeration: 1.2,
+          });
+        }
+        onMapLoad?.(map);
+        // Add deck overlay after the next tick so the 3D buildings Layer (mounted by React when styleLoaded flips) is already on the map; then our overlay is added last and draws on top.
+        const overlay = new DeckMapboxOverlay({ interleaved: true, layers, onClick });
+        requestAnimationFrame(() => {
+          if (!deckOverlayRef.current) {
+            map.addControl(overlay);
+            deckOverlayRef.current = { overlay, map };
+          }
+        });
+      }}
     >
       {styleLoaded && (
-        <Layer
+        <>
+          <Layer
           id="3d-buildings"
           type="fill-extrusion"
           source="composite"
@@ -89,8 +158,8 @@ export function CampusMap({
             "fill-extrusion-opacity": 0.9,
           }}
         />
+        </>
       )}
-      <MapboxOverlay interleaved layers={layers} onClick={onClick} />
       <NavigationControl position="top-right" />
     </Map>
   );
