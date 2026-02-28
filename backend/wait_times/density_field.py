@@ -186,7 +186,7 @@ def generate_people_density_field(
     cols: int = 120,
     rows: int = 90,
     spread: float = 0.3,
-    peak_power: float = 1.28,
+    peak_power: float = 1.0,
 ) -> Dict[str, object]:
     """
     Return a wave-like people density field over the requested bounds.
@@ -204,8 +204,8 @@ def generate_people_density_field(
         raise ValueError("cols and rows must be >= 2")
     if not (0.015 <= spread <= 1.0):
         raise ValueError("spread must be between 0.015 and 1.0")
-    if not (1.0 <= peak_power <= 2.5):
-        raise ValueError("peak_power must be between 1.0 and 2.5")
+    if peak_power != 1.0:
+        raise ValueError("peak_power must be 1.0 to keep output in estimated people units")
 
     sw = southwest if southwest is not None else DEFAULT_BOUNDS["southwest"]
     ne = northeast if northeast is not None else DEFAULT_BOUNDS["northeast"]
@@ -254,10 +254,9 @@ def generate_people_density_field(
 
                 dx = (lng - item["lng"]) / sigma_lng
                 dy = (lat - item["lat"]) / sigma_lat
-                source_weight = people**1.12
-                density += source_weight * math.exp(-0.5 * (dx * dx + dy * dy))
+                density += people * math.exp(-0.5 * (dx * dx + dy * dy))
 
-            row_values.append(round(density**peak_power, 5))
+            row_values.append(round(density, 5))
 
         people_field.append(row_values)
 
