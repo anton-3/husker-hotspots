@@ -5,7 +5,7 @@ import Map, { Source, Layer, NavigationControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { MAP_CONFIG, DATA_SOURCES, type DataSourceId, type DayOfWeek } from "@/lib/map/config";
-import { BUILDINGS, getBuildingById, type Building } from "@/lib/map/buildings";
+import { BUILDINGS, getBuildingById, BUILDING_CODE_TO_RICH_ID, type Building, type CampusBuilding } from "@/lib/map/buildings";
 import {
   generateDayTimeline,
   generateInsights,
@@ -13,9 +13,9 @@ import {
   type HeatmapPoint,
 } from "@/lib/map/mock-data";
 import { useDensity } from "@/lib/api/density";
+import { useCampusBuildings, findClosestBuilding } from "@/lib/api/buildings";
 import {
   heatmapPointsToGeoJSON,
-  getBuildingFootprintsGeoJSON,
 } from "@/lib/map/geojson";
 
 import { TimelineSlider } from "./timeline-slider";
@@ -23,8 +23,12 @@ import { InsightsPanel } from "./insights-panel";
 import { DataSourceToggle } from "./data-source-toggle";
 import { Legend } from "./legend";
 import { BuildingPopup } from "./building-popup";
+import { MinimalBuildingPopup } from "./minimal-building-popup";
 import { MapPin, Layers } from "lucide-react";
 import type { MapLayerMouseEvent } from "mapbox-gl";
+
+/** Selected building can be rich (12) or minimal (from API). */
+type SelectedBuilding = Building | CampusBuilding;
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -36,7 +40,13 @@ const EMPTY_HEATMAP_GEOJSON: GeoJSON.FeatureCollection<GeoJSON.Point> = {
 export function CampusMap() {
   console.log("[v0] CampusMap rendering, token exists:", !!MAPBOX_TOKEN);
   // State
-  const [viewState, setViewState] = useState({
+  const [viewState, setViewState] = useState<{
+    longitude: number;
+    latitude: number;
+    zoom: number;
+    pitch: number;
+    bearing: number;
+  }>({
     longitude: MAP_CONFIG.center[0],
     latitude: MAP_CONFIG.center[1],
     zoom: MAP_CONFIG.defaultZoom,
@@ -48,7 +58,7 @@ export function CampusMap() {
   const [timeIndex, setTimeIndex] = useState(40); // 10:00 AM default (40 = 10*4)
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
-  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<SelectedBuilding | null>(null);
   const [hoveredBuildingId, setHoveredBuildingId] = useState<string | null>(null);
   const [insightsOpen, setInsightsOpen] = useState(true);
   const [showSources, setShowSources] = useState(true);
@@ -123,20 +133,14 @@ export function CampusMap() {
     [heatmapPointsFiltered]
   );
 
-  // Building footprints as GeoJSON for Mapbox fill layer
-  const buildingGeoJSON = useMemo(
-    () =>
-      getBuildingFootprintsGeoJSON(
-        currentSnapshot?.buildings ?? [],
-        selectedBuilding?.id ?? null,
-        hoveredBuildingId
-      ),
-    [currentSnapshot?.buildings, selectedBuilding?.id, hoveredBuildingId]
-  );
+  const { data: campusBuildingsList = [] } = useCampusBuildings();
 
-  // Building click handler - fly to building
+  // Building footprints as GeoJSON for Mapbox fill layer — REMOVED (use 3D buildings for click/hover)
+  // buildingGeoJSON removed
+
+  // Building click handler - fly to building (accepts rich or minimal)
   const handleBuildingClick = useCallback(
-    (building: Building) => {
+    (building: SelectedBuilding) => {
       setSelectedBuilding(building);
       mapRef.current?.flyTo({
         center: building.coordinates,
@@ -233,31 +237,50 @@ export function CampusMap() {
     }
   }, []);
 
-  // Map click: building select or deselect
+  // Map click: query 3D building layer, resolve to campus building, select and fly
   const handleMapClick = useCallback(
     (e: MapLayerMouseEvent) => {
-      const features = e.features;
+      const map = mapRef.current?.getMap();
+      if (!map) return;
+      if (!map.getLayer("3d-buildings")) return; // Layer added in handleMapLoad; not ready yet
+      const features = map.queryRenderedFeatures(e.point, { layers: ["3d-buildings"] });
       if (features?.length) {
-        const props = features[0].properties as { id?: string } | null;
-        const buildingId = props?.id;
-        const building = buildingId ? BUILDINGS.find((b) => b.id === buildingId) : undefined;
-        if (building) {
-          handleBuildingClick(building);
+        const { lng, lat } = e.lngLat;
+        const campus = findClosestBuilding(campusBuildingsList, lng, lat);
+        if (campus) {
+          handleBuildingClick(campus);
           return;
         }
       }
       if (selectedBuilding) {
         handleCloseBuilding();
+      } else {
+        setSelectedBuilding(null);
       }
     },
-    [handleBuildingClick, handleCloseBuilding, selectedBuilding]
+    [campusBuildingsList, handleBuildingClick, handleCloseBuilding, selectedBuilding]
   );
 
-  // Map mouse move: hover building
-  const handleMapMouseMove = useCallback((e: MapLayerMouseEvent) => {
-    const props = e.features?.[0]?.properties as { id?: string } | null;
-    setHoveredBuildingId(props?.id ?? null);
-  }, []);
+  // Map mouse move: hover 3D building, resolve to campus building for cursor
+  const handleMapMouseMove = useCallback(
+    (e: MapLayerMouseEvent) => {
+      const map = mapRef.current?.getMap();
+      if (!map) return;
+      if (!map.getLayer("3d-buildings")) {
+        setHoveredBuildingId(null);
+        return;
+      }
+      const features = map.queryRenderedFeatures(e.point, { layers: ["3d-buildings"] });
+      if (features?.length) {
+        const { lng, lat } = e.lngLat;
+        const campus = findClosestBuilding(campusBuildingsList, lng, lat);
+        setHoveredBuildingId(campus?.id ?? null);
+      } else {
+        setHoveredBuildingId(null);
+      }
+    },
+    [campusBuildingsList]
+  );
 
   const handleMapMouseLeave = useCallback(() => {
     setHoveredBuildingId(null);
@@ -277,12 +300,22 @@ export function CampusMap() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // Current building occupancy data
-  const selectedBuildingOccupancy = selectedBuilding
-    ? currentSnapshot?.buildings.find(
-        (b) => b.buildingId === selectedBuilding.id
-      )
+  // Current building occupancy (only for rich buildings; use rich id for lookup)
+  const richId = selectedBuilding
+    ? "capacity" in selectedBuilding
+      ? selectedBuilding.id
+      : BUILDING_CODE_TO_RICH_ID[selectedBuilding.id] ?? null
     : null;
+  const richBuilding = richId ? getBuildingById(richId) ?? null : null;
+  const selectedBuildingOccupancy =
+    richId && currentSnapshot
+      ? currentSnapshot.buildings.find((b) => b.buildingId === richId) ?? null
+      : null;
+
+  const showFullPopup = Boolean(
+    richBuilding && selectedBuildingOccupancy
+  );
+  const showMinimalPopup = Boolean(selectedBuilding && !showFullPopup);
 
   if (!MAPBOX_TOKEN) {
     console.log("[v0] No Mapbox token found");
@@ -359,24 +392,10 @@ export function CampusMap() {
         onClick={handleMapClick}
         onMouseMove={handleMapMouseMove}
         onMouseLeave={handleMapMouseLeave}
-        interactiveLayerIds={["building-footprints-fill"]}
         style={{ width: "100%", height: "100%" }}
         cursor={hoveredBuildingId ? "pointer" : "grab"}
       >
         <NavigationControl position="top-right" style={{ marginTop: 80 }} />
-
-        {/* Building footprints (under heatmap) */}
-        <Source id="building-footprints" type="geojson" data={buildingGeoJSON}>
-          <Layer
-            id="building-footprints-fill"
-            type="fill"
-            paint={{
-              "fill-color": ["get", "fillColor"],
-              "fill-opacity": 1,
-              "fill-outline-color": ["get", "lineColor"],
-            }}
-          />
-        </Source>
 
         {/* Heatmap (on top) */}
         {showHeatmap && (
@@ -430,14 +449,20 @@ export function CampusMap() {
         onInsightClick={handleInsightClick}
       />
 
-      {/* Building detail popup */}
-      {selectedBuilding && selectedBuildingOccupancy && (
+      {/* Building detail popup: full when rich + occupancy, else minimal */}
+      {showFullPopup && richBuilding && selectedBuildingOccupancy && (
         <BuildingPopup
-          building={selectedBuilding}
+          building={richBuilding}
           currentOccupancy={selectedBuildingOccupancy.occupancyPercent}
           currentOccupantCount={selectedBuildingOccupancy.occupantCount}
           timeline={timeline}
           currentTimeIndex={timeIndex}
+          onClose={handleCloseBuilding}
+        />
+      )}
+      {showMinimalPopup && selectedBuilding && (
+        <MinimalBuildingPopup
+          building={{ id: selectedBuilding.id, name: selectedBuilding.name }}
           onClose={handleCloseBuilding}
         />
       )}
