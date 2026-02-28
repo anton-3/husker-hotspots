@@ -3,6 +3,8 @@
  * Backend returns normalized 0–1 weights for blue→red visualization.
  */
 
+import { useQuery } from "@tanstack/react-query";
+
 export interface DensityHeatmapPoint {
   coordinates: [number, number];
   weight: number;
@@ -59,4 +61,40 @@ export async function fetchDensity(
   }
 
   return res.json() as Promise<DensityResponse>;
+}
+
+// Query key factory for TanStack Query cache
+export function densityQueryKey(time: string, weekday: string) {
+  return ["density", weekday, time] as const;
+}
+
+export type DensityQueryKey = ReturnType<typeof densityQueryKey>;
+
+/** Timeline snapshot type for useDensity (needs time.hour, time.minute). */
+interface TimeSnapshot {
+  time: { hour: number; minute: number };
+}
+
+/**
+ * Fetch density for the current day/time with TanStack Query.
+ * Results are cached by (weekday, time) so moving the slider reuses cached data.
+ */
+export function useDensity(
+  weekday: string,
+  timeIndex: number,
+  timeline: TimeSnapshot[] | undefined
+) {
+  const snapshot = timeline?.[timeIndex];
+  const time =
+    snapshot != null
+      ? `${String(snapshot.time.hour).padStart(2, "0")}:${String(snapshot.time.minute).padStart(2, "0")}`
+      : null;
+
+  return useQuery({
+    queryKey: time != null ? densityQueryKey(time, weekday) : ["density", weekday, "skip"],
+    queryFn: () => fetchDensity({ time: time!, weekday }),
+    enabled: time != null,
+    staleTime: Infinity,
+    placeholderData: (previousData) => previousData,
+  });
 }

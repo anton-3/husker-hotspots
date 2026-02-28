@@ -12,7 +12,7 @@ import {
   type TimelineSnapshot,
   type HeatmapPoint,
 } from "@/lib/map/mock-data";
-import { fetchDensity } from "@/lib/api/density";
+import { useDensity } from "@/lib/api/density";
 import {
   heatmapPointsToGeoJSON,
   getBuildingFootprintsGeoJSON,
@@ -56,8 +56,6 @@ export function CampusMap() {
     new Set(DATA_SOURCES.map((s) => s.id))
   );
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [densityHeatmapPoints, setDensityHeatmapPoints] = useState<HeatmapPoint[] | null>(null);
-  const [densityLoading, setDensityLoading] = useState(false);
 
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const lastTickTimeRef = useRef<number>(0);
@@ -105,26 +103,12 @@ export function CampusMap() {
     lastTickTimeRef.current = Date.now();
   }, []);
 
-  // Fetch combined density from API when day or time changes
-  useEffect(() => {
-    const snapshot = timeline[timeIndex];
-    if (!snapshot) return;
-    const time = `${String(snapshot.time.hour).padStart(2, "0")}:${String(snapshot.time.minute).padStart(2, "0")}`;
-    setDensityLoading(true);
-    fetchDensity({ time, weekday: day })
-      .then((res) => {
-        setDensityHeatmapPoints(res.heatmap_points as HeatmapPoint[]);
-      })
-      .catch(() => {
-        setDensityHeatmapPoints(null);
-      })
-      .finally(() => {
-        setDensityLoading(false);
-      });
-  }, [day, timeIndex, timeline]);
+  // Density from API (cached by TanStack Query per day + time)
+  const { data: densityData, isPending: densityLoading } = useDensity(day, timeIndex, timeline);
+  const densityHeatmapPoints = densityData?.heatmap_points ?? null;
 
-  // Heatmap data as GeoJSON for Mapbox native heatmap layer
-  const heatmapPoints = densityHeatmapPoints ?? currentSnapshot?.heatmapPoints ?? [];
+  // Heatmap: use only API density data; keep previous frame's data while loading (no mock fallback)
+  const heatmapPoints = densityHeatmapPoints ?? [];
   const heatmapPointsFiltered = useMemo(() => {
     if (activeSources.size === 7) return heatmapPoints;
     const ratio = activeSources.size / 7;
