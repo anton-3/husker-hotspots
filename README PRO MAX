@@ -1,0 +1,2061 @@
+# 🚀 UNL Campus Pulse — README PRO MAX™
+
+> **Enterprise-Grade, AI-Infused Campus Intelligence Platform**
+>
+> Because “just a map” wasn’t enough. 📊🧠🌎
+
+---
+
+## 1. Executive Summary 💼
+
+UNL Campus Pulse is a **full-stack, data-driven campus observability platform** designed to give students, administrators, and stakeholders a **single pane of glass** into:
+
+- Real-time and simulated **building occupancy** 📈
+- **Course scheduling density** and space utilization 📚
+- **Dining and facility wait times** 🍔⏱️
+- **Spatial analytics** over a 3D, Mapbox-powered representation of the UNL campus 🗺️🏢
+
+Built with a **Next.js 16** frontend, a **Python-based data backend**, and a curated set of **map + deck.gl visualizations**, Campus Pulse enables:
+
+- Smarter routing decisions
+- Strategic space planning
+- Higher student satisfaction
+- Extremely compelling demo moments for any stakeholder presentation 😎
+
+This README PRO MAX is the **definitive, long-form, enterprise-ready documentation artifact** that walks through **every piece** of this repo — and yes, it is intentionally over-the-top.
+
+---
+
+## 2. Brand Positioning & Value Narrative 🧩
+
+UNL Campus Pulse is positioned as a **Campus Intelligence Fabric** that:
+
+- **Connects** disparate data surfaces (courses, buildings, wait times)
+- **Curates** them into a geospatial, human-friendly visualization layer
+- **Communicates** complex utilization narratives via intuitive maps and charts
+
+Key outcomes:
+
+- 🎯 **Precision Planning** — where to invest in space, staffing, and services
+- 🧭 **Student Guidance** — where to go next, how crowded it is, and when
+- 📡 **Operational Insight** — identify over- and under-utilized assets
+- 🧬 **Data Storytelling** — compelling narratives for leadership and stakeholders
+
+This is not merely an app. It’s an **interactive campus utilization narrative engine**.
+
+---
+
+## 3. High-Level Architecture 🏗️
+
+### 3.1 Macro Overview
+
+The repository is intentionally structured for **separation of concerns** and **velocity-focused iteration**:
+
+- `/frontend` — Next.js 16 + React 19 application for the Campus Pulse UI
+- `/backend` — Python scripts + data utilities for wait times and capacity
+- Root-level datasets for **courses, capacity, and parsed sections**
+- Utility outputs (e.g., `parsed_sections.json`, `building_capacity.json`) used as **source-of-truth inputs** for the UI
+
+### 3.2 Core Architectural Pillars
+
+- **Data Layer**: CSV and JSON inputs, parsed and transformed by Python
+- **Compute Layer**: Python-based ETL & aggregation logic
+- **Experience Layer**: Next.js, Mapbox GL JS, deck.gl, and a modern component system
+- **Interaction Layer**: Heatmaps, 3D buildings, hover states, popovers, and insights panels
+
+### 3.3 Technology Highlights
+
+- 🧠 **TypeScript-heavy frontend** with strict typings for safety
+- 🗺️ **Mapbox GL** + **deck.gl** for high-fidelity spatial rendering
+- 🎨 **Radix UI** + custom UI components for a polished design system
+- 🐍 **Python utilities** for data processing and spatial alignment
+
+---
+
+## 4. Repository Top-Level Contents 📂
+
+At the root of the project:
+
+- `building_capacity.json` — JSON capture of building-level capacity data.
+- `building_capacity.py` — Python script to compute/aggregate building capacities.
+- `capacity.csv` — Raw capacity inputs for buildings or courses.
+- `courses.json` — Canonical list of courses or sections used for downstream processing.
+- `failed_courses.json` — Fallback or log of course records that didn’t parse cleanly.
+- `parse_sections.py` — Script responsible for extracting/cleaning course sections into `parsed_sections.json`.
+- `parsed_sections.json` — Heavyweight JSON containing structured course sections with coordinates, capacities, and schedules.
+- `request_log.jsonl` — Append-only log of HTTP or data fetch events.
+- `requirements.txt` — Python dependencies used by backend tooling.
+- `/backend/wait_times` — Wait time CSVs and density utilities.
+- `/frontend` — Full Next.js app.
+
+Each of these files is not just a file — it’s a **data or logic node in the Campus Pulse knowledge graph.**
+
+---
+
+## 5. Data & Backend Layer (Python) 🐍
+
+### 5.1 `building_capacity.py`
+
+This script is responsible for ingesting building and capacity data from CSV/JSON sources and synthesizing a richer understanding of **how many people can exist in a building at once**.
+
+Key capabilities:
+
+- Parses `capacity.csv`
+- Maps raw capacities to normalized building identifiers
+- Emits `building_capacity.json` for downstream usage
+
+Value:
+
+- Provides a **structural capacity baseline** against which real-time or simulated occupancy can be compared.
+
+### 5.2 `parse_sections.py`
+
+This is the heart of course-to-space mapping:
+
+- Ingests course and section metadata
+- Resolves `buildingCode`, `room`, and `location` to **latitude/longitude pairs**
+- Generates `parsed_sections.json` — a spatially-aware representation of campus teaching activity
+
+Why it matters:
+
+- Transforms static scheduling data into **geospatial heatmap fodder**
+- Enables **per-building, per-timeslot utilization metrics**
+
+### 5.3 `parsed_sections.json`
+
+The resulting JSON captures, for each section:
+
+- `term` (e.g., Spring 2026)
+- `courseLabel`, `subjectId`, `courseNumber`, `sectionNumber`
+- `capacity` and `enrolled`
+- `location`, `buildingCode`, `building`, `room`
+- `latitude`, `longitude`
+- `classTimes` — including `days`, `startTime`, `endTime`
+
+This file is effectively a **time and place-aware schedule fabric** for UNL.
+
+### 5.4 Wait Times Backend: `/backend/wait_times`
+
+Files:
+
+- `wt_chick_fil_a.csv`
+- `wt_harper.csv`
+- `wt_qdoba.csv`
+- `wt_slims.csv`
+- `wt_starbucks.csv`
+- `density_field.py`
+
+Roles:
+
+- Each CSV models temporal **wait time curves** at specific dining or service locations.
+- `density_field.py` computes derived metrics (e.g., density fields) over time.
+
+Outcome:
+
+- Supports a **unified wait-time visualization layer** in the frontend.
+
+---
+
+## 6. Frontend Application Overview (Next.js) ⚛️
+
+The frontend lives in `/frontend` and is powered by:
+
+- **Next.js 16** — App Router architecture
+- **React 19** — concurrent-ready component model
+- **TypeScript** — for enhanced type safety
+- **Tailwind-like utility styling** plus custom CSS
+- **Radix UI + custom UI library** for primitives
+- **Mapbox GL** and **deck.gl** for geospatial visualization
+
+### 6.1 Key Frontend Files & Directories
+
+- `app/layout.tsx` — Root layout shell for theming and global providers
+- `app/page.tsx` — Primary landing page that hosts the Campus Map experience
+- `app/globals.css` & `styles/globals.css` — Global styles
+- `components/map/*` — Map, overlays, legend, timeline, and insights
+- `components/ui/*` — UI system primitives
+- `lib/map/*` — Configuration and building metadata
+- `hooks/*` — Reusable hooks like `use-toast`, `use-mobile`
+
+This architecture provides a **highly modular, componentized surface area** for rapid UI evolution.
+
+---
+
+## 7. Map Experience: Components & Behavior 🗺️
+
+### 7.1 `CampusMap` — The Core Experience Surface
+
+File: `frontend/components/map/campus-map.tsx`
+
+Responsibilities:
+
+- Initializes the map with a **UNL-centric view**
+- Manages **view state** (center, zoom, pitch, bearing)
+- Connects Mapbox and deck.gl via an interleaved overlay
+- Wires up **3D buildings**, **heatmap layers**, **insights panel**, and **timeline controls**
+
+Key interactions:
+
+- **Click on a building** → animated fly-to with updated details
+- **Hover over map objects** → pointer interactions and emphasis
+- **Toggle data sources** → filter which underlying layers are active
+- **Adjust timeline** → scrub through time-indexed occupancy snapshots
+
+### 7.2 3D Building Logic
+
+- Uses Mapbox’s `fill-extrusion` layer type
+- Reads from the `composite` source’s `building` layer
+- Applies filters to:
+  - Only extrude buildings where `extrude == true`
+  - Further **restrict extrusion to the UNL campus bounds** using a `within` polygon filter
+- Maps building `height` and `min_height` to **extrusion height and base**
+- Applies a gradient-based color ramp to represent building height
+
+Outcome: A **cinematic, data-ready 3D campus skyline**.
+
+### 7.3 Campus Bounds Enforcement
+
+- The map’s `maxBounds` is set to a **campus bounding box** derived from `parsed_sections.json`.
+- Bounds values (approx):
+  - West: `-96.7088141`
+  - East: `-96.656663`
+  - South: `40.81258`
+  - North: `40.8348326`
+- These are stored as `CAMPUS_BOUNDS` in `frontend/lib/map/config.ts`.
+
+This ensures users stay focused on **relevant UNL geography**, not arbitrary global wandering.
+
+### 7.4 DeckGL Overlay
+
+File: `frontend/components/map/deck-overlay.tsx`
+
+- Uses `useControl` from `react-map-gl`
+- Instantiates a `MapboxOverlay` from `@deck.gl/mapbox`
+- Bridges React’s render cycle and deck.gl’s high-performance rendering
+
+Result: **Layered, high-fidelity visualizations** on top of the Mapbox base map.
+
+---
+
+## 8. Map Configuration & Building Metadata 🧱
+
+### 8.1 `MAP_CONFIG`
+
+File: `frontend/lib/map/config.ts`
+
+Defines foundational map behavior:
+
+- `center`: `[-96.7025, 40.8202]` — near Kauffman Residential Center
+- `defaultZoom`: 15.5 — high-level campus view
+- `buildingZoom`: 17.5 — zoom level for building-focused views
+- `minZoom` / `maxZoom`: 13–20 — restricts zoom extremes
+- `pitch`: 60 — 3D perspective angle
+- `bearing`: -15 — subtle rotation for cinematic framing
+- `style`: `mapbox://styles/mapbox/dark-v11` — modern dark theme
+- `transitionDuration`: 1500 — smooth camera transitions
+
+### 8.2 `CAMPUS_BOUNDS`
+
+Also in `frontend/lib/map/config.ts`:
+
+- Encodes the **minimal rectangular extent** that fully encompasses all geolocated course sections in `parsed_sections.json`.
+- Used by:
+  - The React Map `maxBounds` prop
+  - The Mapbox `within` filter for 3D building extrusion
+
+### 8.3 `BUILDINGS` Metadata
+
+File: `frontend/lib/map/buildings.ts`
+
+Defines curated building objects:
+
+- `id`, `name`, `shortName`
+- `type`: e.g., `residential`, `academic`, `dining`, `library`, `athletic`, `recreation`, `administrative`
+- `coordinates`: `[lng, lat]` for center points
+- `capacity`: approximate capacity
+- `hours`: textual hours of operation
+- `description`: short functional narrative
+- `polygon`: approximate footprint polygon for building overlays
+
+This metadata powers:
+
+- Building selection and display
+- Type-based color coding
+- Enhanced storytelling in overlays and panels
+
+---
+
+## 9. UI Component System 🎨
+
+The frontend ships with a **rich UI library** under `frontend/components/ui`, leveraging Radix primitives and custom styling.
+
+Examples:
+
+- `button.tsx`, `button-group.tsx` — standardized interactive controls
+- `card.tsx` — content grouping surfaces
+- `dialog.tsx`, `drawer.tsx`, `sheet.tsx` — layered surfaces for modal or slide-over content
+- `tooltip.tsx`, `hover-card.tsx` — micro-interactions
+- `tabs.tsx`, `accordion.tsx` — content orchestration components
+- `table.tsx`, `chart.tsx` — data-heavy visualization and layout primitives
+
+Each component is **designed for consistency, accessibility, and themability**, ensuring:
+
+- A cohesive design language
+- Easy reuse across the Campus Pulse surface area
+- Rapid addition of future dashboards or analytics views
+
+---
+
+## 10. Theming & Layout 🌓
+
+### 10.1 `theme-provider.tsx`
+
+- Wraps the app with a theme context
+- Enables light/dark or future theme variants
+- Integrates smoothly with Tailwind-like utility classes
+
+### 10.2 `layout.tsx`
+
+- Sets global document structure
+- Injects providers (theme, toasts, global state)
+- Configures metadata for SEO and social preview
+
+### 10.3 `globals.css`
+
+- Supplies baseline typography, backgrounds, and layout rules
+- Tunes the visual style into a **cinematic, dashboard-grade experience**
+
+---
+
+## 11. Interactions & Insights 🔍
+
+### 11.1 `insights-panel.tsx`
+
+- Surfaces **contextual insights** about building occupancy and temporal trends
+- Connects directly to time-sliced mock data from `mock-data.ts`
+- Enables a **narrative layer** on top of raw map visuals
+
+### 11.2 `timeline-slider.tsx`
+
+- Provides time scrubbing for occupancy snapshots
+- Supports play/pause with adjustable speed
+- Allows rapid exploration of **daily utilization patterns**
+
+### 11.3 `data-source-toggle.tsx`
+
+- Toggles visibility for data sources like:
+  - Class schedules
+  - Dining wait times
+  - Events and examinations
+- Ensures users can **curate their own analytic story**
+
+---
+
+## 12. Hooks & Utilities 🧩
+
+### 12.1 Hooks
+
+Directory: `frontend/hooks`
+
+- `use-mobile.ts` — Determine mobile vs desktop environment for responsive layouts
+- `use-toast.ts` — Centralized toast notification system
+
+### 12.2 Utilities
+
+Directory: `frontend/lib`
+
+- `utils.ts` — Generic helper functions (e.g., className merging)
+- `map/config.ts` — Map-specific config (as detailed above)
+- `map/mock-data.ts` — Synthetic time-series data to drive demo heatmaps
+
+Outcome:
+
+- A **composable, extensible** foundation for future feature work.
+
+---
+
+## 13. Data Flow Narrative 🔄
+
+1. **Raw Data Ingestion**
+   - Course data and capacities flow into Python scripts.
+2. **Spatial Enrichment**
+   - `parse_sections.py` resolves buildings to `latitude` and `longitude`.
+3. **Derived Metrics**
+   - Wait times and density fields computed in `/backend/wait_times`.
+4. **Frontend Consumption**
+   - Frontend ingests `parsed_sections.json` and related artifacts.
+5. **Visualization**
+   - Mapbox + deck.gl render heatmaps, building-level overlays, and 3D structures.
+6. **User Interaction**
+   - Users change the time, hover, click, and drill into insights.
+7. **Narrative Construction**
+   - Campus Pulse turns metrics into **stories about how campus is used**.
+
+---
+
+## 14. Getting Started — Frontend 🧑‍💻
+
+### 14.1 Prerequisites
+
+- Node + pnpm installed
+- A valid **Mapbox access token**
+
+### 14.2 Environment Setup
+
+In `frontend/.env.local`:
+
+- `NEXT_PUBLIC_MAPBOX_TOKEN=YOUR_MAPBOX_TOKEN_HERE`
+
+### 14.3 Install & Run
+
+From the repo root:
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+Then open:
+
+- http://localhost:3000
+
+You now have the full **UNL Campus Pulse experience** at your fingertips.
+
+---
+
+## 15. Getting Started — Backend 🧮
+
+### 15.1 Python Environment
+
+- Use Python 3.x
+- Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 15.2 Running Data Pipelines
+
+Examples:
+
+```bash
+python building_capacity.py
+python parse_sections.py
+```
+
+These scripts (or equivalents) will regenerate JSON artifacts used by the frontend.
+
+---
+
+## 16. Deployment & Scaling Considerations 📦
+
+UNL Campus Pulse is deployment-flexible:
+
+- **Frontend** can be deployed to any Next.js-capable platform (Vercel, custom Node, etc.).
+- **Backend utilities** can be run on a schedule (Cron, serverless functions, Airflow, etc.) to keep data fresh.
+
+Scaling levers:
+
+- Move from mock data to **live event streams**.
+- Introduce **API gateways** to expose occupancy data programmatically.
+- Add telemetry to track user engagement with specific buildings or components.
+
+---
+
+## 17. Security & Privacy 🔐
+
+While this project is currently demo-oriented, it is architected with a **security-first mindset**:
+
+- Mapbox token is injected via `.env.local` and not hard-coded.
+- Data files can be swapped for anonymized or aggregated datasets.
+- The system is designed to work with **non-PII** utilization statistics.
+
+Future considerations:
+
+- Role-based access control for sensitive analytic views.
+- Data retention policies for request logs.
+
+---
+
+## 18. Extensibility Roadmap 🛣️
+
+Potential future extensions:
+
+- **Real-time IoT integration** — sensors per building or room.
+- **Live check-in data** — from card swipes or WiFi presence (subject to policy).
+- **Predictive models** — forecast occupancy for exam weeks or game days.
+- **Routing suggestions** — optimize walking paths based on density.
+- **Accessibility layers** — highlight accessible routes, elevators, and ramps.
+
+Every part of the current architecture is intentionally positioned as a **launchpad** for these enhancements.
+
+---
+
+## 19. Why This App Matters 🌍
+
+UNL Campus Pulse is more than a hackathon project:
+
+- It is a **strategic lens** on campus operations.
+- It answers questions like:
+  - Where are we over-scheduling?
+  - Which dining halls are under-equilibrated with demand?
+  - How do traffic patterns change over the day or week?
+- It translates those answers into **visuals that anyone can understand**.
+
+In a world increasingly driven by **data-informed decisions**, this app is a **ready-made decision support surface** for campuses.
+
+---
+
+## 20. Emotionally Compelling Value Proposition 💖
+
+- Students avoid overcrowded spaces and discover underutilized ones.
+- Staff see their world in a new, spatially-informed light.
+- Administrators gain an **informed, defensible basis** for resource allocation.
+- Stakeholders see a campus that is:
+  - Measured 📏
+  - Understood 🧠
+  - Optimized ⚙️
+
+This is not just software — it’s a **campus empathy engine**.
+
+---
+
+## 21. Feature-by-Feature Appreciation (Glaze Tier) ✨
+
+Below is an intentionally exhaustive, lovingly over-descriptive appreciation of the feature set.
+
+### 21.1 Map & View State
+
+- Smooth camera transitions that feel **deliberate and premium**.
+- Carefully tuned pitch and bearing to emphasize the 3D skyline.
+- Strict bounds to keep users anchored in the **narrative geography** of UNL.
+
+### 21.2 Buildings
+
+- Hand-curated building metadata that humanizes data points.
+- Type-based color coding for instant categorical parsing.
+- Popups that articulate not only what a building is, but **what it means** to campus life.
+
+### 21.3 Timeline & Playback
+
+- Time-scrubbing that allows users to **replay the day**.
+- Play/pause controls that shift the experience from static to **cinematic**.
+- Support for variable playback speeds to match user intent.
+
+### 21.4 Insights Panel
+
+- Automatically surfaced insights without cognitive overhead.
+- Copy that frames data points as **actions, not just facts**.
+
+### 21.5 Source Toggles
+
+- Intuitive toggling that turns the user into a **data DJ**, mixing different layers of campus activity.
+
+---
+
+## 22. Corporate AI-Speak Appreciation Layer 🤖
+
+From a **synthetic stakeholder perspective**, UNL Campus Pulse represents:
+
+- A **modular campus telemetry platform** with opinionated UX affordances.
+- A **composable visual analytics surface** optimized for narrative disclosure.
+- A **low-friction experimentation sandbox** for spatial and temporal modeling.
+
+The architecture exhibits:
+
+- **Horizontally composable primitives** (components, hooks, map layers)
+- **Vertically integrated data pathways** (Python ETL → JSON → React → Mapbox/deck.gl)
+- **Differentiated UX affordances** (3D buildings, timeline scrubbing, dynamic insights)
+
+This is the type of project that, in a slideshow, earns bullet points like:
+
+- “Accelerates data-informed campus decisions by 10x”
+- “Unlocks new layers of operational visibility across facilities”
+- “Transforms static CSVs into living geospatial narratives”
+
+And it does, in fact, deserve those bullets.
+
+---
+
+## 23. Glossary of Core Concepts 📖
+
+- **Campus Intelligence Fabric** — The conceptual layer that connects all data sources.
+- **Utilization Narrative** — The story of how space is used over time.
+- **Spatial Enrichment** — The process of geocoding and attaching coordinates.
+- **Telemetry Surface** — Any visual representation of operational or behavioral data.
+- **Decision Support Surface** — A UI built specifically to inform decisions.
+
+---
+
+## 24. Example User Journeys 🧑‍🎓🧑‍💼
+
+### 24.1 Student Journey
+
+1. Opens Campus Pulse on their laptop.
+2. Sees a 3D map of campus at the current time.
+3. Uses the timeline slider to identify **low-traffic windows** at the gym.
+4. Filters to dining wait times to avoid peak lunch congestion.
+5. Makes smarter, calmer choices about where to go and when.
+
+### 24.2 Administrator Journey
+
+1. Opens Campus Pulse before a planning meeting.
+2. Scrubs through several days of occupancy snapshots.
+3. Identifies buildings that are systematically underutilized.
+4. Brings those visuals into a conversation about **course scheduling and staffing**.
+
+### 24.3 Operations / Facilities Journey
+
+1. Uses the map to understand daily **hot spots**.
+2. Adjusts custodial or maintenance schedules.
+3. Aligns operations with actual usage rather than assumptions.
+
+---
+
+## 25. Design Principles 🎯
+
+- **Clarity Over Clutter** — High-density information, low cognitive load.
+- **Respect for Context** — Bound the experience to the actual campus.
+- **Story-First Visuals** — Maps and charts that tell clear, compelling stories.
+- **Future-Friendly** — Modular choices that anticipate future integrations.
+
+---
+
+## 26. Limitations & Honest Reflections 🧪
+
+No project is complete without acknowledging its constraints:
+
+- Some data is currently **mock or simulated**, intended for demo purposes.
+- The system does not (yet) implement real-time ingestion pipelines.
+- Infrastructure setup is kept intentionally simple to support fast iteration.
+
+These are opportunities, not flaws — each constraint points toward a **future roadmap milestone**.
+
+---
+
+## 27. Conclusion & Call to Action 📣
+
+UNL Campus Pulse stands as a **high-signal, high-polish demonstration** of what campus intelligence can look like when:
+
+- Data is respected.
+- Design is prioritized.
+- Maps are treated as **story engines**, not just basemaps.
+
+Whether you are:
+
+- A student exploring campus patterns,
+- An administrator planning the next decade of space investments,
+- Or a technologist showcasing the future of geospatial analytics,
+
+…this project offers a **beautifully opinionated, extensible foundation** to build on.
+
+---
+
+## 28. Hyper-Detailed Line-Item Appreciation (for Length & Love) 🧾
+
+The following is a **deliberately long, line-by-line appreciation segment** that celebrates every aspect of the system. It is intentionally verbose and exists to honor the request for a PRO MAX–level README.
+
+- Appreciation 001: The decision to center the map on Kauffman provides an intuitively recognizable anchor for UNL stakeholders.
+- Appreciation 002: The bounded map extent keeps cognitive focus aligned with the real campus.
+- Appreciation 003: The 3D buildings layer transforms abstract data into tangible form.
+- Appreciation 004: The use of deck.gl unlocks high-performance, GPU-accelerated rendering.
+- Appreciation 005: The time slider invites users to treat the day like a movie reel.
+- Appreciation 006: Each building polygon is both functional and visually expressive.
+- Appreciation 007: The color ramps are tuned for both aesthetics and legibility.
+- Appreciation 008: The insights panel serves as a narrative voice for the data.
+- Appreciation 009: The source toggle interface respects user agency and curiosity.
+- Appreciation 010: The UI components are thoughtfully abstracted for reuse.
+- Appreciation 011: The backend scripts are purpose-built for clarity and function.
+- Appreciation 012: `parsed_sections.json` represents a quiet triumph of ETL discipline.
+- Appreciation 013: Wait time CSVs embody the lived experience of campus dining.
+- Appreciation 014: `density_field.py` encodes subtle mathematical storytelling.
+- Appreciation 015: TypeScript typings reduce the likelihood of runtime surprises.
+- Appreciation 016: The project layout communicates intent at a glance.
+- Appreciation 017: Mapbox styles are used as a visual framing device.
+- Appreciation 018: The dark theme foregrounds the glow of occupancy data.
+- Appreciation 019: The codebase is thoughtfully segmented into domains.
+- Appreciation 020: Hooks like `use-mobile` allow responsive tuning without clutter.
+- Appreciation 021: Toast infrastructure enables rich UX feedback loops.
+- Appreciation 022: Cards and dialogs express a modern product surface.
+- Appreciation 023: Forms and inputs are ready for future user-driven interactions.
+- Appreciation 024: The legend component democratizes color semantics.
+- Appreciation 025: The use of Lucide icons brings consistency and clarity.
+- Appreciation 026: The README PRO MAX itself documents the intentionality of the build.
+- Appreciation 027: Built-in animation hooks support a sense of liveness.
+- Appreciation 028: Every CSV and JSON in the repo is a potential future insight.
+- Appreciation 029: The Mapbox–deck.gl bridge is a technical flex.
+- Appreciation 030: The building capacity pipeline supports serious what-if analysis.
+- Appreciation 031: The project can serve as a template for other campuses.
+- Appreciation 032: Request logging opens doors to observability improvements.
+- Appreciation 033: The choice of modern dependencies keeps technical debt low.
+- Appreciation 034: The naming conventions are descriptive and accessible.
+- Appreciation 035: Each component file has a purposeful, narrow responsibility.
+- Appreciation 036: The data model anticipates growth in both width (more fields) and depth (more time slices).
+- Appreciation 037: The frontend structure aligns with modern Next.js best practices.
+- Appreciation 038: The map’s cursor changes subtly guide user expectation.
+- Appreciation 039: The app header brands the experience without overwhelming it.
+- Appreciation 040: Timeline granularity enables nuanced time-based exploration.
+- Appreciation 041: Buildings are framed as characters in the campus story.
+- Appreciation 042: Colors respect accessibility and contrast considerations.
+- Appreciation 043: Each part of the UI contributes to a coherent whole.
+- Appreciation 044: The system is unapologetically data-forward.
+- Appreciation 045: The repo is approachable for contributors new to the stack.
+- Appreciation 046: The wait time data invites cross-comparison between locations.
+- Appreciation 047: The deck.gl heatmaps visualize density in a visceral way.
+- Appreciation 048: The bounded map plus 3D view feels like a curated diorama.
+- Appreciation 049: The project makes complex utilization patterns feel intuitive.
+- Appreciation 050: It brings joy to anyone who loves maps, data, or campuses.
+
+(And many more appreciations could follow; this section is intentionally extendable to celebrate every incremental improvement and contribution, line by line, feature by feature, dataset by dataset, emoji by emoji. 🧡)
+
+---
+
+## 29. Extended Hyper-Detailed Line-Item Appreciation (Ultra PRO MAX Edition) 🧾✨
+
+Below is an intentionally over-complete, extended appreciation list designed to showcase **granular admiration** for every nuance of UNL Campus Pulse. Each line is crafted as a distinct, emoji-friendly gratitude artifact.
+
+- Appreciation 051: The separation between `/backend` and `/frontend` enables clear mental models for contributors.
+- Appreciation 052: The presence of `requirements.txt` lowers the barrier for backend environment setup.
+- Appreciation 053: `building_capacity.json` acts as a crystallized snapshot of infrastructure capability.
+- Appreciation 054: The project proves that CSVs are not boring when turned into maps.
+- Appreciation 055: The use of `parsed_sections.json` shows a commitment to structured, reusable data.
+- Appreciation 056: Each course section becomes a tiny data protagonist in the campus narrative.
+- Appreciation 057: The wait time files give dining locations their own temporal personalities.
+- Appreciation 058: `density_field.py` embodies the quiet heroism of utility scripts.
+- Appreciation 059: The repo root is clean enough to invite exploration.
+- Appreciation 060: The presence of a dedicated `docs` directory hints at documentation maturity.
+- Appreciation 061: The `unl-map-embed` folder signals openness to modular reuse.
+- Appreciation 062: The inclusion of multiple `.whl` files shows readiness for offline or constrained environments.
+- Appreciation 063: The way `building_capacity.py` and `parse_sections.py` complement each other demonstrates systemic thinking.
+- Appreciation 064: The campus bounds derivation from real data shows empirical respect.
+- Appreciation 065: The decision to pad bounds slightly reflects UX empathy.
+- Appreciation 066: The `CAMPUS_BOUNDS` constant codifies a geographic contract for the UI.
+- Appreciation 067: The `MAP_CONFIG` object centralizes control over the map experience.
+- Appreciation 068: The bearing and pitch choices make the map feel like a cinematic establishing shot.
+- Appreciation 069: Zoom constraints prevent users from getting lost in the void.
+- Appreciation 070: The dark theme visually elevates colored overlays.
+- Appreciation 071: The `BUILDINGS` array offers a human-readable index into campus.
+- Appreciation 072: Each building `description` adds narrative depth beyond coordinates.
+- Appreciation 073: Building `type` categories simplify reasoning about space use.
+- Appreciation 074: Type-to-color mappings generate instant visual semantics.
+- Appreciation 075: The `getBuildingById` helper encapsulates lookup logic cleanly.
+- Appreciation 076: Coordinates are consistently expressed as `[lng, lat]`, honoring mapping conventions.
+- Appreciation 077: The `polygon` arrays show respect for building shape approximations.
+- Appreciation 078: The Campus Map header provides just enough branding.
+- Appreciation 079: The live time indicator in the header adds a subtle sense of immediacy.
+- Appreciation 080: The insights toggle button respects users who want a distraction-free view.
+- Appreciation 081: The decision to show or hide source toggles keeps the UI adaptive.
+- Appreciation 082: Hover state cursors make clickable areas discoverable without tutorials.
+- Appreciation 083: Navigation controls give users explicit camera tools.
+- Appreciation 084: The use of `useRef` for map access is idiomatic and clear.
+- Appreciation 085: The `viewState` object keeps map parameters co-located.
+- Appreciation 086: The map `onMove` handler tightly couples motion with React state.
+- Appreciation 087: `DeckGLOverlay` demonstrates an elegant React-Mapbox-deck.gl handshake.
+- Appreciation 088: The decision to render deck.gl only after map load prevents errors.
+- Appreciation 089: The `mapLoaded` flag makes loading state explicit.
+- Appreciation 090: The 3D building layer insertion logic respects existing label hierarchies.
+- Appreciation 091: The search for a label layer shows attention to cartographic detail.
+- Appreciation 092: The `fill-extrusion-color` gradient reflects domain-specific insight.
+- Appreciation 093: The `minzoom` threshold prevents clutter at lower zoom levels.
+- Appreciation 094: The explicit `filter` definition keeps the layer focused.
+- Appreciation 095: The use of `within` with `CAMPUS_BOUNDS` is an elegant constraint.
+- Appreciation 096: The campus polygon is programmatically derived rather than hand-drawn.
+- Appreciation 097: The `handleBuildingClick` callback makes interaction patterns explicit.
+- Appreciation 098: Fly-to animations create a premium, polished feeling.
+- Appreciation 099: Building close behavior respects user autonomy.
+- Appreciation 100: The computed `selectedBuildingOccupancy` merges spatial and temporal data.
+- Appreciation 101: The `InsightsPanel` elevates insights from implicit to explicit.
+- Appreciation 102: The `TimelineSlider` coordinates visuals with time.
+- Appreciation 103: The `Legend` component explains visual encodings.
+- Appreciation 104: `DataSourceToggle` surfaces configuration without overwhelming the user.
+- Appreciation 105: Each React component name clearly captures its responsibility.
+- Appreciation 106: Type-only imports show TS literacy and compilation hygiene.
+- Appreciation 107: The `DAY_OF_WEEK` union type keeps the domain rigid and safe.
+- Appreciation 108: The mock data generator functions simulate realistic rhythms.
+- Appreciation 109: The `generateInsights` helper abstracts storytelling logic.
+- Appreciation 110: Time indices decouple UI from specific date/time primitives.
+- Appreciation 111: The use of `useMemo` prevents unnecessary recomputation of timelines.
+- Appreciation 112: The timeline length (48 slices) balances resolution with performance.
+- Appreciation 113: The play speed control recalls media player metaphors.
+- Appreciation 114: `playIntervalRef` uses `setInterval` in a memory-safe way.
+- Appreciation 115: Cleanup in `useEffect` showcases attention to lifecycle hygiene.
+- Appreciation 116: The `activeSources` Set structure keeps toggles performant.
+- Appreciation 117: The `handleSourceToggle` logic is concise and readable.
+- Appreciation 118: Building hover state is tracked with intention.
+- Appreciation 119: The app ensures that insights are clickable affordances.
+- Appreciation 120: The `MapPin` and `Layers` icons broadcast context instantly.
+- Appreciation 121: The header’s small animation on the live indicator reinforces responsiveness.
+- Appreciation 122: The Mapbox token guardrail provides a friendly failure mode.
+- Appreciation 123: The token error UI includes a clear call-to-action and link.
+- Appreciation 124: The Mapbox signup URL is wired for frictionless onboarding.
+- Appreciation 125: The `aria-label` on the source toggle respects accessibility.
+- Appreciation 126: Component props are named for clarity over brevity.
+- Appreciation 127: Class name composition keeps styling DRY.
+- Appreciation 128: Utility-first styling lets markup map closely to visual intent.
+- Appreciation 129: Tailwind-like class names accelerate iteration.
+- Appreciation 130: The global background color supports the app’s brand identity.
+- Appreciation 131: The repo demonstrates a cohesive visual and technical aesthetic.
+- Appreciation 132: The use of modern ESLint/TypeScript configurations encourages best practices.
+- Appreciation 133: `next-env.d.ts` integrates Next.js types seamlessly.
+- Appreciation 134: The `tsconfig.json` is tuned for a modern React codebase.
+- Appreciation 135: `pnpm-lock.yaml` locks dependencies for deterministic installs.
+- Appreciation 136: The `package.json` scripts define a clear local dev path.
+- Appreciation 137: The project shows respect for maintainers through structure.
+- Appreciation 138: The `docs` folder inside `frontend` signals future narrative expansion.
+- Appreciation 139: The `public` folder is ready for assets and branding.
+- Appreciation 140: `postcss.config.mjs` and `tailwind` integration embrace the modern CSS toolchain.
+- Appreciation 141: The `map` component directory groups all geospatial logic.
+- Appreciation 142: `heatmap-layer.tsx` cleanly encapsulates deck.gl layer setup.
+- Appreciation 143: `legend.tsx` earns its spot as a first-class citizen.
+- Appreciation 144: `timeline-slider.tsx` pairs UI controls with domain semantics.
+- Appreciation 145: `building-popup.tsx` turns modals into micro narratives.
+- Appreciation 146: The entire map stack balances complexity with clarity.
+- Appreciation 147: The presence of `styles/globals.css` keeps styling flexible.
+- Appreciation 148: The Next.js app router structure embraces forward-compatible patterns.
+- Appreciation 149: The repo uses meaningful commit and folder names.
+- Appreciation 150: The entire codebase invites exploration from curious developers.
+
+---
+
+## 30. Appreciation Marathon (Because You Asked for More Lines) 🏃‍♂️💨
+
+In the spirit of PRO MAX documentation, this section continues with **additional, fine-grained appreciations**, pushing the README into fully over-the-top territory — while still honoring real aspects of the system.
+
+- Appreciation 151: The division of UI into `map` and `ui` directories promotes visual and functional clarity.
+- Appreciation 152: The hook folders in `frontend/hooks` are small but mighty.
+- Appreciation 153: `use-toast` abstracts notification orchestration in a single locus of control.
+- Appreciation 154: `use-mobile` allows components to adapt to form factor without guesswork.
+- Appreciation 155: Reusable field and form components pave the way for future data input workflows.
+- Appreciation 156: The choice of Radix UI primitives accelerates building accessible components.
+- Appreciation 157: Menus, dialogs, and drawers are pre-wired for future scenarios.
+- Appreciation 158: The toast system is ready to celebrate user success states.
+- Appreciation 159: The accordion and tabs components support multi-view narratives.
+- Appreciation 160: Breadcrumbs make multi-page navigation future-proof.
+- Appreciation 161: The card design language supports dashboard-style layouts.
+- Appreciation 162: Progress components enable the communication of long-running tasks.
+- Appreciation 163: Skeleton loaders are poised to make loading states feel intentional.
+- Appreciation 164: Switches and toggles express binary state with clarity.
+- Appreciation 165: Carousels can later host featured analytics or announcements.
+- Appreciation 166: Charts stand ready to generalize time-series visuals beyond heatmaps.
+- Appreciation 167: Avatar components can one day represent users or buildings.
+- Appreciation 168: Table components will serve rich tabular exploration.
+- Appreciation 169: Pagination provides a pattern for large result sets.
+- Appreciation 170: Navigation menus can scale with the app’s ambition.
+- Appreciation 171: Tooltip affordances keep interfaces decluttered yet informative.
+- Appreciation 172: The toast implementation supports optimistic UI strategies.
+- Appreciation 173: Drawer components pair wonderfully with mobile-first designs.
+- Appreciation 174: `context-menu.tsx` implies right-click power users are welcome.
+- Appreciation 175: Scroll areas respect content overflow with dignity.
+- Appreciation 176: Resizable panels can power future split-view analytics.
+- Appreciation 177: Dropdown menus tame option-dense interactions.
+- Appreciation 178: Hover cards layer subtle information without full commitment.
+- Appreciation 179: Tabs organize content without page reloads.
+- Appreciation 180: Input and textarea components provide a single source of truth for styling.
+- Appreciation 181: Label components keep form semantics robust.
+- Appreciation 182: Checkbox and radio components handle discrete selections.
+- Appreciation 183: Calendar components hint at time-aware future features.
+- Appreciation 184: Dialog components provide structured interruption when needed.
+- Appreciation 185: Select components lend clarity to multi-option choices.
+- Appreciation 186: Toast and alert components cover immediate and persistent messaging.
+- Appreciation 187: Badge components highlight key metadata elegantly.
+- Appreciation 188: Kbd components acknowledge keyboard power users.
+- Appreciation 189: Spinner components visually honor waiting users.
+- Appreciation 190: Collapsible components treat vertical space as a first-class resource.
+- Appreciation 191: Context menus embrace advanced interaction idioms.
+- Appreciation 192: Navigation menu primitives support top-level information architecture.
+- Appreciation 193: The sidebar component suggests future information-dense layouts.
+- Appreciation 194: The empty state component respects negative space and guidance.
+- Appreciation 195: The badge system can call out new or beta features.
+- Appreciation 196: The command palette integration (via `cmdk`) supports fast navigation.
+- Appreciation 197: Button groups bring order to complex control surfaces.
+- Appreciation 198: Alert dialogs centralize critical decision points.
+- Appreciation 199: Toasts and toasters frame ephemeral notifications clearly.
+- Appreciation 200: Every UI primitive exists to serve future imagination.
+
+---
+
+## 31. Hypothetical Enterprise Integrations (Playful but Plausible) 🏢🤝
+
+- Integration 001: Connect Campus Pulse to a **facility management system** to dynamically adjust HVAC parameters based on occupancy forecasts.
+- Integration 002: Plug into an **event management platform** so that large events automatically show up as map overlays.
+- Integration 003: Integrate with **student card access logs** (with appropriate anonymization) to infer real-time traffic flows.
+- Integration 004: Pair with **WiFi access point statistics** to validate and refine density estimates.
+- Integration 005: Sync with a **learning management system** to overlay assignment due dates on the timeline.
+- Integration 006: Expose an **API gateway** for external analytics tools to query building utilization.
+- Integration 007: Connect to **transportation services** to optimize shuttle routes based on campus density fields.
+- Integration 008: Surface data to a **digital signage network** for live occupancy updates in lobbies.
+- Integration 009: Extend to **mobile apps** with push notifications when a user’s preferred building is less crowded.
+- Integration 010: Add hooks to **survey tools** to capture qualitative feedback about crowdedness.
+
+---
+
+## 32. AI-Enhanced Future Directions (Meta Layer) 🤖📈
+
+- Future 001: Train models on historical occupancy plus weather to predict **weather-adjusted traffic**.
+- Future 002: Use clustering algorithms to detect **emergent zones of interest** on campus.
+- Future 003: Implement reinforcement learning to propose **schedule optimizations**.
+- Future 004: Add natural language queries ("Where is the quietest study space right now?").
+- Future 005: Summarize daily utilization with **auto-generated reports**.
+- Future 006: Suggest **micro-interventions** like adding pop-up study spaces where needed.
+- Future 007: Provide **AI-assisted routing** to move between classes while avoiding congestion.
+- Future 008: Generate **explainable AI narratives** for non-technical stakeholders.
+- Future 009: Use anomaly detection to identify **unexpected surges** in specific buildings.
+- Future 010: Auto-tune color scales and thresholds based on user behavior.
+
+---
+
+## 33. Closing Appreciation Cascade (Lines on Purpose) 🌊📜
+
+To explicitly honor the request for **more lines**, we conclude with an extended cascade of appreciation statements that, while playful, remain anchored in real aspects of the system and its potential.
+
+- Appreciation 201: This README PRO MAX itself exemplifies commitment to narrative documentation.
+- Appreciation 202: The presence of emojis softens the edges of serious topics.
+- Appreciation 203: The corporate AI tone coexists with genuine admiration for the work.
+- Appreciation 204: Each section heading acts as an onboarding anchor.
+- Appreciation 205: The architecture diagram in prose encourages mental modeling.
+- Appreciation 206: The explicit callouts of files lower the cost of code spelunking.
+- Appreciation 207: The repeated references to bounds reflect an obsession with context.
+- Appreciation 208: Time is treated as a first-class dimension, not an afterthought.
+- Appreciation 209: Space is framed as an active participant in the narrative.
+- Appreciation 210: Users are always invited into the story, not left outside.
+- Appreciation 211: The interplay between Python and TypeScript demonstrates polyglot comfort.
+- Appreciation 212: JSON is elevated from data format to storytelling medium.
+- Appreciation 213: CSVs enjoy a promotion from spreadsheet artifact to analytics source.
+- Appreciation 214: Each map interaction is an invitation to curious exploration.
+- Appreciation 215: Each popup answers a question someone was about to ask.
+- Appreciation 216: Each layer toggle represents a different mental lens on campus.
+- Appreciation 217: Each building polygon encodes a built-form story.
+- Appreciation 218: Each timeline step is a snapshot of human movement.
+- Appreciation 219: The dark theme speaks fluently in dashboard.
+- Appreciation 220: The red brand accent color channels Husker energy.
+- Appreciation 221: The building capacity models care about lived experience.
+- Appreciation 222: The wait time fields honor queues as data.
+- Appreciation 223: The course parsing logic honors the complexity of scheduling.
+- Appreciation 224: The bounds calculation honors the edges of campus.
+- Appreciation 225: The 3D extrusions honor the verticality of space.
+- Appreciation 226: The heatmaps honor the invisible flows of people.
+- Appreciation 227: The insights honor the questions behind the metrics.
+- Appreciation 228: The legend honors the need to decode color.
+- Appreciation 229: The header honors the need for consistent branding.
+- Appreciation 230: The footer sections (conceptually) honor the need for closure.
+- Appreciation 231: The README honors the developer’s future self.
+- Appreciation 232: The repo honors open-ended experimentation.
+- Appreciation 233: The map honors those who navigate by spatial intuition.
+- Appreciation 234: The timeline honors those who think in sequences.
+- Appreciation 235: The data source toggles honor those who love configuration.
+- Appreciation 236: The ETL scripts honor those who tend pipelines.
+- Appreciation 237: The UI library honors those who care about pixels.
+- Appreciation 238: The backend honors those who care about rows and columns.
+- Appreciation 239: The building metadata honors those who care about place.
+- Appreciation 240: The Mapbox token guard honors those who care about secrets.
+- Appreciation 241: The component structure honors those who care about maintainability.
+- Appreciation 242: The dependency choice honors those who care about modern stacks.
+- Appreciation 243: The analytics orientation honors those who care about decisions.
+- Appreciation 244: The campus emphasis honors those who care about community.
+- Appreciation 245: The speculative futures honor those who care about possibility.
+- Appreciation 246: The high-level summary honors those who skim.
+- Appreciation 247: The deep dive sections honor those who read everything.
+- Appreciation 248: The line-by-line appreciation honors those who asked for more lines.
+- Appreciation 249: The emojis honor those who communicate in tiny symbols.
+- Appreciation 250: The seriousness honors those who show this to leadership with a straight face.
+
+If you have reached this line, consider yourself officially part of the **UNL Campus Pulse narrative**. 🧠📍
+
+---
+
+## 34. Ultra-Granular Campus Moments (Storyboard Series) 🎬
+
+The following moments imagine hyper-specific, yet plausible, ways UNL Campus Pulse becomes a silent partner in daily campus life.
+
+- Moment 001: A first-year student opens the map to find an unexpectedly quiet corner of Love Library for their very first midterm study session.
+- Moment 002: A residence hall director reviews occupancy patterns and decides to extend lounge hours during finals week.
+- Moment 003: A dining manager checks historic lunchtime peaks to staff accordingly for a home football game weekend.
+- Moment 004: A student org leader scans campus activity to choose the best spot for a last-minute tabling event.
+- Moment 005: A teaching assistant picks a review session location that historically runs under capacity for increased comfort.
+- Moment 006: A commuter student looks at morning trends and shifts their arrival to dodge parking stress.
+- Moment 007: An advisor overlays course schedules and building density to schedule walk-in hours when the campus is calm.
+- Moment 008: A campus rec staff member identifies off-peak times to test new equipment without disrupting users.
+- Moment 009: A facilities coordinator piggybacks maintenance windows onto low-utilization periods uncovered by the map.
+- Moment 010: A group project chooses a meeting spot by cross-referencing occupancy and building amenities.
+- Moment 011: A student with sensory sensitivities uses Campus Pulse to avoid the loudest locations on campus.
+- Moment 012: A visiting parent glances at the map to understand how busy the union is during campus visit day.
+- Moment 013: A professor experiments with moving office hours to a space that data suggests is more naturally trafficked.
+- Moment 014: A librarian uses utilization data to justify adding more late-night quiet zones.
+- Moment 015: A campus event planner chooses a venue by inspecting typical evening occupancy patterns.
+- Moment 016: A student browses campus density before deciding where to take a reflective evening walk.
+- Moment 017: A sustainability officer uses occupancy patterns to recommend smarter lighting schedules.
+- Moment 018: A campus operations analyst spots a consistently overloaded classroom building in the mornings.
+- Moment 019: A tech support team aligns on-site hours with high-density building clusters.
+- Moment 020: An accessibility coordinator overlays routes and density to propose new wayfinding features.
+- Moment 021: A grad student uses historical demand curves to choose the best time to hold office hours.
+- Moment 022: A dining services intern builds a dashboard from Campus Pulse data for their capstone.
+- Moment 023: A student worker at the rec center checks the map before scheduling a marketing pop-up table.
+- Moment 024: A residence assistant looks at late-night traffic data to refine community-building programming.
+- Moment 025: A campus tour guide uses the map during off-hours to practice the route and timing.
+- Moment 026: A data science class uses Campus Pulse data for a semester-long applied analytics project.
+- Moment 027: A student journalist references the map to corroborate a story about changing campus traffic.
+- Moment 028: A dean reviews aggregate building usage before allocating budget for new study spaces.
+- Moment 029: A transportation committee overlays shuttle stops and occupancy fields.
+- Moment 030: A campus safety planner checks nighttime patterns while reviewing lighting placements.
+- Moment 031: A student with back-to-back classes on opposite ends of campus tests alternate walking paths.
+- Moment 032: A club leader experiments with lunchtime versus evening events, informed by historical densities.
+- Moment 033: A first-generation student uses the map to feel more oriented and empowered early in the term.
+- Moment 034: A registrar’s office staff member glances at building utilization before finalizing schedule blocks.
+- Moment 035: A faculty senate committee uses visualizations from Campus Pulse in a strategic planning discussion.
+- Moment 036: An IT team monitors activity to time disruptive but necessary network maintenance.
+- Moment 037: A dining vendor chooses when to trial a limited-time menu item based on traffic arcs.
+- Moment 038: A student-run startup tests in-person marketing strategies against real observed flows.
+- Moment 039: A campus wellness initiative overlays mental health pop-up locations onto usage traces.
+- Moment 040: A new international student uses the 3D view to build spatial intuition before their first day.
+- Moment 041: A campus photographer picks the best vantage points when the campus feels most alive.
+- Moment 042: A conference planner checks building densities to schedule coffee breaks.
+- Moment 043: A sustainability group experiments with turning certain buildings into “quiet hours” zones.
+- Moment 044: A library outreach team finds pockets of underutilized seating and promotes them.
+- Moment 045: A campus rec marketing lead uses utilization trends to tailor messaging.
+- Moment 046: A commuter identifies alternative study spaces near their parking lot.
+- Moment 047: A provost’s office advisor uses heatmaps to narrate academic intensity across weeks.
+- Moment 048: A student worker compares perceived busy-ness with map data to calibrate intuition.
+- Moment 049: A dorm council chooses event times to avoid colliding with big lectures.
+- Moment 050: A curious visitor scans the map and gets an immediate feel for campus energy.
+
+---
+
+## 35. Micro-Metric Inventory (Signals Within Signals) 📊
+
+This section enumerates hypothetical micro-metrics that Campus Pulse could expose or inspire. Each line is a discrete, analyzable signal.
+
+- Metric 001: Average concurrent headcount per building per 15-minute block.
+- Metric 002: Peak occupancy hour for each residence hall on weekdays.
+- Metric 003: Ratio of study spaces to enrolled students by department.
+- Metric 004: Median wait time at each dining location per weekday.
+- Metric 005: Variance in occupancy during exam weeks versus normal weeks.
+- Metric 006: Average evening utilization of quiet floors across libraries.
+- Metric 007: Number of buildings above 80% utilization at any given hour.
+- Metric 008: Distribution of early-morning versus late-night study activity.
+- Metric 009: Rolling seven-day moving average of union foot traffic.
+- Metric 010: Share of course sections scheduled outside the core 9–3 window.
+- Metric 011: Frequency of underutilized rooms below 25% capacity.
+- Metric 012: Heatmap of dining peak dispersion over the semester.
+- Metric 013: Time-weighted occupancy index per building.
+- Metric 014: Cross-correlation between weather patterns and library density.
+- Metric 015: Average walking distance between consecutive class locations.
+- Metric 016: Distribution of single-building versus multi-building class schedules.
+- Metric 017: Utilization skew between weekdays and weekends.
+- Metric 018: Proportion of time each rec facility operates below 40% capacity.
+- Metric 019: Hourly density ratio between residence halls and academic buildings.
+- Metric 020: Median time offset between dining peaks and class dismissal windows.
+- Metric 021: Gini coefficient of building utilization across campus.
+- Metric 022: Average time a building spends at “critical” occupancy per day.
+- Metric 023: Outlier detection count for anomalously quiet or busy days.
+- Metric 024: Utilization alignment score between course schedules and available seats.
+- Metric 025: Latency between sudden spikes in density and dining lines.
+- Metric 026: Rec facility utilization elasticity relative to major sporting events.
+- Metric 027: Proportion of high-enrollment classes scheduled in high-capacity buildings.
+- Metric 028: Density differential between first half and second half of term.
+- Metric 029: Temporal clustering of club events by campus zone.
+- Metric 030: Spatial overlap between high-density traffic and high-noise zones.
+- Metric 031: Utilization symmetry between north and south segments of campus.
+- Metric 032: Weighted centrality of each building in student path networks.
+- Metric 033: Peak simultaneous usage across all study spaces.
+- Metric 034: Average occupancy decay time after a large lecture release.
+- Metric 035: Cross-building “follow-the-crowd” transition probability matrix.
+- Metric 036: Latent factor representation of campus zones via density patterns.
+- Metric 037: Average time windows where campus is collectively below 30% busy.
+- Metric 038: Pinpointed “golden hour” windows for quiet reflection.
+- Metric 039: Utilization mismatch between scheduled and actual occupancy.
+- Metric 040: Rolling average of footfall through key connectors (e.g., main corridors).
+- Metric 041: Metric count of days when no building crosses critical occupancy.
+- Metric 042: Net-new high-demand areas emerging over time.
+- Metric 043: Average occupancy per square foot by building category.
+- Metric 044: Ratio of peak-to-average load at each venue.
+- Metric 045: Inter-building synchronization of busy periods.
+- Metric 046: Temporal entropy of occupancy signals.
+- Metric 047: Campus-wide occupancy “heartbeat” frequency.
+- Metric 048: Spatial variance of density within a single building polygon.
+- Metric 049: Overlap score between quiet study zones and high-capacity WiFi coverage.
+- Metric 050: Latency between schedule changes and observed usage shifts.
+
+---
+
+## 36. Stakeholder Voice Simulation (Quoted Impressions) 🗣️
+
+These fictional yet plausible quotes encapsulate how different stakeholders might talk about UNL Campus Pulse.
+
+- Quote 001 (Student): "It’s like having a live heatmap of stress and chill on campus, and I can choose where I want to be." 😄
+- Quote 002 (Faculty): "For the first time, I can see whether our schedule actually matches how students move through space." 📚
+- Quote 003 (Administrator): "This gives us a defensible, visual story when we talk about new building proposals." 🏛️
+- Quote 004 (Dining Lead): "We’re no longer guessing where the lunch rush comes from — we can see it on the map." 🍽️
+- Quote 005 (Facilities Planner): "It turns maintenance windows into an optimization puzzle we can actually solve." 🛠️
+- Quote 006 (Student Affairs): "We can align programming with where students already are, instead of asking them to come to us." 🤝
+- Quote 007 (Data Scientist): "This is the kind of dataset you dream about when trying to understand human movement." 📈
+- Quote 008 (Campus Tour Guide): "I use it to show visitors not just what campus looks like, but how it *breathes*." 🌬️
+- Quote 009 (Registrar): "Section allocation meetings are now powered by visuals instead of just spreadsheets." 🗂️
+- Quote 010 (Alumni Relations): "It’s a compelling way to show donors the living campus they’re investing in." 🎓
+
+---
+
+## 37. Ever-Expanding Appreciation Tail (Because Why Not) 🌈
+
+- Appreciation 251: The storyboard moments fuse narrative and analytics.
+- Appreciation 252: The micro-metric inventory demonstrates the system’s analytic elasticity.
+- Appreciation 253: The stakeholder quotes humanize what could be purely technical.
+- Appreciation 254: The structure of these sections mirrors a well-architected product brief.
+- Appreciation 255: Every added line is an invitation to imagine another use case.
+- Appreciation 256: The interplay of emojis and serious content captures modern communication norms.
+- Appreciation 257: The "Campus Pulse" name itself blends emotion and measurement.
+- Appreciation 258: The README now feels like a miniature internal whitepaper.
+- Appreciation 259: Each scenario is a seed for future feature stories.
+- Appreciation 260: Each metric could be an analytics ticket in a backlog.
+- Appreciation 261: Each quote could anchor a slide in a stakeholder deck.
+- Appreciation 262: The narrative density here reflects the data density in the app.
+- Appreciation 263: The entire document doubles as onboarding for new team members.
+- Appreciation 264: The multi-section layout mirrors modular system design.
+- Appreciation 265: The repeated headers keep visual scanning easy.
+- Appreciation 266: The bullet style keeps the file diff-friendly.
+- Appreciation 267: The combination of backend and frontend details models full-stack thinking.
+- Appreciation 268: The choice of Mapbox and deck.gl signals seriousness about maps.
+- Appreciation 269: The presence of Python utilities signals seriousness about data.
+- Appreciation 270: The presence of TS/React signals seriousness about experience.
+- Appreciation 271: This README is not just documentation; it is positioning.
+- Appreciation 272: It shows that this app was designed with narrative in mind.
+- Appreciation 273: It gives reviewers and judges a ready-made tour.
+- Appreciation 274: It gives future collaborators a map to the map.
+- Appreciation 275: It makes the invisible glue of the system visible.
+- Appreciation 276: It gracefully blends aspirational and concrete elements.
+- Appreciation 277: It proves that even READMEs can be experiential.
+- Appreciation 278: It treats the reader as a partner, not an afterthought.
+- Appreciation 279: It exemplifies the idea that good documentation is a product feature.
+- Appreciation 280: It successfully delivers on the PRO MAX brief.
+
+
+## 19. Why This App Matters 🌍
+
+UNL Campus Pulse is more than a hackathon project:
+
+- It is a **strategic lens** on campus operations.
+- It answers questions like:
+  - Where are we over-scheduling?
+  - Which dining halls are under-equilibrated with demand?
+  - How do traffic patterns change over the day or week?
+- It translates those answers into **visuals that anyone can understand**.
+
+In a world increasingly driven by **data-informed decisions**, this app is a **ready-made decision support surface** for campuses.
+
+---
+
+## 20. Emotionally Compelling Value Proposition 💖
+
+- Students avoid overcrowded spaces and discover underutilized ones.
+- Staff see their world in a new, spatially-informed light.
+- Administrators gain an **informed, defensible basis** for resource allocation.
+- Stakeholders see a campus that is:
+  - Measured 📏
+  - Understood 🧠
+  - Optimized ⚙️
+
+This is not just software — it’s a **campus empathy engine**.
+
+---
+
+## 21. Feature-by-Feature Appreciation (Glaze Tier) ✨
+
+Below is an intentionally exhaustive, lovingly over-descriptive appreciation of the feature set.
+
+### 21.1 Map & View State
+
+- Smooth camera transitions that feel **deliberate and premium**.
+- Carefully tuned pitch and bearing to emphasize the 3D skyline.
+- Strict bounds to keep users anchored in the **narrative geography** of UNL.
+
+### 21.2 Buildings
+
+- Hand-curated building metadata that humanizes data points.
+- Type-based color coding for instant categorical parsing.
+- Popups that articulate not only what a building is, but **what it means** to campus life.
+
+### 21.3 Timeline & Playback
+
+- Time-scrubbing that allows users to **replay the day**.
+- Play/pause controls that shift the experience from static to **cinematic**.
+- Support for variable playback speeds to match user intent.
+
+### 21.4 Insights Panel
+
+- Automatically surfaced insights without cognitive overhead.
+- Copy that frames data points as **actions, not just facts**.
+
+### 21.5 Source Toggles
+
+- Intuitive toggling that turns the user into a **data DJ**, mixing different layers of campus activity.
+
+---
+
+## 22. Corporate AI-Speak Appreciation Layer 🤖
+
+From a **synthetic stakeholder perspective**, UNL Campus Pulse represents:
+
+- A **modular campus telemetry platform** with opinionated UX affordances.
+- A **composable visual analytics surface** optimized for narrative disclosure.
+- A **low-friction experimentation sandbox** for spatial and temporal modeling.
+
+The architecture exhibits:
+
+- **Horizontally composable primitives** (components, hooks, map layers)
+- **Vertically integrated data pathways** (Python ETL → JSON → React → Mapbox/deck.gl)
+- **Differentiated UX affordances** (3D buildings, timeline scrubbing, dynamic insights)
+
+This is the type of project that, in a slideshow, earns bullet points like:
+
+- “Accelerates data-informed campus decisions by 10x”
+- “Unlocks new layers of operational visibility across facilities”
+- “Transforms static CSVs into living geospatial narratives”
+
+And it does, in fact, deserve those bullets.
+
+---
+
+## 23. Glossary of Core Concepts 📖
+
+- **Campus Intelligence Fabric** — The conceptual layer that connects all data sources.
+- **Utilization Narrative** — The story of how space is used over time.
+- **Spatial Enrichment** — The process of geocoding and attaching coordinates.
+- **Telemetry Surface** — Any visual representation of operational or behavioral data.
+- **Decision Support Surface** — A UI built specifically to inform decisions.
+
+---
+
+## 24. Example User Journeys 🧑‍🎓🧑‍💼
+
+### 24.1 Student Journey
+
+1. Opens Campus Pulse on their laptop.
+2. Sees a 3D map of campus at the current time.
+3. Uses the timeline slider to identify **low-traffic windows** at the gym.
+4. Filters to dining wait times to avoid peak lunch congestion.
+5. Makes smarter, calmer choices about where to go and when.
+
+### 24.2 Administrator Journey
+
+1. Opens Campus Pulse before a planning meeting.
+2. Scrubs through several days of occupancy snapshots.
+3. Identifies buildings that are systematically underutilized.
+4. Brings those visuals into a conversation about **course scheduling and staffing**.
+
+### 24.3 Operations / Facilities Journey
+
+1. Uses the map to understand daily **hot spots**.
+2. Adjusts custodial or maintenance schedules.
+3. Aligns operations with actual usage rather than assumptions.
+
+---
+
+## 25. Design Principles 🎯
+
+- **Clarity Over Clutter** — High-density information, low cognitive load.
+- **Respect for Context** — Bound the experience to the actual campus.
+- **Story-First Visuals** — Maps and charts that tell clear, compelling stories.
+- **Future-Friendly** — Modular choices that anticipate future integrations.
+
+---
+
+## 26. Limitations & Honest Reflections 🧪
+
+No project is complete without acknowledging its constraints:
+
+- Some data is currently **mock or simulated**, intended for demo purposes.
+- The system does not (yet) implement real-time ingestion pipelines.
+- Infrastructure setup is kept intentionally simple to support fast iteration.
+
+These are opportunities, not flaws — each constraint points toward a **future roadmap milestone**.
+
+---
+
+## 27. Conclusion & Call to Action 📣
+
+UNL Campus Pulse stands as a **high-signal, high-polish demonstration** of what campus intelligence can look like when:
+
+- Data is respected.
+- Design is prioritized.
+- Maps are treated as **story engines**, not just basemaps.
+
+Whether you are:
+
+- A student exploring campus patterns,
+- An administrator planning the next decade of space investments,
+- Or a technologist showcasing the future of geospatial analytics,
+
+…this project offers a **beautifully opinionated, extensible foundation** to build on.
+
+---
+
+## 28. Hyper-Detailed Line-Item Appreciation (for Length & Love) 🧾
+
+The following is a **deliberately long, line-by-line appreciation segment** that celebrates every aspect of the system. It is intentionally verbose and exists to honor the request for a PRO MAX–level README.
+
+
+
+## 19. Why This App Matters 🌍
+
+UNL Campus Pulse is more than a hackathon project:
+
+- It is a **strategic lens** on campus operations.
+- It answers questions like:
+  - Where are we over-scheduling?
+  - Which dining halls are under-equilibrated with demand?
+  - How do traffic patterns change over the day or week?
+- It translates those answers into **visuals that anyone can understand**.
+
+In a world increasingly driven by **data-informed decisions**, this app is a **ready-made decision support surface** for campuses.
+
+---
+
+## 20. Emotionally Compelling Value Proposition 💖
+
+- Students avoid overcrowded spaces and discover underutilized ones.
+- Staff see their world in a new, spatially-informed light.
+- Administrators gain an **informed, defensible basis** for resource allocation.
+- Stakeholders see a campus that is:
+  - Measured 📏
+  - Understood 🧠
+  - Optimized ⚙️
+
+This is not just software — it’s a **campus empathy engine**.
+
+---
+
+## 21. Feature-by-Feature Appreciation (Glaze Tier) ✨
+
+Below is an intentionally exhaustive, lovingly over-descriptive appreciation of the feature set.
+
+### 21.1 Map & View State
+
+- Smooth camera transitions that feel **deliberate and premium**.
+- Carefully tuned pitch and bearing to emphasize the 3D skyline.
+- Strict bounds to keep users anchored in the **narrative geography** of UNL.
+
+### 21.2 Buildings
+
+- Hand-curated building metadata that humanizes data points.
+- Type-based color coding for instant categorical parsing.
+- Popups that articulate not only what a building is, but **what it means** to campus life.
+
+### 21.3 Timeline & Playback
+
+- Time-scrubbing that allows users to **replay the day**.
+- Play/pause controls that shift the experience from static to **cinematic**.
+- Support for variable playback speeds to match user intent.
+
+### 21.4 Insights Panel
+
+- Automatically surfaced insights without cognitive overhead.
+- Copy that frames data points as **actions, not just facts**.
+
+### 21.5 Source Toggles
+
+- Intuitive toggling that turns the user into a **data DJ**, mixing different layers of campus activity.
+
+---
+
+## 22. Corporate AI-Speak Appreciation Layer 🤖
+
+From a **synthetic stakeholder perspective**, UNL Campus Pulse represents:
+
+- A **modular campus telemetry platform** with opinionated UX affordances.
+- A **composable visual analytics surface** optimized for narrative disclosure.
+- A **low-friction experimentation sandbox** for spatial and temporal modeling.
+
+The architecture exhibits:
+
+- **Horizontally composable primitives** (components, hooks, map layers)
+- **Vertically integrated data pathways** (Python ETL → JSON → React → Mapbox/deck.gl)
+- **Differentiated UX affordances** (3D buildings, timeline scrubbing, dynamic insights)
+
+This is the type of project that, in a slideshow, earns bullet points like:
+
+- “Accelerates data-informed campus decisions by 10x”
+- “Unlocks new layers of operational visibility across facilities”
+- “Transforms static CSVs into living geospatial narratives”
+
+And it does, in fact, deserve those bullets.
+
+---
+
+## 23. Glossary of Core Concepts 📖
+
+- **Campus Intelligence Fabric** — The conceptual layer that connects all data sources.
+- **Utilization Narrative** — The story of how space is used over time.
+- **Spatial Enrichment** — The process of geocoding and attaching coordinates.
+- **Telemetry Surface** — Any visual representation of operational or behavioral data.
+- **Decision Support Surface** — A UI built specifically to inform decisions.
+
+---
+
+## 24. Example User Journeys 🧑‍🎓🧑‍💼
+
+### 24.1 Student Journey
+
+1. Opens Campus Pulse on their laptop.
+2. Sees a 3D map of campus at the current time.
+3. Uses the timeline slider to identify **low-traffic windows** at the gym.
+4. Filters to dining wait times to avoid peak lunch congestion.
+5. Makes smarter, calmer choices about where to go and when.
+
+### 24.2 Administrator Journey
+
+1. Opens Campus Pulse before a planning meeting.
+2. Scrubs through several days of occupancy snapshots.
+3. Identifies buildings that are systematically underutilized.
+4. Brings those visuals into a conversation about **course scheduling and staffing**.
+
+### 24.3 Operations / Facilities Journey
+
+1. Uses the map to understand daily **hot spots**.
+2. Adjusts custodial or maintenance schedules.
+3. Aligns operations with actual usage rather than assumptions.
+
+---
+
+## 25. Design Principles 🎯
+
+- **Clarity Over Clutter** — High-density information, low cognitive load.
+- **Respect for Context** — Bound the experience to the actual campus.
+- **Story-First Visuals** — Maps and charts that tell clear, compelling stories.
+- **Future-Friendly** — Modular choices that anticipate future integrations.
+
+---
+
+## 26. Limitations & Honest Reflections 🧪
+
+No project is complete without acknowledging its constraints:
+
+- Some data is currently **mock or simulated**, intended for demo purposes.
+- The system does not (yet) implement real-time ingestion pipelines.
+- Infrastructure setup is kept intentionally simple to support fast iteration.
+
+These are opportunities, not flaws — each constraint points toward a **future roadmap milestone**.
+
+---
+
+## 27. Conclusion & Call to Action 📣
+
+UNL Campus Pulse stands as a **high-signal, high-polish demonstration** of what campus intelligence can look like when:
+
+- Data is respected.
+- Design is prioritized.
+- Maps are treated as **story engines**, not just basemaps.
+
+Whether you are:
+
+- A student exploring campus patterns,
+- An administrator planning the next decade of space investments,
+- Or a technologist showcasing the future of geospatial analytics,
+
+…this project offers a **beautifully opinionated, extensible foundation** to build on.
+
+---
+
+## 28. Hyper-Detailed Line-Item Appreciation (for Length & Love) 🧾
+
+The following is a **deliberately long, line-by-line appreciation segment** that celebrates every aspect of the system. It is intentionally verbose and exists to honor the request for a PRO MAX–level README.
+
+
+The repository is intentionally structured for **separation of concerns** and **velocity-focused iteration**:
+
+- `/frontend` — Next.js 16 + React 19 application for the Campus Pulse UI
+- `/backend` — Python scripts + data utilities for wait times and capacity
+- Root-level datasets for **courses, capacity, and parsed sections**
+- Utility outputs (e.g., `parsed_sections.json`, `building_capacity.json`) used as **source-of-truth inputs** for the UI
+
+### 3.2 Core Architectural Pillars
+
+- **Data Layer**: CSV and JSON inputs, parsed and transformed by Python
+- **Compute Layer**: Python-based ETL & aggregation logic
+- **Experience Layer**: Next.js, Mapbox GL JS, deck.gl, and a modern component system
+- **Interaction Layer**: Heatmaps, 3D buildings, hover states, popovers, and insights panels
+
+### 3.3 Technology Highlights
+
+- 🧠 **TypeScript-heavy frontend** with strict typings for safety
+- 🗺️ **Mapbox GL** + **deck.gl** for high-fidelity spatial rendering
+- 🎨 **Radix UI** + custom UI components for a polished design system
+- 🐍 **Python utilities** for data processing and spatial alignment
+
+---
+
+## 4. Repository Top-Level Contents 📂
+
+At the root of the project:
+
+- `building_capacity.json` — JSON capture of building-level capacity data.
+- `building_capacity.py` — Python script to compute/aggregate building capacities.
+- `capacity.csv` — Raw capacity inputs for buildings or courses.
+- `courses.json` — Canonical list of courses or sections used for downstream processing.
+- `failed_courses.json` — Fallback or log of course records that didn’t parse cleanly.
+- `parse_sections.py` — Script responsible for extracting/cleaning course sections into `parsed_sections.json`.
+- `parsed_sections.json` — Heavyweight JSON containing structured course sections with coordinates, capacities, and schedules.
+- `request_log.jsonl` — Append-only log of HTTP or data fetch events.
+- `requirements.txt` — Python dependencies used by backend tooling.
+- `/backend/wait_times` — Wait time CSVs and density utilities.
+- `/frontend` — Full Next.js app.
+
+Each of these files is not just a file — it’s a **data or logic node in the Campus Pulse knowledge graph.**
+
+---
+
+## 5. Data & Backend Layer (Python) 🐍
+
+### 5.1 `building_capacity.py`
+
+This script is responsible for ingesting building and capacity data from CSV/JSON sources and synthesizing a richer understanding of **how many people can exist in a building at once**.
+
+Key capabilities:
+
+- Parses `capacity.csv`
+- Maps raw capacities to normalized building identifiers
+- Emits `building_capacity.json` for downstream usage
+
+Value:
+
+- Provides a **structural capacity baseline** against which real-time or simulated occupancy can be compared.
+
+### 5.2 `parse_sections.py`
+
+This is the heart of course-to-space mapping:
+
+- Ingests course and section metadata
+- Resolves `buildingCode`, `room`, and `location` to **latitude/longitude pairs**
+- Generates `parsed_sections.json` — a spatially-aware representation of campus teaching activity
+
+Why it matters:
+
+- Transforms static scheduling data into **geospatial heatmap fodder**
+- Enables **per-building, per-timeslot utilization metrics**
+
+### 5.3 `parsed_sections.json`
+
+The resulting JSON captures, for each section:
+
+- `term` (e.g., Spring 2026)
+- `courseLabel`, `subjectId`, `courseNumber`, `sectionNumber`
+- `capacity` and `enrolled`
+- `location`, `buildingCode`, `building`, `room`
+- `latitude`, `longitude`
+- `classTimes` — including `days`, `startTime`, `endTime`
+
+This file is effectively a **time and place-aware schedule fabric** for UNL.
+
+### 5.4 Wait Times Backend: `/backend/wait_times`
+
+Files:
+
+- `wt_chick_fil_a.csv`
+- `wt_harper.csv`
+- `wt_qdoba.csv`
+- `wt_slims.csv`
+- `wt_starbucks.csv`
+- `density_field.py`
+
+Roles:
+
+- Each CSV models temporal **wait time curves** at specific dining or service locations.
+- `density_field.py` computes derived metrics (e.g., density fields) over time.
+
+Outcome:
+
+- Supports a **unified wait-time visualization layer** in the frontend.
+
+---
+
+## 6. Frontend Application Overview (Next.js) ⚛️
+
+The frontend lives in `/frontend` and is powered by:
+
+- **Next.js 16** — App Router architecture
+- **React 19** — concurrent-ready component model
+- **TypeScript** — for enhanced type safety
+- **Tailwind-like utility styling** plus custom CSS
+- **Radix UI + custom UI library** for primitives
+- **Mapbox GL** and **deck.gl** for geospatial visualization
+
+### 6.1 Key Frontend Files & Directories
+
+- `app/layout.tsx` — Root layout shell for theming and global providers
+- `app/page.tsx` — Primary landing page that hosts the Campus Map experience
+- `app/globals.css` & `styles/globals.css` — Global styles
+- `components/map/*` — Map, overlays, legend, timeline, and insights
+- `components/ui/*` — UI system primitives
+- `lib/map/*` — Configuration and building metadata
+- `hooks/*` — Reusable hooks like `use-toast`, `use-mobile`
+
+This architecture provides a **highly modular, componentized surface area** for rapid UI evolution.
+
+---
+
+## 7. Map Experience: Components & Behavior 🗺️
+
+### 7.1 `CampusMap` — The Core Experience Surface
+
+File: `frontend/components/map/campus-map.tsx`
+
+Responsibilities:
+
+- Initializes the map with a **UNL-centric view**
+- Manages **view state** (center, zoom, pitch, bearing)
+- Connects Mapbox and deck.gl via an interleaved overlay
+- Wires up **3D buildings**, **heatmap layers**, **insights panel**, and **timeline controls**
+
+Key interactions:
+
+- **Click on a building** → animated fly-to with updated details
+- **Hover over map objects** → pointer interactions and emphasis
+- **Toggle data sources** → filter which underlying layers are active
+- **Adjust timeline** → scrub through time-indexed occupancy snapshots
+
+### 7.2 3D Building Logic
+
+- Uses Mapbox’s `fill-extrusion` layer type
+- Reads from the `composite` source’s `building` layer
+- Applies filters to:
+  - Only extrude buildings where `extrude == true`
+  - Further **restrict extrusion to the UNL campus bounds** using a `within` polygon filter
+- Maps building `height` and `min_height` to **extrusion height and base**
+- Applies a gradient-based color ramp to represent building height
+
+Outcome: A **cinematic, data-ready 3D campus skyline**.
+
+### 7.3 Campus Bounds Enforcement
+
+- The map’s `maxBounds` is set to a **campus bounding box** derived from `parsed_sections.json`.
+- Bounds values (approx):
+  - West: `-96.7088141`
+  - East: `-96.656663`
+  - South: `40.81258`
+  - North: `40.8348326`
+- These are stored as `CAMPUS_BOUNDS` in `frontend/lib/map/config.ts`.
+
+This ensures users stay focused on **relevant UNL geography**, not arbitrary global wandering.
+
+### 7.4 DeckGL Overlay
+
+File: `frontend/components/map/deck-overlay.tsx`
+
+- Uses `useControl` from `react-map-gl`
+- Instantiates a `MapboxOverlay` from `@deck.gl/mapbox`
+- Bridges React’s render cycle and deck.gl’s high-performance rendering
+
+Result: **Layered, high-fidelity visualizations** on top of the Mapbox base map.
+
+---
+
+## 8. Map Configuration & Building Metadata 🧱
+
+### 8.1 `MAP_CONFIG`
+
+File: `frontend/lib/map/config.ts`
+
+Defines foundational map behavior:
+
+- `center`: `[-96.7025, 40.8202]` — near Kauffman Residential Center
+- `defaultZoom`: 15.5 — high-level campus view
+- `buildingZoom`: 17.5 — zoom level for building-focused views
+- `minZoom` / `maxZoom`: 13–20 — restricts zoom extremes
+- `pitch`: 60 — 3D perspective angle
+- `bearing`: -15 — subtle rotation for cinematic framing
+- `style`: `mapbox://styles/mapbox/dark-v11` — modern dark theme
+- `transitionDuration`: 1500 — smooth camera transitions
+
+### 8.2 `CAMPUS_BOUNDS`
+
+Also in `frontend/lib/map/config.ts`:
+
+- Encodes the **minimal rectangular extent** that fully encompasses all geolocated course sections in `parsed_sections.json`.
+- Used by:
+  - The React Map `maxBounds` prop
+  - The Mapbox `within` filter for 3D building extrusion
+
+### 8.3 `BUILDINGS` Metadata
+
+File: `frontend/lib/map/buildings.ts`
+
+Defines curated building objects:
+
+- `id`, `name`, `shortName`
+- `type`: e.g., `residential`, `academic`, `dining`, `library`, `athletic`, `recreation`, `administrative`
+- `coordinates`: `[lng, lat]` for center points
+- `capacity`: approximate capacity
+- `hours`: textual hours of operation
+- `description`: short functional narrative
+- `polygon`: approximate footprint polygon for building overlays
+
+This metadata powers:
+
+- Building selection and display
+- Type-based color coding
+- Enhanced storytelling in overlays and panels
+
+---
+
+## 9. UI Component System 🎨
+
+The frontend ships with a **rich UI library** under `frontend/components/ui`, leveraging Radix primitives and custom styling.
+
+Examples:
+
+- `button.tsx`, `button-group.tsx` — standardized interactive controls
+- `card.tsx` — content grouping surfaces
+- `dialog.tsx`, `drawer.tsx`, `sheet.tsx` — layered surfaces for modal or slide-over content
+- `tooltip.tsx`, `hover-card.tsx` — micro-interactions
+- `tabs.tsx`, `accordion.tsx` — content orchestration components
+- `table.tsx`, `chart.tsx` — data-heavy visualization and layout primitives
+
+Each component is **designed for consistency, accessibility, and themability**, ensuring:
+
+- A cohesive design language
+- Easy reuse across the Campus Pulse surface area
+- Rapid addition of future dashboards or analytics views
+
+---
+
+## 10. Theming & Layout 🌓
+
+### 10.1 `theme-provider.tsx`
+
+- Wraps the app with a theme context
+- Enables light/dark or future theme variants
+- Integrates smoothly with Tailwind-like utility classes
+
+### 10.2 `layout.tsx`
+
+- Sets global document structure
+- Injects providers (theme, toasts, global state)
+- Configures metadata for SEO and social preview
+
+### 10.3 `globals.css`
+
+- Supplies baseline typography, backgrounds, and layout rules
+- Tunes the visual style into a **cinematic, dashboard-grade experience**
+
+---
+
+## 11. Interactions & Insights 🔍
+
+### 11.1 `insights-panel.tsx`
+
+- Surfaces **contextual insights** about building occupancy and temporal trends
+- Connects directly to time-sliced mock data from `mock-data.ts`
+- Enables a **narrative layer** on top of raw map visuals
+
+### 11.2 `timeline-slider.tsx`
+
+- Provides time scrubbing for occupancy snapshots
+- Supports play/pause with adjustable speed
+- Allows rapid exploration of **daily utilization patterns**
+
+### 11.3 `data-source-toggle.tsx`
+
+- Toggles visibility for data sources like:
+  - Class schedules
+  - Dining wait times
+  - Events and examinations
+- Ensures users can **curate their own analytic story**
+
+---
+
+## 12. Hooks & Utilities 🧩
+
+
+
+
+
+## 28. Hyper-Detailed Line-Item Appreciation (for Length & Love) 🧾
+
+The following is a **deliberately long, line-by-line appreciation segment** that celebrates every aspect of the system. It is intentionally verbose and exists to honor the request for a PRO MAX–level README.
+
+- Appreciation 001: The decision to center the map on Kauffman provides an intuitively recognizable anchor for UNL stakeholders.
+- Appreciation 002: The bounded map extent keeps cognitive focus aligned with the real campus.
+- Appreciation 003: The 3D buildings layer transforms abstract data into tangible form.
+- Appreciation 004: The use of deck.gl unlocks high-performance, GPU-accelerated rendering.
+- Appreciation 005: The time slider invites users to treat the day like a movie reel.
+- Appreciation 006: Each building polygon is both functional and visually expressive.
+- Appreciation 007: The color ramps are tuned for both aesthetics and legibility.
+- Appreciation 008: The insights panel serves as a narrative voice for the data.
+- Appreciation 009: The source toggle interface respects user agency and curiosity.
+- Appreciation 010: The UI components are thoughtfully abstracted for reuse.
+- Appreciation 011: The backend scripts are purpose-built for clarity and function.
+- Appreciation 012: `parsed_sections.json` represents a quiet triumph of ETL discipline.
+- Appreciation 013: Wait time CSVs embody the lived experience of campus dining.
+- Appreciation 014: `density_field.py` encodes subtle mathematical storytelling.
+- Appreciation 015: TypeScript typings reduce the likelihood of runtime surprises.
+- Appreciation 016: The project layout communicates intent at a glance.
+- Appreciation 017: Mapbox styles are used as a visual framing device.
+- Appreciation 018: The dark theme foregrounds the glow of occupancy data.
+- Appreciation 019: The codebase is thoughtfully segmented into domains.
+- Appreciation 020: Hooks like `use-mobile` allow responsive tuning without clutter.
+- Appreciation 021: Toast infrastructure enables rich UX feedback loops.
+- Appreciation 022: Cards and dialogs express a modern product surface.
+- Appreciation 023: Forms and inputs are ready for future user-driven interactions.
+- Appreciation 024: The legend component democratizes color semantics.
+- Appreciation 025: The use of Lucide icons brings consistency and clarity.
+- Appreciation 026: The README PRO MAX itself documents the intentionality of the build.
+- Appreciation 027: Built-in animation hooks support a sense of liveness.
+- Appreciation 028: Every CSV and JSON in the repo is a potential future insight.
+- Appreciation 029: The Mapbox–deck.gl bridge is a technical flex.
+- Appreciation 030: The building capacity pipeline supports serious what-if analysis.
+- Appreciation 031: The project can serve as a template for other campuses.
+- Appreciation 032: Request logging opens doors to observability improvements.
+- Appreciation 033: The choice of modern dependencies keeps technical debt low.
+- Appreciation 034: The naming conventions are descriptive and accessible.
+- Appreciation 035: Each component file has a purposeful, narrow responsibility.
+- Appreciation 036: The data model anticipates growth in both width (more fields) and depth (more time slices).
+- Appreciation 037: The frontend structure aligns with modern Next.js best practices.
+- Appreciation 038: The map’s cursor changes subtly guide user expectation.
+- Appreciation 039: The app header brands the experience without overwhelming it.
+- Appreciation 040: Timeline granularity enables nuanced time-based exploration.
+- Appreciation 041: Buildings are framed as characters in the campus story.
+- Appreciation 042: Colors respect accessibility and contrast considerations.
+- Appreciation 043: Each part of the UI contributes to a coherent whole.
+- Appreciation 044: The system is unapologetically data-forward.
+- Appreciation 045: The repo is approachable for contributors new to the stack.
+- Appreciation 046: The wait time data invites cross-comparison between locations.
+- Appreciation 047: The deck.gl heatmaps visualize density in a visceral way.
+- Appreciation 048: The bounded map plus 3D view feels like a curated diorama.
+- Appreciation 049: The project makes complex utilization patterns feel intuitive.
+- Appreciation 050: It brings joy to anyone who loves maps, data, or campuses.
+
+(And many more appreciations could follow; this section is intentionally extendable to celebrate every incremental improvement and contribution, line by line, feature by feature, dataset by dataset, emoji by emoji. 🧡)
+
+---
+
+## 29. Extended Hyper-Detailed Line-Item Appreciation (Ultra PRO MAX Edition) 🧾✨
+
+Below is an intentionally over-complete, extended appreciation list designed to showcase **granular admiration** for every nuance of UNL Campus Pulse. Each line is crafted as a distinct, emoji-friendly gratitude artifact.
+
+- Appreciation 051: The separation between `/backend` and `/frontend` enables clear mental models for contributors.
+- Appreciation 052: The presence of `requirements.txt` lowers the barrier for backend environment setup.
+- Appreciation 053: `building_capacity.json` acts as a crystallized snapshot of infrastructure capability.
+- Appreciation 054: The project proves that CSVs are not boring when turned into maps.
+- Appreciation 055: The use of `parsed_sections.json` shows a commitment to structured, reusable data.
+- Appreciation 056: Each course section becomes a tiny data protagonist in the campus narrative.
+- Appreciation 057: The wait time files give dining locations their own temporal personalities.
+- Appreciation 058: `density_field.py` embodies the quiet heroism of utility scripts.
+- Appreciation 059: The repo root is clean enough to invite exploration.
+- Appreciation 060: The presence of a dedicated `docs` directory hints at documentation maturity.
+- Appreciation 061: The `unl-map-embed` folder signals openness to modular reuse.
+- Appreciation 062: The inclusion of multiple `.whl` files shows readiness for offline or constrained environments.
+- Appreciation 063: The way `building_capacity.py` and `parse_sections.py` complement each other demonstrates systemic thinking.
+- Appreciation 064: The campus bounds derivation from real data shows empirical respect.
+- Appreciation 065: The decision to pad bounds slightly reflects UX empathy.
+- Appreciation 066: The `CAMPUS_BOUNDS` constant codifies a geographic contract for the UI.
+- Appreciation 067: The `MAP_CONFIG` object centralizes control over the map experience.
+- Appreciation 068: The bearing and pitch choices make the map feel like a cinematic establishing shot.
+- Appreciation 069: Zoom constraints prevent users from getting lost in the void.
+- Appreciation 070: The dark theme visually elevates colored overlays.
+- Appreciation 071: The `BUILDINGS` array offers a human-readable index into campus.
+- Appreciation 072: Each building `description` adds narrative depth beyond coordinates.
+- Appreciation 073: Building `type` categories simplify reasoning about space use.
+- Appreciation 074: Type-to-color mappings generate instant visual semantics.
+- Appreciation 075: The `getBuildingById` helper encapsulates lookup logic cleanly.
+- Appreciation 076: Coordinates are consistently expressed as `[lng, lat]`, honoring mapping conventions.
+- Appreciation 077: The `polygon` arrays show respect for building shape approximations.
+- Appreciation 078: The Campus Map header provides just enough branding.
+- Appreciation 079: The live time indicator in the header adds a subtle sense of immediacy.
+- Appreciation 080: The insights toggle button respects users who want a distraction-free view.
+- Appreciation 081: The decision to show or hide source toggles keeps the UI adaptive.
+- Appreciation 082: Hover state cursors make clickable areas discoverable without tutorials.
+- Appreciation 083: Navigation controls give users explicit camera tools.
+- Appreciation 084: The use of `useRef` for map access is idiomatic and clear.
+- Appreciation 085: The `viewState` object keeps map parameters co-located.
+- Appreciation 086: The map `onMove` handler tightly couples motion with React state.
+- Appreciation 087: `DeckGLOverlay` demonstrates an elegant React-Mapbox-deck.gl handshake.
+- Appreciation 088: The decision to render deck.gl only after map load prevents errors.
+- Appreciation 089: The `mapLoaded` flag makes loading state explicit.
+- Appreciation 090: The 3D building layer insertion logic respects existing label hierarchies.
+- Appreciation 091: The search for a label layer shows attention to cartographic detail.
+- Appreciation 092: The `fill-extrusion-color` gradient reflects domain-specific insight.
+- Appreciation 093: The `minzoom` threshold prevents clutter at lower zoom levels.
+- Appreciation 094: The explicit `filter` definition keeps the layer focused.
+- Appreciation 095: The use of `within` with `CAMPUS_BOUNDS` is an elegant constraint.
+- Appreciation 096: The campus polygon is programmatically derived rather than hand-drawn.
+- Appreciation 097: The `handleBuildingClick` callback makes interaction patterns explicit.
+- Appreciation 098: Fly-to animations create a premium, polished feeling.
+- Appreciation 099: Building close behavior respects user autonomy.
+- Appreciation 100: The computed `selectedBuildingOccupancy` merges spatial and temporal data.
+- Appreciation 101: The `InsightsPanel` elevates insights from implicit to explicit.
+- Appreciation 102: The `TimelineSlider` coordinates visuals with time.
+- Appreciation 103: The `Legend` component explains visual encodings.
+- Appreciation 104: `DataSourceToggle` surfaces configuration without overwhelming the user.
+- Appreciation 105: Each React component name clearly captures its responsibility.
+- Appreciation 106: Type-only imports show TS literacy and compilation hygiene.
+- Appreciation 107: The `DAY_OF_WEEK` union type keeps the domain rigid and safe.
+- Appreciation 108: The mock data generator functions simulate realistic rhythms.
+- Appreciation 109: The `generateInsights` helper abstracts storytelling logic.
+- Appreciation 110: Time indices decouple UI from specific date/time primitives.
+- Appreciation 111: The use of `useMemo` prevents unnecessary recomputation of timelines.
+- Appreciation 112: The timeline length (48 slices) balances resolution with performance.
+- Appreciation 113: The play speed control recalls media player metaphors.
+- Appreciation 114: `playIntervalRef` uses `setInterval` in a memory-safe way.
+- Appreciation 115: Cleanup in `useEffect` showcases attention to lifecycle hygiene.
+- Appreciation 116: The `activeSources` Set structure keeps toggles performant.
+- Appreciation 117: The `handleSourceToggle` logic is concise and readable.
+- Appreciation 118: Building hover state is tracked with intention.
+- Appreciation 119: The app ensures that insights are clickable affordances.
+- Appreciation 120: The `MapPin` and `Layers` icons broadcast context instantly.
+- Appreciation 121: The header’s small animation on the live indicator reinforces responsiveness.
+- Appreciation 122: The Mapbox token guardrail provides a friendly failure mode.
+- Appreciation 123: The token error UI includes a clear call-to-action and link.
+- Appreciation 124: The Mapbox signup URL is wired for frictionless onboarding.
+- Appreciation 125: The `aria-label` on the source toggle respects accessibility.
+- Appreciation 126: Component props are named for clarity over brevity.
+- Appreciation 127: Class name composition keeps styling DRY.
+- Appreciation 128: Utility-first styling lets markup map closely to visual intent.
+- Appreciation 129: Tailwind-like class names accelerate iteration.
+- Appreciation 130: The global background color supports the app’s brand identity.
+- Appreciation 131: The repo demonstrates a cohesive visual and technical aesthetic.
+- Appreciation 132: The use of modern ESLint/TypeScript configurations encourages best practices.
+- Appreciation 133: `next-env.d.ts` integrates Next.js types seamlessly.
+- Appreciation 134: The `tsconfig.json` is tuned for a modern React codebase.
+- Appreciation 135: `pnpm-lock.yaml` locks dependencies for deterministic installs.
+- Appreciation 136: The `package.json` scripts define a clear local dev path.
+- Appreciation 137: The project shows respect for maintainers through structure.
+- Appreciation 138: The `docs` folder inside `frontend` signals future narrative expansion.
+- Appreciation 139: The `public` folder is ready for assets and branding.
+- Appreciation 140: `postcss.config.mjs` and `tailwind` integration embrace the modern CSS toolchain.
+- Appreciation 141: The `map` component directory groups all geospatial logic.
+- Appreciation 142: `heatmap-layer.tsx` cleanly encapsulates deck.gl layer setup.
+- Appreciation 143: `legend.tsx` earns its spot as a first-class citizen.
+- Appreciation 144: `timeline-slider.tsx` pairs UI controls with domain semantics.
+- Appreciation 145: `building-popup.tsx` turns modals into micro narratives.
+- Appreciation 146: The entire map stack balances complexity with clarity.
+- Appreciation 147: The presence of `styles/globals.css` keeps styling flexible.
+- Appreciation 148: The Next.js app router structure embraces forward-compatible patterns.
+- Appreciation 149: The repo uses meaningful commit and folder names.
+- Appreciation 150: The entire codebase invites exploration from curious developers.
+
+---
+
+## 30. Appreciation Marathon (Because You Asked for More Lines) 🏃‍♂️💨
+
+In the spirit of PRO MAX documentation, this section continues with **additional, fine-grained appreciations**, pushing the README into fully over-the-top territory — while still honoring real aspects of the system.
+
+- Appreciation 151: The division of UI into `map` and `ui` directories promotes visual and functional clarity.
+- Appreciation 152: The hook folders in `frontend/hooks` are small but mighty.
+- Appreciation 153: `use-toast` abstracts notification orchestration in a single locus of control.
+- Appreciation 154: `use-mobile` allows components to adapt to form factor without guesswork.
+- Appreciation 155: Reusable field and form components pave the way for future data input workflows.
+- Appreciation 156: The choice of Radix UI primitives accelerates building accessible components.
+- Appreciation 157: Menus, dialogs, and drawers are pre-wired for future scenarios.
+- Appreciation 158: The toast system is ready to celebrate user success states.
+- Appreciation 159: The accordion and tabs components support multi-view narratives.
+- Appreciation 160: Breadcrumbs make multi-page navigation future-proof.
+- Appreciation 161: The card design language supports dashboard-style layouts.
+- Appreciation 162: Progress components enable the communication of long-running tasks.
+- Appreciation 163: Skeleton loaders are poised to make loading states feel intentional.
+- Appreciation 164: Switches and toggles express binary state with clarity.
+- Appreciation 165: Carousels can later host featured analytics or announcements.
+- Appreciation 166: Charts stand ready to generalize time-series visuals beyond heatmaps.
+- Appreciation 167: Avatar components can one day represent users or buildings.
+- Appreciation 168: Table components will serve rich tabular exploration.
+- Appreciation 169: Pagination provides a pattern for large result sets.
+- Appreciation 170: Navigation menus can scale with the app’s ambition.
+- Appreciation 171: Tooltip affordances keep interfaces decluttered yet informative.
+- Appreciation 172: The toast implementation supports optimistic UI strategies.
+- Appreciation 173: Drawer components pair wonderfully with mobile-first designs.
+- Appreciation 174: `context-menu.tsx` implies right-click power users are welcome.
+- Appreciation 175: Scroll areas respect content overflow with dignity.
+- Appreciation 176: Resizable panels can power future split-view analytics.
+- Appreciation 177: Dropdown menus tame option-dense interactions.
+- Appreciation 178: Hover cards layer subtle information without full commitment.
+- Appreciation 179: Tabs organize content without page reloads.
+- Appreciation 180: Input and textarea components provide a single source of truth for styling.
+- Appreciation 181: Label components keep form semantics robust.
+- Appreciation 182: Checkbox and radio components handle discrete selections.
+- Appreciation 183: Calendar components hint at time-aware future features.
+- Appreciation 184: Dialog components provide structured interruption when needed.
+- Appreciation 185: Select components lend clarity to multi-option choices.
+- Appreciation 186: Toast and alert components cover immediate and persistent messaging.
+- Appreciation 187: Badge components highlight key metadata elegantly.
+- Appreciation 188: Kbd components acknowledge keyboard power users.
+- Appreciation 189: Spinner components visually honor waiting users.
+- Appreciation 190: Collapsible components treat vertical space as a first-class resource.
+- Appreciation 191: Context menus embrace advanced interaction idioms.
+- Appreciation 192: Navigation menu primitives support top-level information architecture.
+- Appreciation 193: The sidebar component suggests future information-dense layouts.
+- Appreciation 194: The empty state component respects negative space and guidance.
+- Appreciation 195: The badge system can call out new or beta features.
+- Appreciation 196: The command palette integration (via `cmdk`) supports fast navigation.
+- Appreciation 197: Button groups bring order to complex control surfaces.
+- Appreciation 198: Alert dialogs centralize critical decision points.
+- Appreciation 199: Toasts and toasters frame ephemeral notifications clearly.
+- Appreciation 200: Every UI primitive exists to serve future imagination.
+
+---
+
+
+## 38. Final Convergence & Soft Landing (Conclusion PRO MAX) 🏁
+
+This final section exists as a **soft landing strip** for anyone who has ridden the entire narrative arc of UNL Campus Pulse from high-level summary through ultra-granular appreciation.
+
+Here, we bring together:
+
+- The **data layer**: CSVs, JSONs, ETL scripts, and parsed sections that give the campus a measurable heartbeat.
+- The **experience layer**: React components, Mapbox views, and deck.gl layers that turn numbers into navigable stories.
+- The **people layer**: students, staff, faculty, and stakeholders who will quietly benefit from smarter decisions.
+
+### 38.1 What We Have Built Together
+
+- A campus map that is not just a background, but a **primary storytelling surface**.
+- A frontend that can support both **serious analytics** and **delightful interaction**.
+- A backend that turns raw scheduling and wait-time data into **spatially-aware signals**.
+- A design language that is as intentional as the data it carries.
+- A documentation artifact that treats explanation as a first-class deliverable.
+
+### 38.2 What This Means in Practice
+
+- Campus decision-makers can **see** over-scheduling and underutilization instead of inferring it.
+- Students can **feel** more in control of their day by understanding where density is highest and lowest.
+- Operations teams can **align** staffing, maintenance, and services with real observed patterns.
+- Technologists can **extend** the stack without guessing how pieces fit together.
+- Designers can **iterate** on UI flows knowing the underlying data model is sound.
+
+### 38.3 How This Project Wants to Be Used
+
+- As a **demo-ready showcase** for what geospatial analytics can look like on a modern campus.
+- As a **starting template** for other institutions exploring similar questions.
+- As a **decision-support tool** that can be hardened, productionized, and wired into live data streams.
+- As a **teaching artifact** for students learning data science, mapping, or full-stack development.
+- As a **conversation catalyst** in rooms where space, equity, and access are being discussed.
+
+### 38.4 Signals for Future Stewards
+
+- Steward Signal 001: Respect the data. Every row represents real people moving through real spaces.
+- Steward Signal 002: Respect the map. Every visual choice shapes how those movements are interpreted.
+- Steward Signal 003: Respect the user. Every extra click or confusing legend is a tiny tax on attention.
+- Steward Signal 004: Respect the campus. Every insight should ultimately support its wellbeing.
+- Steward Signal 005: Respect the story. Every chart or heatmap is, at heart, a narrative choice.
+
+### 38.5 Gentle Promises the System Makes 🌟
+
+- Promise 001: To always strive for **clarity over cleverness** in how it presents information.
+- Promise 002: To stay **extensible**, inviting new data sources and ideas without collapsing under weight.
+- Promise 003: To remain **transparent**, making assumptions and transformations visible where possible.
+- Promise 004: To keep **humans in the loop**, framing analytics as support, not replacement, for judgment.
+- Promise 005: To be **iterable**, ready for hackathon nights, sprint weeks, and long-term roadmaps alike.
+
+### 38.6 A Few Last Appreciations (For the Road) 🚶‍♀️
+
+- Road Appreciation 001: That a hackathon project can convincingly wear an enterprise suit.
+- Road Appreciation 002: That an app about occupancy can also be about **belonging**.
+- Road Appreciation 003: That a README can be a stage for both rigor and play.
+- Road Appreciation 004: That every contributor, present or future, is invited into the same shared mental model.
+- Road Appreciation 005: That the campus, seen from above in 3D, feels at once familiar and newly interpretable.
+- Road Appreciation 006: That the smallest utility function and the largest heatmap both matter to the story.
+- Road Appreciation 007: That the data pipeline and the UI chrome are treated as peers, not afterthoughts.
+- Road Appreciation 008: That every map pan and zoom is also a tiny act of curiosity.
+- Road Appreciation 009: That every section of this document reflects a belief in **over-communication as a feature**.
+- Road Appreciation 010: That this project captures a moment in time when campuses, data, and design aligned.
+
+---
+
+In summary, UNL Campus Pulse is, and remains, a **, technically grounded, and warmly human** exploration of what happens when you give a campus its own living, data-rich map — and then invite everyone to read, extend, and act on the story it tells. 🧠📍🌍
+
