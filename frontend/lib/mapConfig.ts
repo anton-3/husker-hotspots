@@ -23,6 +23,12 @@ export const BUILDING_PITCH = 60;
 
 /** Optional bounds for UNL City Campus (southwest and northeast) */
 export const CAMPUS_BOUNDS = {
-  southwest: [-96.705, 40.812] as [number, number],
+  southwest: [-96.708, 40.812] as [number, number],
   northeast: [-96.69, 40.825] as [number, number],
 } as const;
+
+/** Bounds for Mapbox maxBounds: [[west, south], [east, north]] */
+export const CAMPUS_MAX_BOUNDS: [[number, number], [number, number]] = [
+  CAMPUS_BOUNDS.southwest,
+  CAMPUS_BOUNDS.northeast,
+];
