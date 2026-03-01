@@ -10,6 +10,19 @@ export interface DensityHeatmapPoint {
   weight: number;
 }
 
+/** One class/section active at the current time (from density API). */
+export interface ClassAtTime {
+  course_label: string;
+  title: string;
+  room: string;
+  location?: string;
+  enrolled: number;
+  capacity: number;
+  start_time: string;
+  end_time: string;
+  days: string;
+}
+
 export interface DensityResponse {
   bounds: {
     southwest: [number, number];
@@ -24,7 +37,12 @@ export interface DensityResponse {
   weekday: string;
   time_slot: string;
   /** Per-building occupancy at current time (from classes provider). */
-  buildings?: { building_id: string; estimated_people: number; active_sections?: number }[];
+  buildings?: {
+    building_id: string;
+    estimated_people: number;
+    active_sections?: number;
+    classes?: ClassAtTime[];
+  }[];
 }
 
 const API_BASE =

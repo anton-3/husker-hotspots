@@ -45,6 +45,13 @@ def _minutes_from_hhmm(hhmm: str) -> int:
     return parsed.hour * 60 + parsed.minute
 
 
+def _minutes_to_hhmm(minutes: int) -> str:
+    """Convert minutes since midnight to HH:MM string."""
+    h = minutes // 60
+    m = minutes % 60
+    return f"{h:02d}:{m:02d}"
+
+
 def _load_sections(classes_dir: Path) -> List[Dict[str, object]]:
     filepath = classes_dir / "parsed_sections.json"
     with filepath.open("r", encoding="utf-8") as file:
@@ -103,6 +110,8 @@ def _load_section_index(classes_dir_str: str) -> Dict[str, object]:
                     "days": normalized_days,
                     "start": start_minutes,
                     "end": end_minutes,
+                    "start_time": start_time,
+                    "end_time": end_time,
                 }
             )
 
@@ -110,6 +119,7 @@ def _load_section_index(classes_dir_str: str) -> Dict[str, object]:
             continue
 
         scheduled_sections += 1
+        first = meetings[0]
         indexed_sections.append(
             {
                 "lat": float(lat),
@@ -118,6 +128,14 @@ def _load_section_index(classes_dir_str: str) -> Dict[str, object]:
                 "enrolled": section.get("enrolled"),
                 "capacity": section.get("capacity"),
                 "meetings": meetings,
+                "course_label": str(section.get("courseLabel") or ""),
+                "title": str(section.get("title") or ""),
+                "room": str(section.get("room") or ""),
+                "location": str(section.get("location") or ""),
+                "building": str(section.get("building") or ""),
+                "start_time": str(first.get("start_time", "")),
+                "end_time": str(first.get("end_time", "")),
+                "days": str(first.get("days", "")),
             }
         )
 
@@ -272,6 +290,7 @@ def generate_people_density_field(
                 "active_sections": 0,
                 "avg_spread_multiplier": 1.0,
                 "_spread_weight": 0.0,
+                "classes": [],
             }
 
         by_building[building_key]["estimated_people"] = float(by_building[building_key]["estimated_people"]) + adjusted_people
@@ -281,6 +300,31 @@ def generate_people_density_field(
             + section_spread_mult * adjusted_people
         )
         by_building[building_key]["_spread_weight"] = float(by_building[building_key]["_spread_weight"]) + adjusted_people
+
+        enrolled_val = section.get("enrolled")
+        capacity_val = section.get("capacity")
+        if isinstance(enrolled_val, (int, float)):
+            enrolled_int = int(enrolled_val)
+        else:
+            enrolled_int = 0
+        if isinstance(capacity_val, (int, float)):
+            capacity_int = int(capacity_val)
+        else:
+            capacity_int = 0
+
+        by_building[building_key]["classes"].append(
+            {
+                "course_label": str(section.get("course_label", "")),
+                "title": str(section.get("title", "")),
+                "room": str(section.get("room", "")),
+                "location": str(section.get("location", "")),
+                "enrolled": enrolled_int,
+                "capacity": capacity_int,
+                "start_time": str(section.get("start_time", "")),
+                "end_time": str(section.get("end_time", "")),
+                "days": str(section.get("days", "")),
+            }
+        )
 
     for building in by_building.values():
         spread_weight = float(building["_spread_weight"])

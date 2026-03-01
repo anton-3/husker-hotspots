@@ -75,6 +75,7 @@ def get_combined_density(
                         "building_id": str(b.get("key", "")),
                         "estimated_people": float(b.get("estimated_people", 0)),
                         "active_sections": int(b.get("active_sections", 0)),
+                        "classes": b.get("classes") if isinstance(b.get("classes"), list) else [],
                     }
                     for b in active_buildings
                     if isinstance(b, dict)

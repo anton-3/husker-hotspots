@@ -700,6 +700,10 @@ export function CampusMap() {
           onClose={handleCloseBuilding}
           apiTimelineSlots={buildingTimelineData?.slots ?? null}
           sourceBreakdownOverride={sourceBreakdownOverride}
+          classesAtTime={
+            densityData?.buildings?.find((b) => b.building_id === richBuilding.id)?.classes ?? []
+          }
+          currentTimeLabel={currentSnapshot?.time.label ?? ""}
         />
       )}
       {showMinimalPopup && selectedBuilding && (
