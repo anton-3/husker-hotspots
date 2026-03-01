@@ -1,410 +1,2406 @@
 [
   {
+    "buildingCode": "14PG",
+    "displayName": "14th & Avery Parking Garage",
+    "campus": "City Campus",
+    "name": "14th &amp; Avery Parking Garage",
+    "shortName": "14PG",
+    "address": "1111 N 14th St",
+    "lat": 40.824431206399,
+    "lng": -96.702031918451
+  },
+  {
+    "buildingCode": "17PG",
+    "displayName": "17th & R Parking Garage",
+    "campus": "City Campus",
+    "name": "17th &amp; R Parking Garage",
+    "shortName": "17PG",
+    "address": "300 N 17th St",
+    "lat": 40.816367617125,
+    "lng": -96.69599605644
+  },
+  {
+    "buildingCode": "18R",
+    "displayName": "18th & R Parking Garage",
+    "campus": "City Campus",
+    "name": "18th &amp; R Parking Garage",
+    "shortName": "18R",
+    "address": "1801 R St",
+    "lat": 40.816363872311,
+    "lng": -96.694757615878
+  },
+  {
+    "buildingCode": "18S",
+    "displayName": "18th & S Support Building",
+    "campus": "City Campus",
+    "name": "18th &amp; S Support Building",
+    "shortName": "18S",
+    "address": "510 N 17th St",
+    "lat": 40.818273086337,
+    "lng": -96.695241474284
+  },
+  {
+    "buildingCode": "19PG",
+    "displayName": "19th and Vine Parking Garage",
+    "campus": "City Campus",
+    "name": "19th and Vine Parking Garage",
+    "shortName": "19PG",
+    "address": "1830 Vine St",
+    "lat": 40.8214438988,
+    "lng": -96.694411124609
+  },
+  {
+    "buildingCode": "2222",
+    "displayName": "Vine Street Apartments West",
+    "campus": "City Campus",
+    "name": "Vine Street Apartments West",
+    "shortName": "2222",
+    "address": "2222 Vine St",
+    "lat": 40.821009889848,
+    "lng": -96.688203206986
+  },
+  {
+    "buildingCode": "501",
+    "displayName": "501 Building",
+    "campus": "City Campus",
+    "name": "501 Building",
+    "shortName": "501",
+    "address": "501 Stadium Dr",
+    "lat": 40.818450473554,
+    "lng": -96.707413635471
+  },
+  {
     "buildingCode": "ACB",
-    "inferredName": "Agricultural Comm Bldg",
-    "sectionCount": 2,
-    "nameVariants": 1,
-    "sampleLat": 40.8290939,
-    "sampleLng": -96.6684494
+    "displayName": "Agricultural Communications Building",
+    "campus": "East Campus",
+    "name": "Agricultural Communications Building",
+    "shortName": "ACB",
+    "address": "3620 East Campus Loop S",
+    "lat": 40.829080756948,
+    "lng": -96.668456391114
+  },
+  {
+    "buildingCode": "ADMN",
+    "displayName": "Canfield Administration Building North",
+    "campus": "City Campus",
+    "name": "Canfield Administration Building North",
+    "shortName": "ADMN",
+    "address": "503 N 14th St",
+    "lat": 40.818067553514,
+    "lng": -96.701651416309
+  },
+  {
+    "buildingCode": "ADMS",
+    "displayName": "Canfield Administration Building South",
+    "campus": "City Campus",
+    "name": "Canfield Administration Building South",
+    "shortName": "ADMS",
+    "address": "501 N 14th St",
+    "lat": 40.817698405487,
+    "lng": -96.701636100758
+  },
+  {
+    "buildingCode": "AGH",
+    "displayName": "Agricultural Hall",
+    "campus": "East Campus",
+    "name": "Agricultural Hall",
+    "shortName": "AGH",
+    "address": "3550 East Campus Loop S",
+    "lat": 40.829159532945,
+    "lng": -96.669391542767
+  },
+  {
+    "buildingCode": "AHFS",
+    "displayName": "Agronomy & Horticulture/Forestry Shops",
+    "campus": "East Campus",
+    "name": "Agronomy &amp; Horticulture/Forestry Shops",
+    "shortName": "AHFS",
+    "address": "2103 N 38th St",
+    "lat": 40.834552773167,
+    "lng": -96.666840126752
+  },
+  {
+    "buildingCode": "AHG1",
+    "displayName": "Agronomy & Horticulture Greenhouse 1",
+    "campus": "East Campus",
+    "name": "Agronomy &amp; Horticulture Greenhouse 1",
+    "shortName": "AHG1",
+    "address": "2100 N 38th St",
+    "lat": 40.834969502702,
+    "lng": -96.665324206826
+  },
+  {
+    "buildingCode": "AHG2",
+    "displayName": "Agronomy & Horticulture Greenhouse 2",
+    "campus": "East Campus",
+    "name": "Agronomy &amp; Horticulture Greenhouse 2",
+    "shortName": "AHG2",
+    "address": "2041 N 38th St",
+    "lat": 40.834428684427,
+    "lng": -96.665182117701
+  },
+  {
+    "buildingCode": "AHG3",
+    "displayName": "Agronomy & Horticulture Greenhouse 3",
+    "campus": "East Campus",
+    "name": "Agronomy &amp; Horticulture Greenhouse 3",
+    "shortName": "AHG3",
+    "address": "2065 N 38th St",
+    "lat": 40.834428705699,
+    "lng": -96.664226916702
+  },
+  {
+    "buildingCode": "AHG4",
+    "displayName": "Agronomy & Horticulture Greenhouse 4",
+    "campus": "East Campus",
+    "name": "Agronomy &amp; Horticulture Greenhouse 4",
+    "shortName": "AHG4",
+    "address": "3855 Merrill St",
+    "lat": 40.833766548106,
+    "lng": -96.66408677371
+  },
+  {
+    "buildingCode": "AHPH",
+    "displayName": "Agronomy & Horticulture Physiology Building",
+    "campus": "East Campus",
+    "name": "Agronomy &amp; Horticulture Physiology Building",
+    "shortName": "AHPH",
+    "address": "3710 Merrill St",
+    "lat": 40.834575552022,
+    "lng": -96.667542022211
+  },
+  {
+    "buildingCode": "AHTL",
+    "displayName": "Agronomy & Horticulture Outstate Testing Laboratory",
+    "campus": "East Campus",
+    "name": "Agronomy &amp; Horticulture Outstate Testing Laboratory",
+    "shortName": "AHTL",
+    "address": "3720 Merrill St",
+    "lat": 40.834272180361,
+    "lng": -96.667525721832
+  },
+  {
+    "buildingCode": "ALEX",
+    "displayName": "Alexander Building",
+    "campus": "City Campus",
+    "name": "Alexander Building",
+    "shortName": "ALEX",
+    "address": "1410 Q St",
+    "lat": 40.816175040273,
+    "lng": -96.700608536969
   },
   {
     "buildingCode": "ANDN",
-    "inferredName": "Andersen Hall",
-    "sectionCount": 97,
-    "nameVariants": 17,
-    "sampleLat": 40.8152237,
-    "sampleLng": -96.6991272
+    "displayName": "Andersen Hall",
+    "campus": "City Campus",
+    "name": "Andersen Hall",
+    "shortName": "ANDN",
+    "address": "200 Centennial Mall N",
+    "lat": 40.815278580479,
+    "lng": -96.699239334512
   },
   {
     "buildingCode": "ANDR",
-    "inferredName": "Andrews Hall",
-    "sectionCount": 104,
-    "nameVariants": 21,
-    "sampleLat": 40.8193321,
-    "sampleLng": -96.701767
+    "displayName": "Andrews Hall",
+    "campus": "City Campus",
+    "name": "Andrews Hall",
+    "shortName": "ANDR",
+    "address": "625 N 14th St",
+    "lat": 40.819348794032,
+    "lng": -96.70185728496
   },
   {
     "buildingCode": "ANSC",
-    "inferredName": "Animal Science",
-    "sectionCount": 10,
-    "nameVariants": 5,
-    "sampleLat": 40.8323326,
-    "sampleLng": -96.6644058
+    "displayName": "Animal Science Complex",
+    "campus": "East Campus",
+    "name": "Animal Science Complex",
+    "shortName": "ANSC",
+    "address": "3940 Fair St",
+    "lat": 40.832381208736,
+    "lng": -96.664330164093
   },
   {
     "buildingCode": "ARCH",
-    "inferredName": "Architecture Hall",
-    "sectionCount": 90,
-    "nameVariants": 8,
-    "sampleLat": 40.8174973,
-    "sampleLng": -96.7060623
+    "displayName": "Architecture Hall",
+    "campus": "City Campus",
+    "name": "Architecture Hall",
+    "shortName": "ARCH",
+    "address": "402 Stadium Dr",
+    "lat": 40.817434823396,
+    "lng": -96.706074789244
+  },
+  {
+    "buildingCode": "ARCL",
+    "displayName": "Architecture Hall Link",
+    "campus": "City Campus",
+    "name": "Architecture Hall Link",
+    "shortName": "ARCL",
+    "address": "404 Stadium Dr",
+    "lat": 40.817368781215,
+    "lng": -96.706411279091
+  },
+  {
+    "buildingCode": "ARCW",
+    "displayName": "Architecture Hall West",
+    "campus": "City Campus",
+    "name": "Architecture Hall West",
+    "shortName": "ARCW",
+    "address": "400 Stadium Dr",
+    "lat": 40.817399462737,
+    "lng": -96.706515441432
+  },
+  {
+    "buildingCode": "ARH",
+    "displayName": "Abel Hall",
+    "campus": "City Campus",
+    "name": "Abel Hall",
+    "shortName": "ARH",
+    "address": "880 N 17th St",
+    "lat": 40.822197345709,
+    "lng": -96.69606276613
+  },
+  {
+    "buildingCode": "ASFS",
+    "displayName": "Abel-Sandoz Food Service Building",
+    "campus": "City Campus",
+    "name": "Abel-Sandoz Food Service Building",
+    "shortName": "ASFS",
+    "address": "840 N 17th St",
+    "lat": 40.822196094993,
+    "lng": -96.695664170439
+  },
+  {
+    "buildingCode": "ASWC",
+    "displayName": "Abel-Sandoz Welcome Center",
+    "campus": "City Campus",
+    "name": "Abel-Sandoz Welcome Center",
+    "shortName": "ASWC",
+    "address": "830 N 17th St",
+    "lat": 40.821780882244,
+    "lng": -96.695740205616
   },
   {
     "buildingCode": "AVH",
-    "inferredName": "Avery Hall",
-    "sectionCount": 134,
-    "nameVariants": 13,
-    "sampleLat": 40.8193321,
-    "sampleLng": -96.7044067
+    "displayName": "Avery Hall",
+    "campus": "City Campus",
+    "name": "Avery Hall",
+    "shortName": "AVH",
+    "address": "1144 T St",
+    "lat": 40.819489380488,
+    "lng": -96.704660345872
+  },
+  {
+    "buildingCode": "BDL",
+    "displayName": "Bio-Fiber Development Laboratory",
+    "campus": "East Campus",
+    "name": "Bio-Fiber Development Laboratory",
+    "shortName": "BDL",
+    "address": "1605 N 35th St",
+    "lat": 40.828823256617,
+    "lng": -96.67001744924
   },
   {
     "buildingCode": "BEAD",
-    "inferredName": "Beadle Center E103",
-    "sectionCount": 87,
-    "nameVariants": 10,
-    "sampleLat": 40.8198967,
-    "sampleLng": -96.6932755
+    "displayName": "Beadle Center",
+    "campus": "City Campus",
+    "name": "Beadle Center",
+    "shortName": "BEAD",
+    "address": "1901 Vine St",
+    "lat": 40.82000309214,
+    "lng": -96.693104443604
+  },
+  {
+    "buildingCode": "BEL",
+    "displayName": "Behlen Laboratory",
+    "campus": "City Campus",
+    "name": "Behlen Laboratory",
+    "shortName": "BEL",
+    "address": "500 Stadium Dr",
+    "lat": 40.818113081014,
+    "lng": -96.706604600488
+  },
+  {
+    "buildingCode": "BENH",
+    "displayName": "Benton Hall",
+    "campus": "City Campus",
+    "name": "Benton Hall",
+    "shortName": "BENH",
+    "address": "1535 U St",
+    "lat": 40.819589261802,
+    "lng": -96.698959212079
   },
   {
     "buildingCode": "BESY",
-    "inferredName": "Bessey Hall",
-    "sectionCount": 66,
-    "nameVariants": 14,
-    "sampleLat": 40.8200111,
-    "sampleLng": -96.7032471
+    "displayName": "Bessey Hall",
+    "campus": "City Campus",
+    "name": "Bessey Hall",
+    "shortName": "BESY",
+    "address": "1215 U St",
+    "lat": 40.819967822521,
+    "lng": -96.703294026815
+  },
+  {
+    "buildingCode": "BIC",
+    "displayName": "Breslow Ice Center",
+    "campus": "Off Campus",
+    "name": "Breslow Ice Center",
+    "shortName": "BIC",
+    "address": "433 V St",
+    "lat": 40.821032879404,
+    "lng": -96.716200471391
+  },
+  {
+    "buildingCode": "BIOG",
+    "displayName": "Bioscience Greenhouses",
+    "campus": "City Campus",
+    "name": "Bioscience Greenhouses",
+    "shortName": "BIOG",
+    "address": "1901 Vine St",
+    "lat": 40.819242477728,
+    "lng": -96.693107758497
   },
   {
     "buildingCode": "BKC",
-    "inferredName": "Barkley Center",
-    "sectionCount": 2,
-    "nameVariants": 1,
-    "sampleLat": 40.8287735,
-    "sampleLng": -96.6609116
+    "displayName": "Barkley Memorial Center",
+    "campus": "East Campus",
+    "name": "Barkley Memorial Center",
+    "shortName": "BKC",
+    "address": "4075 East Campus Loop S",
+    "lat": 40.828800888866,
+    "lng": -96.660697886392
   },
   {
     "buildingCode": "BL",
-    "inferredName": "Brace Lab",
-    "sectionCount": 83,
-    "nameVariants": 9,
-    "sampleLat": 40.8180008,
-    "sampleLng": -96.7061844
+    "displayName": "Brace Laboratory",
+    "campus": "City Campus",
+    "name": "Brace Laboratory",
+    "shortName": "BL",
+    "address": "510 Stadium Dr",
+    "lat": 40.818074167592,
+    "lng": -96.70624935751
+  },
+  {
+    "buildingCode": "BSC",
+    "displayName": "Business Services Complex",
+    "campus": "City Campus",
+    "name": "Business Services Complex",
+    "shortName": "BSC",
+    "address": "1700 Y St",
+    "lat": 40.825478631236,
+    "lng": -96.69571014866
   },
   {
     "buildingCode": "BURN",
-    "inferredName": "Burnett",
-    "sectionCount": 178,
-    "nameVariants": 23,
-    "sampleLat": 40.8193474,
-    "sampleLng": -96.703186
+    "displayName": "Burnett Hall",
+    "campus": "City Campus",
+    "name": "Burnett Hall",
+    "shortName": "BURN",
+    "address": "1220 T St",
+    "lat": 40.819398999781,
+    "lng": -96.703294589786
+  },
+  {
+    "buildingCode": "BUSG",
+    "displayName": "Bus Garage",
+    "campus": "City Campus",
+    "name": "Bus Garage",
+    "shortName": "BUSG",
+    "address": "1935 N Antelope Valley Pky",
+    "lat": 40.832766991363,
+    "lng": -96.703046194148
+  },
+  {
+    "buildingCode": "CCUP",
+    "displayName": "Utility Plant, City Campus",
+    "campus": "City Campus",
+    "name": "Utility Plant, City Campus",
+    "shortName": "CCUP",
+    "address": "905 N 14th St",
+    "lat": 40.822820258191,
+    "lng": -96.701963307544
+  },
+  {
+    "buildingCode": "CDL",
+    "displayName": "Ruth Staples Laboratory",
+    "campus": "East Campus",
+    "name": "Ruth Staples Laboratory",
+    "shortName": "CDL",
+    "address": "1855 N 35th St",
+    "lat": 40.831402290129,
+    "lng": -96.670076065778
   },
   {
     "buildingCode": "CEMA",
-    "inferredName": "Center for Emerging Arts",
-    "sectionCount": 25,
-    "nameVariants": 8,
-    "sampleLat": 40.815926,
-    "sampleLng": -96.702415
+    "displayName": "Johnny Carson Center for Emerging Media Arts",
+    "campus": "City Campus",
+    "name": "Johnny Carson Center for Emerging Media Arts",
+    "shortName": "CEMA",
+    "address": "1300 Q St",
+    "lat": 40.816245315771,
+    "lng": -96.702233423894
   },
   {
     "buildingCode": "CHA",
-    "inferredName": "Chase Hall",
-    "sectionCount": 3,
-    "nameVariants": 3,
-    "sampleLat": 40.8313904,
-    "sampleLng": -96.6689148
+    "displayName": "Chase Hall",
+    "campus": "East Campus",
+    "name": "Chase Hall",
+    "shortName": "CHA",
+    "address": "3605 Fair St",
+    "lat": 40.831415254371,
+    "lng": -96.668925603119
+  },
+  {
+    "buildingCode": "CHC",
+    "displayName": "UNL Children's Center",
+    "campus": "City Campus",
+    "name": "UNL Children's Center",
+    "shortName": "CHC",
+    "address": "2225 W St",
+    "lat": 40.822359450723,
+    "lng": -96.689296753209
+  },
+  {
+    "buildingCode": "COL",
+    "displayName": "Coliseum",
+    "campus": "City Campus",
+    "name": "Coliseum",
+    "shortName": "COL",
+    "address": "1350 Vine St",
+    "lat": 40.821573128892,
+    "lng": -96.702566252023
+  },
+  {
+    "buildingCode": "COOK",
+    "displayName": "Cook Pavilion",
+    "campus": "City Campus",
+    "name": "Cook Pavilion",
+    "shortName": "COOK",
+    "address": "845 N 14th St",
+    "lat": 40.822265753361,
+    "lng": -96.702232594525
+  },
+  {
+    "buildingCode": "CORT",
+    "displayName": "The Courtyards",
+    "campus": "City Campus",
+    "name": "The Courtyards",
+    "shortName": "CORT",
+    "address": "733 N 17th St",
+    "lat": 40.820029684134,
+    "lng": -96.697040570342
   },
   {
     "buildingCode": "CPEH",
-    "inferredName": "Carolyn Pope Edwards Hall",
-    "sectionCount": 74,
-    "nameVariants": 12,
-    "sampleLat": 40.8218002,
-    "sampleLng": -96.7008209
+    "displayName": "Carolyn Pope Edwards Hall",
+    "campus": "City Campus",
+    "name": "Carolyn Pope Edwards Hall",
+    "shortName": "CPEH",
+    "address": "840 N 14th St",
+    "lat": 40.82179342024,
+    "lng": -96.700782621498
   },
   {
     "buildingCode": "CREC",
-    "inferredName": "Campus Rec",
-    "sectionCount": 46,
-    "nameVariants": 7,
-    "sampleLat": 40.8219299,
-    "sampleLng": -96.7023697
+    "displayName": "Sapp Recreation Facility",
+    "campus": "City Campus",
+    "name": "Sapp Recreation Facility",
+    "shortName": "CREC",
+    "address": "841 N 14th St",
+    "lat": 40.821592985676,
+    "lng": -96.702121046559
+  },
+  {
+    "buildingCode": "CRES",
+    "displayName": "Campus Renewable Energy System Building",
+    "campus": "Innovation Campus",
+    "name": "Campus Renewable Energy System Building",
+    "shortName": "CRES",
+    "address": "2402 Salt Creek Rdwy",
+    "lat": 40.8364117824,
+    "lng": -96.685837829233
+  },
+  {
+    "buildingCode": "CSA",
+    "displayName": "Conservation & Survey Annex",
+    "campus": "East Campus",
+    "name": "Conservation &amp; Survey Annex",
+    "shortName": "CSA",
+    "address": "2000 N 34th St",
+    "lat": 40.832841885254,
+    "lng": -96.6711320982
+  },
+  {
+    "buildingCode": "CTA1",
+    "displayName": "Colonial Terrace Apartment A-1",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment A-1",
+    "shortName": "CTA1",
+    "address": "3330 Starr St",
+    "lat": 40.827344827511,
+    "lng": -96.672032672727
+  },
+  {
+    "buildingCode": "CTA2",
+    "displayName": "Colonial Terrace Apartment A-2",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment A-2",
+    "shortName": "CTA2",
+    "address": "3400 Starr St",
+    "lat": 40.827335986445,
+    "lng": -96.67094724417
+  },
+  {
+    "buildingCode": "CTA3",
+    "displayName": "Colonial Terrace Apartment A-3",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment A-3",
+    "shortName": "CTA3",
+    "address": "3323 Starr St",
+    "lat": 40.826887527705,
+    "lng": -96.672024959281
+  },
+  {
+    "buildingCode": "CTA4",
+    "displayName": "Colonial Terrace Apartment A-4",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment A-4",
+    "shortName": "CTA4",
+    "address": "3401 Starr St",
+    "lat": 40.826902977405,
+    "lng": -96.670940025655
+  },
+  {
+    "buildingCode": "CTB",
+    "displayName": "Colonial Terrace Apartment B",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment B",
+    "shortName": "CTB",
+    "address": "3344 Starr St",
+    "lat": 40.827284930427,
+    "lng": -96.67148968712
+  },
+  {
+    "buildingCode": "CTC1",
+    "displayName": "Colonial Terrace Apartment C-1",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment C-1",
+    "shortName": "CTC1",
+    "address": "3320 Starr St",
+    "lat": 40.827318728328,
+    "lng": -96.672301251521
+  },
+  {
+    "buildingCode": "CTC2",
+    "displayName": "Colonial Terrace Apartment C-2",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment C-2",
+    "shortName": "CTC2",
+    "address": "3340 Starr St",
+    "lat": 40.827320050458,
+    "lng": -96.671758770707
+  },
+  {
+    "buildingCode": "CTC3",
+    "displayName": "Colonial Terrace Apartment C-3",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment C-3",
+    "shortName": "CTC3",
+    "address": "3315 Starr St",
+    "lat": 40.826911633848,
+    "lng": -96.672298927867
+  },
+  {
+    "buildingCode": "CTC4",
+    "displayName": "Colonial Terrace Apartment C-4",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment C-4",
+    "shortName": "CTC4",
+    "address": "3333 Starr St",
+    "lat": 40.826913565666,
+    "lng": -96.671757154943
+  },
+  {
+    "buildingCode": "CTD1",
+    "displayName": "Colonial Terrace Apartment D-1",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment D-1",
+    "shortName": "CTD1",
+    "address": "3301 Starr St",
+    "lat": 40.826924298598,
+    "lng": -96.672568822325
+  },
+  {
+    "buildingCode": "CTD2",
+    "displayName": "Colonial Terrace Apartment D-2",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartment D-2",
+    "shortName": "CTD2",
+    "address": "3345 Starr St",
+    "lat": 40.826922028779,
+    "lng": -96.671484663743
+  },
+  {
+    "buildingCode": "CTES",
+    "displayName": "City Thermal Energy Storage",
+    "campus": "City Campus",
+    "name": "City Thermal Energy Storage",
+    "shortName": "CTES",
+    "address": "1340 N 17th St",
+    "lat": 40.827429990437,
+    "lng": -96.695867610281
+  },
+  {
+    "buildingCode": "CTS1",
+    "displayName": "Colonial Terrace Apartments Shop 1",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartments Shop 1",
+    "shortName": "CTS1",
+    "address": "3332 Starr St",
+    "lat": 40.827506856114,
+    "lng": -96.672022621158
+  },
+  {
+    "buildingCode": "CTS2",
+    "displayName": "Colonial Terrace Apartments Shop 2",
+    "campus": "East Campus",
+    "name": "Colonial Terrace Apartments Shop 2",
+    "shortName": "CTS2",
+    "address": "3342 Starr St",
+    "lat": 40.827504022756,
+    "lng": -96.671742253174
+  },
+  {
+    "buildingCode": "DENT",
+    "displayName": "College of Dentistry",
+    "campus": "East Campus",
+    "name": "College of Dentistry",
+    "shortName": "DENT",
+    "address": "4000 East Campus Loop S",
+    "lat": 40.829264492366,
+    "lng": -96.66339140315
+  },
+  {
+    "buildingCode": "DEV",
+    "displayName": "Devaney Sports Center",
+    "campus": "City Campus",
+    "name": "Devaney Sports Center",
+    "shortName": "DEV",
+    "address": "1600 Court St",
+    "lat": 40.830246182382,
+    "lng": -96.698300595695
+  },
+  {
+    "buildingCode": "DF",
+    "displayName": "Documents Facility",
+    "campus": "City Campus",
+    "name": "Documents Facility",
+    "shortName": "DF",
+    "address": "1331 Military Rd",
+    "lat": 40.829509603129,
+    "lng": -96.702195293589
   },
   {
     "buildingCode": "DINS",
-    "inferredName": "Dinsdale Learning Commons Arr",
-    "sectionCount": 2,
-    "nameVariants": 1,
-    "sampleLat": 40.8293991,
-    "sampleLng": -96.6661224
+    "displayName": "Dinsdale Family Learning Commons",
+    "campus": "East Campus",
+    "name": "Dinsdale Family Learning Commons",
+    "shortName": "DINS",
+    "address": "1625 N 38th St",
+    "lat": 40.829406219032,
+    "lng": -96.666129132351
+  },
+  {
+    "buildingCode": "DTC",
+    "displayName": "Sid and Hazel Dillon Tennis Center",
+    "campus": "City Campus",
+    "name": "Sid and Hazel Dillon Tennis Center",
+    "shortName": "DTC",
+    "address": "2400 N Antelope Valley Pky",
+    "lat": 40.838840544771,
+    "lng": -96.699529781005
+  },
+  {
+    "buildingCode": "ECUP",
+    "displayName": "Utility Plant, East Campus",
+    "campus": "East Campus",
+    "name": "Utility Plant, East Campus",
+    "shortName": "ECUP",
+    "address": "1935 N 37th St",
+    "lat": 40.83265545178,
+    "lng": -96.668146917754
+  },
+  {
+    "buildingCode": "EGR2",
+    "displayName": "Entomology Greenhouse 2",
+    "campus": "East Campus",
+    "name": "Entomology Greenhouse 2",
+    "shortName": "EGR2",
+    "address": "2110 N 38th St",
+    "lat": 40.834968993858,
+    "lng": -96.665198404508
+  },
+  {
+    "buildingCode": "EGR3",
+    "displayName": "Entomology Greenhouse 3",
+    "campus": "East Campus",
+    "name": "Entomology Greenhouse 3",
+    "shortName": "EGR3",
+    "address": "2120 N 38th St",
+    "lat": 40.834968485328,
+    "lng": -96.6650726016
   },
   {
     "buildingCode": "ENTO",
-    "inferredName": "Entomology Hall",
-    "sectionCount": 2,
-    "nameVariants": 1,
-    "sampleLat": 40.8300591,
-    "sampleLng": -96.6684036
+    "displayName": "Entomology Hall",
+    "campus": "East Campus",
+    "name": "Entomology Hall",
+    "shortName": "ENTO",
+    "address": "1700 East Campus Mall",
+    "lat": 40.830064926609,
+    "lng": -96.668428942385
   },
   {
     "buildingCode": "ERC",
-    "inferredName": "Engineering Research Ctr D127B",
-    "sectionCount": 4,
-    "nameVariants": 1,
-    "sampleLat": 40.82263,
-    "sampleLng": -96.69809
+    "displayName": "Engineering Research Center",
+    "campus": "City Campus",
+    "name": "Engineering Research Center",
+    "shortName": "ERC",
+    "address": "880 N 16th St",
+    "lat": 40.822474375323,
+    "lng": -96.697458065432
+  },
+  {
+    "buildingCode": "ESST",
+    "displayName": "Eastside Suites",
+    "campus": "City Campus",
+    "name": "Eastside Suites",
+    "shortName": "ESST",
+    "address": "433 N 19th St",
+    "lat": 40.817512482897,
+    "lng": -96.694514117387
+  },
+  {
+    "buildingCode": "ETES",
+    "displayName": "East Thermal Energy Storage",
+    "campus": "East Campus",
+    "name": "East Thermal Energy Storage",
+    "shortName": "ETES",
+    "address": "3755 Merrill St",
+    "lat": 40.833740585598,
+    "lng": -96.666330640258
+  },
+  {
+    "buildingCode": "FAIR",
+    "displayName": "Fairfield Hall",
+    "campus": "City Campus",
+    "name": "Fairfield Hall",
+    "shortName": "FAIR",
+    "address": "1545 U St",
+    "lat": 40.819274145059,
+    "lng": -96.698963153218
+  },
+  {
+    "buildingCode": "FCB",
+    "displayName": "Fluid Cooler Building",
+    "campus": "City Campus",
+    "name": "Fluid Cooler Building",
+    "shortName": "FCB",
+    "address": "520 N 17th St",
+    "lat": 40.818472116161,
+    "lng": -96.695363920607
+  },
+  {
+    "buildingCode": "FFAB",
+    "displayName": "Fleming Fields Annex Building",
+    "campus": "East Campus",
+    "name": "Fleming Fields Annex Building",
+    "shortName": "FFAB",
+    "address": "2301 N 33rd St",
+    "lat": 40.83556080253,
+    "lng": -96.67324088911
+  },
+  {
+    "buildingCode": "FFCB",
+    "displayName": "Fleming Fields Park Concessions Bldg",
+    "campus": "Off Campus",
+    "name": "Fleming Fields Park Concessions Bldg",
+    "shortName": "FFCB",
+    "address": "3233 Huntington Ave",
+    "lat": 40.836554021156,
+    "lng": -96.676184343757
+  },
+  {
+    "buildingCode": "FIB",
+    "displayName": "Facilities Implement Building",
+    "campus": "City Campus",
+    "name": "Facilities Implement Building",
+    "shortName": "FIB",
+    "address": "1330 N 17th St",
+    "lat": 40.826830820461,
+    "lng": -96.696042721421
   },
   {
     "buildingCode": "FIC",
-    "inferredName": "Food Innovation Center",
-    "sectionCount": 8,
-    "nameVariants": 2,
-    "sampleLat": null,
-    "sampleLng": null
+    "displayName": "Food Innovation Center",
+    "campus": "Innovation Campus",
+    "name": "Food Innovation Center",
+    "shortName": "FIC",
+    "address": "1901 N 21st St",
+    "lat": 40.831622490103,
+    "lng": -96.692701987929
+  },
+  {
+    "buildingCode": "FMC",
+    "displayName": "Facilities Management C",
+    "campus": "City Campus",
+    "name": "Facilities Management C",
+    "shortName": "FMC",
+    "address": "1901 Y St",
+    "lat": 40.824283031906,
+    "lng": -96.692914206026
+  },
+  {
+    "buildingCode": "FMD",
+    "displayName": "Facilities Management D",
+    "campus": "City Campus",
+    "name": "Facilities Management D",
+    "shortName": "FMD",
+    "address": "1901 Y St",
+    "lat": 40.823778337337,
+    "lng": -96.693154023831
+  },
+  {
+    "buildingCode": "FME",
+    "displayName": "Facilities Management E",
+    "campus": "City Campus",
+    "name": "Facilities Management E",
+    "shortName": "FME",
+    "address": "1901 Y St",
+    "lat": 40.823807016516,
+    "lng": -96.693589681237
+  },
+  {
+    "buildingCode": "FMF",
+    "displayName": "Facilities Management F",
+    "campus": "City Campus",
+    "name": "Facilities Management F",
+    "shortName": "FMF",
+    "address": "1901 Y St",
+    "lat": 40.82373952115,
+    "lng": -96.693580568013
+  },
+  {
+    "buildingCode": "FMG",
+    "displayName": "Facilities Management G",
+    "campus": "City Campus",
+    "name": "Facilities Management G",
+    "shortName": "FMG",
+    "address": "1901 Y St",
+    "lat": 40.824019896571,
+    "lng": -96.693245577688
+  },
+  {
+    "buildingCode": "FMP",
+    "displayName": "Facilities Management & Planning",
+    "campus": "City Campus",
+    "name": "Facilities Management &amp; Planning",
+    "shortName": "FMP",
+    "address": "1901 Y St",
+    "lat": 40.824073012161,
+    "lng": -96.693863743752
+  },
+  {
+    "buildingCode": "FMS",
+    "displayName": "Facilities Management Shops",
+    "campus": "City Campus",
+    "name": "Facilities Management Shops",
+    "shortName": "FMS",
+    "address": "942 N 22nd St",
+    "lat": 40.823042986753,
+    "lng": -96.689413694078
   },
   {
     "buildingCode": "FOOD",
-    "inferredName": "Food Industry Complex",
-    "sectionCount": 3,
-    "nameVariants": 2,
-    "sampleLat": 40.828949,
-    "sampleLng": -96.6669617
+    "displayName": "Food Industry Complex",
+    "campus": "East Campus",
+    "name": "Food Industry Complex",
+    "shortName": "FOOD",
+    "address": "3720 East Campus Loop S",
+    "lat": 40.828945837609,
+    "lng": -96.666974104021
+  },
+  {
+    "buildingCode": "FORL",
+    "displayName": "Forage Research Laboratory - USDA",
+    "campus": "East Campus",
+    "name": "Forage Research Laboratory - USDA",
+    "shortName": "FORL",
+    "address": "3870 Center Dr",
+    "lat": 40.830767570048,
+    "lng": -96.664530078748
+  },
+  {
+    "buildingCode": "FORS",
+    "displayName": "Forestry Hall",
+    "campus": "East Campus",
+    "name": "Forestry Hall",
+    "shortName": "FORS",
+    "address": "1800 N 37th St",
+    "lat": 40.830771893587,
+    "lng": -96.667452175384
+  },
+  {
+    "buildingCode": "FRC",
+    "displayName": "Family Resource Center",
+    "campus": "East Campus",
+    "name": "Family Resource Center",
+    "shortName": "FRC",
+    "address": "1615 N 35th St",
+    "lat": 40.829042311007,
+    "lng": -96.669956024275
   },
   {
     "buildingCode": "FYH",
-    "inferredName": "Filley Hall",
-    "sectionCount": 2,
-    "nameVariants": 1,
-    "sampleLat": 40.8288879,
-    "sampleLng": -96.6674118
+    "displayName": "Filley Hall",
+    "campus": "East Campus",
+    "name": "Filley Hall",
+    "shortName": "FYH",
+    "address": "3720 East Campus Loop S",
+    "lat": 40.828893992146,
+    "lng": -96.667428059419
+  },
+  {
+    "buildingCode": "GAUN",
+    "displayName": "Jackie Gaughan Multicultural Center",
+    "campus": "City Campus",
+    "name": "Jackie Gaughan Multicultural Center",
+    "shortName": "GAUN",
+    "address": "1505 S St",
+    "lat": 40.817817782526,
+    "lng": -96.699764559426
   },
   {
     "buildingCode": "GNHS",
-    "inferredName": "Newkirk Human Sci Building",
-    "sectionCount": 3,
-    "nameVariants": 3,
-    "sampleLat": 40.8300591,
-    "sampleLng": -96.6694412
+    "displayName": "Gwendolyn A. Newkirk Human Sciences Building",
+    "campus": "East Campus",
+    "name": "Gwendolyn A. Newkirk Human Sciences Building",
+    "shortName": "GNHS",
+    "address": "1650 N 35th St",
+    "lat": 40.830067626673,
+    "lng": -96.66944701263
+  },
+  {
+    "buildingCode": "GRDN",
+    "displayName": "Community Garden Shed",
+    "campus": "East Campus",
+    "name": "Community Garden Shed",
+    "shortName": "GRDN",
+    "address": "4401 Fair St",
+    "lat": 40.831507129843,
+    "lng": -96.658592201802
   },
   {
     "buildingCode": "HAH",
-    "inferredName": "Hamilton Hall",
-    "sectionCount": 193,
-    "nameVariants": 29,
-    "sampleLat": 40.8186989,
-    "sampleLng": -96.7044525
+    "displayName": "Hamilton Hall",
+    "campus": "City Campus",
+    "name": "Hamilton Hall",
+    "shortName": "HAH",
+    "address": "639 N 12th St",
+    "lat": 40.818723823968,
+    "lng": -96.704521510188
   },
   {
     "buildingCode": "HARH",
-    "inferredName": "Hardin Hall",
-    "sectionCount": 4,
-    "nameVariants": 2,
-    "sampleLat": 40.8288879,
-    "sampleLng": -96.671936
+    "displayName": "Hardin Hall",
+    "campus": "East Campus",
+    "name": "Hardin Hall",
+    "shortName": "HARH",
+    "address": "3310 Holdrege St",
+    "lat": 40.82891656972,
+    "lng": -96.671835793567
+  },
+  {
+    "buildingCode": "HAYB",
+    "displayName": "Haymarket Park Baseball Stadium Complex",
+    "campus": "Off Campus",
+    "name": "Haymarket Park Baseball Stadium Complex",
+    "shortName": "HAYB",
+    "address": "403 Line Drive Cir",
+    "lat": 40.823017035069,
+    "lng": -96.713366562141
+  },
+  {
+    "buildingCode": "HAYS",
+    "displayName": "Haymarket Park Softball Stadium Complex",
+    "campus": "Off Campus",
+    "name": "Haymarket Park Softball Stadium Complex",
+    "shortName": "HAYS",
+    "address": "400 Line Drive Cir",
+    "lat": 40.824171718613,
+    "lng": -96.714483513008
+  },
+  {
+    "buildingCode": "HCC",
+    "displayName": "Hawks Championship Center",
+    "campus": "City Campus",
+    "name": "Hawks Championship Center",
+    "shortName": "HCC",
+    "address": "1111 Salt Creek Rdwy",
+    "lat": 40.822887836261,
+    "lng": -96.704889960064
+  },
+  {
+    "buildingCode": "HCCN",
+    "displayName": "University Health Center and College of Nursing",
+    "campus": "City Campus",
+    "name": "University Health Center and College of Nursing",
+    "shortName": "HCCN",
+    "address": "550 N 19th St",
+    "lat": 40.818215768232,
+    "lng": -96.693191840941
+  },
+  {
+    "buildingCode": "HDC",
+    "displayName": "Harper Dining Center",
+    "campus": "City Campus",
+    "name": "Harper Dining Center",
+    "shortName": "HDC",
+    "address": "1140 N 14th St",
+    "lat": 40.825044713976,
+    "lng": -96.700358485609
   },
   {
     "buildingCode": "HENZ",
-    "inferredName": "Henzlik Hall",
-    "sectionCount": 74,
-    "nameVariants": 12,
-    "sampleLat": 40.8211174,
-    "sampleLng": -96.7002182
+    "displayName": "Henzlik Hall",
+    "campus": "City Campus",
+    "name": "Henzlik Hall",
+    "shortName": "HENZ",
+    "address": "1430 Vine St",
+    "lat": 40.821245002682,
+    "lng": -96.699937407481
+  },
+  {
+    "buildingCode": "HEWP",
+    "displayName": "Hewit Place",
+    "campus": "Off Campus",
+    "name": "Hewit Place",
+    "shortName": "HEWP",
+    "address": "1155 Q St",
+    "lat": 40.815549752116,
+    "lng": -96.704366646048
   },
   {
     "buildingCode": "HLH",
-    "inferredName": "Howard L. Hawks Hall",
-    "sectionCount": 300,
-    "nameVariants": 25,
-    "sampleLat": 40.820183,
-    "sampleLng": -96.70122
+    "displayName": "Howard L. Hawks Hall",
+    "campus": "City Campus",
+    "name": "Howard L. Hawks Hall",
+    "shortName": "HLH",
+    "address": "730 N 14th St",
+    "lat": 40.820399390989,
+    "lng": -96.700446689458
+  },
+  {
+    "buildingCode": "HRH",
+    "displayName": "Harper Hall",
+    "campus": "City Campus",
+    "name": "Harper Hall",
+    "shortName": "HRH",
+    "address": "1150 N 14th St",
+    "lat": 40.825327622999,
+    "lng": -96.699652804038
+  },
+  {
+    "buildingCode": "HUSK",
+    "displayName": "Husker Hall",
+    "campus": "City Campus",
+    "name": "Husker Hall",
+    "shortName": "HUSK",
+    "address": "705 N 23rd St",
+    "lat": 40.820086519742,
+    "lng": -96.688367880581
+  },
+  {
+    "buildingCode": "ICBX",
+    "displayName": "Ice Box",
+    "campus": "Innovation Campus",
+    "name": "Ice Box",
+    "shortName": "ICBX",
+    "address": "1880 Transformation Dr",
+    "lat": 40.832878080325,
+    "lng": -96.697286149287
+  },
+  {
+    "buildingCode": "ICC",
+    "displayName": "Innovation Commons Conference Center",
+    "campus": "Innovation Campus",
+    "name": "Innovation Commons Conference Center",
+    "shortName": "ICC",
+    "address": "2021 Transformation Dr",
+    "lat": 40.832954101384,
+    "lng": -96.692776355119
+  },
+  {
+    "buildingCode": "ICG",
+    "displayName": "Greenhouse Innovation Center",
+    "campus": "Innovation Campus",
+    "name": "Greenhouse Innovation Center",
+    "shortName": "ICG",
+    "address": "1920 N 21st St",
+    "lat": 40.832779518716,
+    "lng": -96.690953871543
+  },
+  {
+    "buildingCode": "INSB",
+    "displayName": "Insectary Building",
+    "campus": "East Campus",
+    "name": "Insectary Building",
+    "shortName": "INSB",
+    "address": "3865 Fair St",
+    "lat": 40.831451955016,
+    "lng": -96.664477208056
+  },
+  {
+    "buildingCode": "IQM",
+    "displayName": "International Quilt Museum",
+    "campus": "East Campus",
+    "name": "International Quilt Museum",
+    "shortName": "IQM",
+    "address": "1523 N 33rd St",
+    "lat": 40.828337781068,
+    "lng": -96.67356906463
+  },
+  {
+    "buildingCode": "ITSA",
+    "displayName": "ITS Annex",
+    "campus": "City Campus",
+    "name": "ITS Annex",
+    "shortName": "ITSA",
+    "address": "1321 Military Rd",
+    "lat": 40.82954006658,
+    "lng": -96.702968081959
   },
   {
     "buildingCode": "JH",
-    "inferredName": "Jorgensen Hall",
-    "sectionCount": 135,
-    "nameVariants": 15,
-    "sampleLat": 40.821862,
-    "sampleLng": -96.69849
+    "displayName": "Theodore Jorgensen Hall",
+    "campus": "City Campus",
+    "name": "Theodore Jorgensen Hall",
+    "shortName": "JH",
+    "address": "855 N 16th St",
+    "lat": 40.822033808621,
+    "lng": -96.698701895586
   },
   {
     "buildingCode": "KAUF",
-    "inferredName": "Kauffman",
-    "sectionCount": 7,
-    "nameVariants": 3,
-    "sampleLat": 40.8194618,
-    "sampleLng": -96.7003937
+    "displayName": "Kauffman Academic Residential Center",
+    "campus": "City Campus",
+    "name": "Kauffman Academic Residential Center",
+    "shortName": "KAUF",
+    "address": "630 N 14th St",
+    "lat": 40.819533541388,
+    "lng": -96.700479367229
+  },
+  {
+    "buildingCode": "KCR",
+    "displayName": "Kiesselbach Crops Research Laboratory",
+    "campus": "East Campus",
+    "name": "Kiesselbach Crops Research Laboratory",
+    "shortName": "KCR",
+    "address": "1870 N 37th St",
+    "lat": 40.831327988186,
+    "lng": -96.667457804225
   },
   {
     "buildingCode": "KEIM",
-    "inferredName": "Keim Hall",
-    "sectionCount": 4,
-    "nameVariants": 3,
-    "sampleLat": 40.8307571,
-    "sampleLng": -96.666153
+    "displayName": "Keim Hall",
+    "campus": "East Campus",
+    "name": "Keim Hall",
+    "shortName": "KEIM",
+    "address": "1825 N 38th St",
+    "lat": 40.830823031746,
+    "lng": -96.666162047186
   },
   {
     "buildingCode": "KH",
-    "inferredName": "Kiewit Hall A253",
-    "sectionCount": 158,
-    "nameVariants": 19,
-    "sampleLat": 40.82088,
-    "sampleLng": -96.69653
+    "displayName": "Kiewit Hall",
+    "campus": "City Campus",
+    "name": "Kiewit Hall",
+    "shortName": "KH",
+    "address": "1700 Vine St",
+    "lat": 40.821186936359,
+    "lng": -96.696493185468
+  },
+  {
+    "buildingCode": "KNOL",
+    "displayName": "The Robert E. Knoll Residential Center",
+    "campus": "City Campus",
+    "name": "The Robert E. Knoll Residential Center",
+    "shortName": "KNOL",
+    "address": "440 N 17th St",
+    "lat": 40.817642272893,
+    "lng": -96.696163699187
   },
   {
     "buildingCode": "KRH",
-    "inferredName": "Kimbal Recital Hall",
-    "sectionCount": 19,
-    "nameVariants": 2,
-    "sampleLat": 40.8166351,
-    "sampleLng": -96.7050095
+    "displayName": "Kimball Recital Hall",
+    "campus": "City Campus",
+    "name": "Kimball Recital Hall",
+    "shortName": "KRH",
+    "address": "1113 R St",
+    "lat": 40.816640945679,
+    "lng": -96.705163531184
+  },
+  {
+    "buildingCode": "L014",
+    "displayName": "2511 Kimco Court A",
+    "campus": "Off Campus",
+    "name": "2511 Kimco Court A",
+    "shortName": "L014",
+    "address": "2511 Kimco Ct",
+    "lat": 40.83688247638,
+    "lng": -96.684548100223
+  },
+  {
+    "buildingCode": "L045",
+    "displayName": "Alex Gordon Training Complex",
+    "campus": "Off Campus",
+    "name": "Alex Gordon Training Complex",
+    "shortName": "L045",
+    "address": "Line Dr",
+    "lat": 40.82450410915,
+    "lng": -96.713758989347
+  },
+  {
+    "buildingCode": "L055",
+    "displayName": "1217 Q St",
+    "campus": "Off Campus",
+    "name": "1217 Q St",
+    "shortName": "L055",
+    "address": "1217 Q St",
+    "lat": 40.815584813271,
+    "lng": -96.703600598278
   },
   {
     "buildingCode": "LAW",
-    "inferredName": "Ross McCollum Hall",
-    "sectionCount": 1,
-    "nameVariants": 1,
-    "sampleLat": 40.8308067,
-    "sampleLng": -96.6602631
+    "displayName": "McCollum Hall",
+    "campus": "East Campus",
+    "name": "McCollum Hall",
+    "shortName": "LAW",
+    "address": "1875 N 42nd St",
+    "lat": 40.830762052797,
+    "lng": -96.660341444211
+  },
+  {
+    "buildingCode": "LDR",
+    "displayName": "Library Depository Retrieval Facility",
+    "campus": "East Campus",
+    "name": "Library Depository Retrieval Facility",
+    "shortName": "LDR",
+    "address": "2055 N 35th St",
+    "lat": 40.833178165418,
+    "lng": -96.670723816887
+  },
+  {
+    "buildingCode": "LEV",
+    "displayName": "Leverton Hall",
+    "campus": "East Campus",
+    "name": "Leverton Hall",
+    "shortName": "LEV",
+    "address": "1700 N 35th St",
+    "lat": 40.830768580075,
+    "lng": -96.669424604278
+  },
+  {
+    "buildingCode": "LIB",
+    "displayName": "Landscape Implement Building",
+    "campus": "City Campus",
+    "name": "Landscape Implement Building",
+    "shortName": "LIB",
+    "address": "1320 N 17th St",
+    "lat": 40.826448036267,
+    "lng": -96.696025127126
+  },
+  {
+    "buildingCode": "LIED",
+    "displayName": "Lied Center for Performing Arts",
+    "campus": "City Campus",
+    "name": "Lied Center for Performing Arts",
+    "shortName": "LIED",
+    "address": "301 N 12th St",
+    "lat": 40.816413675328,
+    "lng": -96.704856547365
+  },
+  {
+    "buildingCode": "LLN",
+    "displayName": "Love Library North & Link",
+    "campus": "City Campus",
+    "name": "Love Library North &amp; Link",
+    "shortName": "LLN",
+    "address": "1300 R St",
+    "lat": 40.818422372846,
+    "lng": -96.702579190014
   },
   {
     "buildingCode": "LLS",
-    "inferredName": "Love Library",
-    "sectionCount": 16,
-    "nameVariants": 1,
-    "sampleLat": 40.8178253,
-    "sampleLng": -96.7024536
+    "displayName": "Love Library South",
+    "campus": "City Campus",
+    "name": "Love Library South",
+    "shortName": "LLS",
+    "address": "1248 R St",
+    "lat": 40.817857710817,
+    "lng": -96.70258985191
+  },
+  {
+    "buildingCode": "LML",
+    "displayName": "Loeffel Meat Laboratory",
+    "campus": "East Campus",
+    "name": "Loeffel Meat Laboratory",
+    "shortName": "LML",
+    "address": "3940 Fair St",
+    "lat": 40.831922103231,
+    "lng": -96.66538474088
   },
   {
     "buildingCode": "LPH",
-    "inferredName": "Louise Pound Hall",
-    "sectionCount": 131,
-    "nameVariants": 21,
-    "sampleLat": 40.8178368,
-    "sampleLng": -96.7033539
+    "displayName": "Louise Pound Hall",
+    "campus": "City Campus",
+    "name": "Louise Pound Hall",
+    "shortName": "LPH",
+    "address": "512 N 12th St",
+    "lat": 40.817804271137,
+    "lng": -96.7034177898
+  },
+  {
+    "buildingCode": "LRH",
+    "displayName": "Love Memorial Hall",
+    "campus": "East Campus",
+    "name": "Love Memorial Hall",
+    "shortName": "LRH",
+    "address": "3420 Holdrege St",
+    "lat": 40.828828028465,
+    "lng": -96.670562642099
+  },
+  {
+    "buildingCode": "LSEB",
+    "displayName": "Landscape Services Equipment Building",
+    "campus": "East Campus",
+    "name": "Landscape Services Equipment Building",
+    "shortName": "LSEB",
+    "address": "3620 East Campus Loop N",
+    "lat": 40.834201643162,
+    "lng": -96.668614095246
+  },
+  {
+    "buildingCode": "LSEC",
+    "displayName": "Landscape Services East Campus",
+    "campus": "East Campus",
+    "name": "Landscape Services East Campus",
+    "shortName": "LSEC",
+    "address": "3520 East Campus Loop N",
+    "lat": 40.833869565544,
+    "lng": -96.669139023435
+  },
+  {
+    "buildingCode": "LSMC",
+    "displayName": "Landscape Services Metal Canopy",
+    "campus": "City Campus",
+    "name": "Landscape Services Metal Canopy",
+    "shortName": "LSMC",
+    "address": "1340 N 17th St",
+    "lat": 40.826653158008,
+    "lng": -96.695656973018
+  },
+  {
+    "buildingCode": "LTM",
+    "displayName": "Larsen Tractor Museum",
+    "campus": "East Campus",
+    "name": "Larsen Tractor Museum",
+    "shortName": "LTM",
+    "address": "1925 N 37th St",
+    "lat": 40.832131438927,
+    "lng": -96.668641186675
   },
   {
     "buildingCode": "M&N",
-    "inferredName": "Military & Naval Science",
-    "sectionCount": 23,
-    "nameVariants": 5,
-    "sampleLat": null,
-    "sampleLng": null
+    "displayName": "Pershing Military & Naval Science Building",
+    "campus": "City Campus",
+    "error": "HTTP Error 404: Bad View Requested"
   },
   {
     "buildingCode": "MANT",
-    "inferredName": "Manter Hall",
-    "sectionCount": 84,
-    "nameVariants": 12,
-    "sampleLat": 40.8188744,
-    "sampleLng": -96.7051773
+    "displayName": "Manter Hall",
+    "campus": "City Campus",
+    "name": "Manter Hall",
+    "shortName": "MANT",
+    "address": "1101 T St",
+    "lat": 40.818901153906,
+    "lng": -96.7053425087
+  },
+  {
+    "buildingCode": "MBH",
+    "displayName": "Baker Hall",
+    "campus": "East Campus",
+    "name": "Baker Hall",
+    "shortName": "MBH",
+    "address": "1830 N 38th St",
+    "lat": 40.832613737854,
+    "lng": -96.664971642872
+  },
+  {
+    "buildingCode": "MHF",
+    "displayName": "Material Handling Facility",
+    "campus": "East Campus",
+    "name": "Material Handling Facility",
+    "shortName": "MHF",
+    "address": "3700 Merrill St",
+    "lat": 40.834278987555,
+    "lng": -96.667869300956
+  },
+  {
+    "buildingCode": "MIPC",
+    "displayName": "Mabel Lee Fields IPC",
+    "campus": "City Campus",
+    "name": "Mabel Lee Fields IPC",
+    "shortName": "MIPC",
+    "address": "1433 W St",
+    "lat": 40.822151886098,
+    "lng": -96.70050567957
+  },
+  {
+    "buildingCode": "MLSS",
+    "displayName": "Mabel Lee Storage Shed",
+    "campus": "City Campus",
+    "name": "Mabel Lee Storage Shed",
+    "shortName": "MLSS",
+    "address": "1433 W St",
+    "lat": 40.82228814543,
+    "lng": -96.700523312018
+  },
+  {
+    "buildingCode": "MMF",
+    "displayName": "Materials Management Facility",
+    "campus": "East Campus",
+    "name": "Materials Management Facility",
+    "shortName": "MMF",
+    "address": "3735 Merrill St",
+    "lat": 40.833795015403,
+    "lng": -96.667063801183
   },
   {
     "buildingCode": "MOLR",
-    "inferredName": "Morrison Center",
-    "sectionCount": 1,
-    "nameVariants": 1,
-    "sampleLat": 40.831833,
-    "sampleLng": -96.659163
+    "displayName": "Morrison Center",
+    "campus": "East Campus",
+    "name": "Morrison Center",
+    "shortName": "MOLR",
+    "address": "4240 Fair St",
+    "lat": 40.832125982305,
+    "lng": -96.659358304572
   },
   {
     "buildingCode": "MORR",
-    "inferredName": "Morrill Hall",
-    "sectionCount": 9,
-    "nameVariants": 1,
-    "sampleLat": 40.8199158,
-    "sampleLng": -96.701767
+    "displayName": "Morrill Hall",
+    "campus": "City Campus",
+    "name": "Morrill Hall",
+    "shortName": "MORR",
+    "address": "1335 U St",
+    "lat": 40.819895514677,
+    "lng": -96.701854972208
+  },
+  {
+    "buildingCode": "MRC",
+    "displayName": "Massengale Residential Center",
+    "campus": "East Campus",
+    "name": "Massengale Residential Center",
+    "shortName": "MRC",
+    "address": "1710 Arbor Dr",
+    "lat": 40.830152348949,
+    "lng": -96.666019069114
+  },
+  {
+    "buildingCode": "MSB",
+    "displayName": "Maintenance Storage Building",
+    "campus": "City Campus",
+    "name": "Maintenance Storage Building",
+    "shortName": "MSB",
+    "address": "1910 N Antelope Valley Pky",
+    "lat": 40.831139553,
+    "lng": -96.700452374003
+  },
+  {
+    "buildingCode": "MSTD",
+    "displayName": "Cornhuskers Athletic Complex",
+    "campus": "City Campus",
+    "name": "Cornhuskers Athletic Complex",
+    "shortName": "MSTD",
+    "address": "800 Stadium Dr",
+    "lat": 40.821653999159,
+    "lng": -96.705701221499
+  },
+  {
+    "buildingCode": "MUEL",
+    "displayName": "Mueller Tower",
+    "campus": "City Campus",
+    "name": "Mueller Tower",
+    "shortName": "MUEL",
+    "address": "1307 U St",
+    "lat": 40.820139306007,
+    "lng": -96.70257088397
+  },
+  {
+    "buildingCode": "MUSH",
+    "displayName": "Mussehl Hall",
+    "campus": "East Campus",
+    "name": "Mussehl Hall",
+    "shortName": "MUSH",
+    "address": "1915 N 38th St",
+    "lat": 40.831895497848,
+    "lng": -96.665942526396
+  },
+  {
+    "buildingCode": "NAC",
+    "displayName": "National Agroforestry Center - USDA",
+    "campus": "East Campus",
+    "name": "National Agroforestry Center - USDA",
+    "shortName": "NAC",
+    "address": "1945 N 38th St",
+    "lat": 40.832690077038,
+    "lng": -96.666284272847
+  },
+  {
+    "buildingCode": "NAST",
+    "displayName": "National Agroforestry Center Storage Building - USDA",
+    "campus": "East Campus",
+    "name": "National Agroforestry Center Storage Building - USDA",
+    "shortName": "NAST",
+    "address": "2140 N 38th St",
+    "lat": 40.834925032161,
+    "lng": -96.664681893476
+  },
+  {
+    "buildingCode": "NB1",
+    "displayName": "North Building 1",
+    "campus": "City Campus",
+    "name": "North Building 1",
+    "shortName": "NB1",
+    "address": "1300 Military Rd",
+    "lat": 40.831060111898,
+    "lng": -96.703026365992
+  },
+  {
+    "buildingCode": "NB2",
+    "displayName": "North Building 2",
+    "campus": "City Campus",
+    "name": "North Building 2",
+    "shortName": "NB2",
+    "address": "1350 Military Rd",
+    "lat": 40.830948246702,
+    "lng": -96.701809327042
+  },
+  {
+    "buildingCode": "NECH",
+    "displayName": "Nebraska Champions Club",
+    "campus": "City Campus",
+    "name": "Nebraska Champions Club",
+    "shortName": "NECH",
+    "address": "707 Stadium Dr",
+    "lat": 40.821134352773,
+    "lng": -96.707460517834
+  },
+  {
+    "buildingCode": "NEMA",
+    "displayName": "NEMA Building",
+    "campus": "City Campus",
+    "name": "NEMA Building",
+    "shortName": "NEMA",
+    "address": "1360 Military Rd",
+    "lat": 40.831307594785,
+    "lng": -96.701789301712
+  },
+  {
+    "buildingCode": "NEU",
+    "displayName": "Nebraska East Union",
+    "campus": "East Campus",
+    "name": "Nebraska East Union",
+    "shortName": "NEU",
+    "address": "1705 Arbor Dr",
+    "lat": 40.830133836071,
+    "lng": -96.667506717882
   },
   {
     "buildingCode": "NH",
-    "inferredName": "Nebraska Hall",
-    "sectionCount": 51,
-    "nameVariants": 17,
-    "sampleLat": 40.823082,
-    "sampleLng": -96.6975403
+    "displayName": "Nebraska Hall",
+    "campus": "City Campus",
+    "name": "Nebraska Hall",
+    "shortName": "NH",
+    "address": "900 N 16th St",
+    "lat": 40.822924774131,
+    "lng": -96.697314281239
+  },
+  {
+    "buildingCode": "NRC",
+    "displayName": "Neihardt Center",
+    "campus": "City Campus",
+    "name": "Neihardt Center",
+    "shortName": "NRC",
+    "address": "540 N 16th St",
+    "lat": 40.818858518752,
+    "lng": -96.697577443022
+  },
+  {
+    "buildingCode": "NRRA",
+    "displayName": "Natural Resources Research Annex",
+    "campus": "East Campus",
+    "name": "Natural Resources Research Annex",
+    "shortName": "NRRA",
+    "address": "2051 N 38th St",
+    "lat": 40.83454615629,
+    "lng": -96.664781364982
+  },
+  {
+    "buildingCode": "NSA2",
+    "displayName": "Nebraska Statewide Arboretum Greenhouse 2",
+    "campus": "East Campus",
+    "name": "Nebraska Statewide Arboretum Greenhouse 2",
+    "shortName": "NSA2",
+    "address": "2160 N 38th St",
+    "lat": 40.834950748402,
+    "lng": -96.664314401715
+  },
+  {
+    "buildingCode": "NSAG",
+    "displayName": "Nebraska Statewide Arboretum Greenhouse",
+    "campus": "East Campus",
+    "name": "Nebraska Statewide Arboretum Greenhouse",
+    "shortName": "NSAG",
+    "address": "2150 N 38th St",
+    "lat": 40.834954399488,
+    "lng": -96.664504375902
   },
   {
     "buildingCode": "NU",
-    "inferredName": "Nebraska Union",
-    "sectionCount": 1,
-    "nameVariants": 1,
-    "sampleLat": 40.8177872,
-    "sampleLng": -96.7003708
+    "displayName": "Nebraska Union",
+    "campus": "City Campus",
+    "name": "Nebraska Union",
+    "shortName": "NU",
+    "address": "1400 R St",
+    "lat": 40.817597862573,
+    "lng": -96.700476754803
+  },
+  {
+    "buildingCode": "NVDC",
+    "displayName": "Nebraska Veterinary Diagnostic Center",
+    "campus": "East Campus",
+    "name": "Nebraska Veterinary Diagnostic Center",
+    "shortName": "NVDC",
+    "address": "4040 East Campus Loop N",
+    "lat": 40.83352438049,
+    "lng": -96.661624236269
   },
   {
     "buildingCode": "OAC",
-    "inferredName": "Outdoor Adventures Center Arra",
-    "sectionCount": 9,
-    "nameVariants": 1,
-    "sampleLat": 40.82314,
-    "sampleLng": -96.7008
+    "displayName": "Outdoor Adventures Center",
+    "campus": "City Campus",
+    "name": "Outdoor Adventures Center",
+    "shortName": "OAC",
+    "address": "930 N 14th St",
+    "lat": 40.82313418347,
+    "lng": -96.700711634968
+  },
+  {
+    "buildingCode": "OHR",
+    "displayName": "Orchard House Replacement",
+    "campus": "East Campus",
+    "name": "Orchard House Replacement",
+    "shortName": "OHR",
+    "address": "4417 Fair St",
+    "lat": 40.829155676894,
+    "lng": -96.656559081368
+  },
+  {
+    "buildingCode": "OLC",
+    "displayName": "Osborne Legacy Complex",
+    "campus": "City Campus",
+    "name": "Osborne Legacy Complex",
+    "shortName": "OLC",
+    "address": "1210 Vine St",
+    "lat": 40.821775133865,
+    "lng": -96.70405045952
   },
   {
     "buildingCode": "OLDH",
-    "inferredName": "Oldfather Hall",
-    "sectionCount": 127,
-    "nameVariants": 17,
-    "sampleLat": 40.8197021,
-    "sampleLng": -96.70327
+    "displayName": "Oldfather Hall",
+    "campus": "City Campus",
+    "name": "Oldfather Hall",
+    "shortName": "OLDH",
+    "address": "660 N 12th St",
+    "lat": 40.819697655919,
+    "lng": -96.703542416828
+  },
+  {
+    "buildingCode": "ORB7",
+    "displayName": "Campus Rec Equipment Building 7 - Mabel Lee Fields",
+    "campus": "City Campus",
+    "name": "Campus Rec Equipment Building 7 - Mabel Lee Fields",
+    "shortName": "ORB7",
+    "address": "1433 W St",
+    "lat": 40.822462743798,
+    "lng": -96.700540987657
+  },
+  {
+    "buildingCode": "OTC",
+    "displayName": "Outdoor Track Complex",
+    "campus": "Innovation Campus",
+    "name": "Outdoor Track Complex",
+    "shortName": "OTC",
+    "address": "1620 Transformation Dr",
+    "lat": 40.832987997682,
+    "lng": -96.698236334739
   },
   {
     "buildingCode": "OTHM",
-    "inferredName": "Othmer Hall",
-    "sectionCount": 41,
-    "nameVariants": 6,
-    "sampleLat": 40.8212776,
-    "sampleLng": -96.6973724
+    "displayName": "Othmer Hall",
+    "campus": "City Campus",
+    "name": "Othmer Hall",
+    "shortName": "OTHM",
+    "address": "820 N 16th St",
+    "lat": 40.82130089674,
+    "lng": -96.697345138318
+  },
+  {
+    "buildingCode": "PBA",
+    "displayName": "Pinnacle Bank Arena",
+    "campus": "Off Campus",
+    "name": "Pinnacle Bank Arena",
+    "shortName": "PBA",
+    "address": "400 Pinnacle Arena Dr",
+    "lat": 40.81789922802,
+    "lng": -96.712639069693
+  },
+  {
+    "buildingCode": "PER",
+    "displayName": "Perin Porch",
+    "campus": "East Campus",
+    "name": "Perin Porch",
+    "shortName": "PER",
+    "address": "3621 East Campus Loop S",
+    "lat": 40.828484710669,
+    "lng": -96.668400573171
+  },
+  {
+    "buildingCode": "PKI",
+    "displayName": "Peter Kiewit Institute",
+    "campus": "Off Campus",
+    "name": "Peter Kiewit Institute",
+    "address": "1110 S 67th St, Omaha, NE",
+    "lat": 41.247029047474,
+    "lng": -96.016900241375
   },
   {
     "buildingCode": "PLSH",
-    "inferredName": "Plant Sciences",
-    "sectionCount": 16,
-    "nameVariants": 4,
-    "sampleLat": 40.8311958,
-    "sampleLng": -96.666153
+    "displayName": "Plant Sciences Hall",
+    "campus": "East Campus",
+    "name": "Plant Sciences Hall",
+    "shortName": "PLSH",
+    "address": "1875 N 38th St",
+    "lat": 40.831220618184,
+    "lng": -96.6661628983
+  },
+  {
+    "buildingCode": "PM",
+    "displayName": "Pershing Maintenance",
+    "campus": "Off Campus",
+    "name": "Pershing Maintenance",
+    "shortName": "PM",
+    "address": "2000 N 33rd St",
+    "lat": 40.833539100369,
+    "lng": -96.671666008624
+  },
+  {
+    "buildingCode": "PPG",
+    "displayName": "Plant Pathology Greenhouse",
+    "campus": "East Campus",
+    "name": "Plant Pathology Greenhouse",
+    "shortName": "PPG",
+    "address": "2075 N 38th St",
+    "lat": 40.834445437249,
+    "lng": -96.663549073493
+  },
+  {
+    "buildingCode": "PSTG",
+    "displayName": "Plant Science Teaching Greenhouse",
+    "campus": "East Campus",
+    "name": "Plant Science Teaching Greenhouse",
+    "shortName": "PSTG",
+    "address": "3855 Fair St",
+    "lat": 40.831443114407,
+    "lng": -96.664821907669
   },
   {
     "buildingCode": "RH",
-    "inferredName": "Richards Hall",
-    "sectionCount": 128,
-    "nameVariants": 10,
-    "sampleLat": 40.8186989,
-    "sampleLng": -96.7063141
+    "displayName": "Richards Hall",
+    "campus": "City Campus",
+    "name": "Richards Hall",
+    "shortName": "RH",
+    "address": "560 Stadium Dr",
+    "lat": 40.818770480933,
+    "lng": -96.70641533616
+  },
+  {
+    "buildingCode": "RISE",
+    "displayName": "The Rise Building",
+    "campus": "Innovation Campus",
+    "name": "The Rise Building",
+    "shortName": "RISE",
+    "address": "2125 Transformation Dr",
+    "lat": 40.833986396995,
+    "lng": -96.691316697527
+  },
+  {
+    "buildingCode": "RRB",
+    "displayName": "Recycling and Refuse Building",
+    "campus": "City Campus",
+    "name": "Recycling and Refuse Building",
+    "shortName": "RRB",
+    "address": "1311 Military Rd",
+    "lat": 40.82995229623,
+    "lng": -96.703079553196
   },
   {
     "buildingCode": "RVB",
-    "inferredName": "Ross-Van Brunt",
-    "sectionCount": 14,
-    "nameVariants": 4,
-    "sampleLat": 40.8164902,
-    "sampleLng": -96.7030792
+    "displayName": "Mary Riepma Ross Media Arts Center-Van Brunt Visitors Center",
+    "campus": "City Campus",
+    "name": "Mary Riepma Ross Media Arts Center-Van Brunt Visitors Center",
+    "shortName": "RVB",
+    "address": "313 N 13th St",
+    "lat": 40.81640264434,
+    "lng": -96.703064816225
+  },
+  {
+    "buildingCode": "RWC",
+    "displayName": "Recreation and Wellness Center",
+    "campus": "East Campus",
+    "name": "Recreation and Wellness Center",
+    "shortName": "RWC",
+    "address": "1717 N 35th St",
+    "lat": 40.830728832481,
+    "lng": -96.670350358944
+  },
+  {
+    "buildingCode": "SCAR",
+    "displayName": "The Scarlet Hotel",
+    "campus": "Innovation Campus",
+    "name": "The Scarlet Hotel",
+    "shortName": "SCAR",
+    "address": "2101 Transformation Dr",
+    "lat": 40.833441108223,
+    "lng": -96.691832722643
+  },
+  {
+    "buildingCode": "SCRH",
+    "displayName": "Schramm Hall",
+    "campus": "City Campus",
+    "name": "Schramm Hall",
+    "shortName": "SCRH",
+    "address": "1130 N 14th St",
+    "lat": 40.824858505422,
+    "lng": -96.699290901589
+  },
+  {
+    "buildingCode": "SDPG",
+    "displayName": "Stadium Drive Parking Garage",
+    "campus": "City Campus",
+    "name": "Stadium Drive Parking Garage",
+    "shortName": "SDPG",
+    "address": "625 Stadium Dr",
+    "lat": 40.819753861176,
+    "lng": -96.707463973556
   },
   {
     "buildingCode": "SEC",
-    "inferredName": "Scott Engineering Ctr Arr",
-    "sectionCount": 12,
-    "nameVariants": 4,
-    "sampleLat": 40.8220749,
-    "sampleLng": -96.6976013
+    "displayName": "Scott Engineering Center",
+    "campus": "City Campus",
+    "name": "Scott Engineering Center",
+    "shortName": "SEC",
+    "address": "844 N 16th St",
+    "lat": 40.821944566949,
+    "lng": -96.697525143745
+  },
+  {
+    "buildingCode": "SEH",
+    "displayName": "Seaton Hall",
+    "campus": "City Campus",
+    "name": "Seaton Hall",
+    "shortName": "SEH",
+    "address": "1525 U St",
+    "lat": 40.819738987958,
+    "lng": -96.699316296586
+  },
+  {
+    "buildingCode": "SELD",
+    "displayName": "Selleck Quad Building D",
+    "campus": "City Campus",
+    "name": "Selleck Quad Building D",
+    "shortName": "SELD",
+    "address": "600 N 15th St",
+    "lat": 40.81865968203,
+    "lng": -96.698967645111
+  },
+  {
+    "buildingCode": "SELE",
+    "displayName": "Selleck Quad Building E",
+    "campus": "City Campus",
+    "name": "Selleck Quad Building E",
+    "shortName": "SELE",
+    "address": "600 N 15th St",
+    "lat": 40.818334632251,
+    "lng": -96.699005769471
+  },
+  {
+    "buildingCode": "SELF",
+    "displayName": "Selleck Quad Building F",
+    "campus": "City Campus",
+    "name": "Selleck Quad Building F",
+    "shortName": "SELF",
+    "address": "600 N 15th St",
+    "lat": 40.818303630443,
+    "lng": -96.699342262674
+  },
+  {
+    "buildingCode": "SELG",
+    "displayName": "Selleck Quad Building G",
+    "campus": "City Campus",
+    "name": "Selleck Quad Building G",
+    "shortName": "SELG",
+    "address": "600 N 15th St",
+    "lat": 40.818336892034,
+    "lng": -96.699678464145
+  },
+  {
+    "buildingCode": "SELH",
+    "displayName": "Selleck Quad Building H",
+    "campus": "City Campus",
+    "name": "Selleck Quad Building H",
+    "shortName": "SELH",
+    "address": "600 N 15th St",
+    "lat": 40.818567908846,
+    "lng": -96.699713732802
+  },
+  {
+    "buildingCode": "SELJ",
+    "displayName": "Selleck Quad Building J",
+    "campus": "City Campus",
+    "name": "Selleck Quad Building J",
+    "shortName": "SELJ",
+    "address": "600 N 15th St",
+    "lat": 40.818981347948,
+    "lng": -96.699757862418
+  },
+  {
+    "buildingCode": "SELK",
+    "displayName": "Selleck Quad Building K",
+    "campus": "City Campus",
+    "name": "Selleck Quad Building K",
+    "shortName": "SELK",
+    "address": "600 N 15th St",
+    "lat": 40.819521967416,
+    "lng": -96.699707796413
+  },
+  {
+    "buildingCode": "SELL",
+    "displayName": "Selleck Quad Building L - Food Service",
+    "campus": "City Campus",
+    "name": "Selleck Quad Building L - Food Service",
+    "shortName": "SELL",
+    "address": "600 N 15th St",
+    "lat": 40.81898257426,
+    "lng": -96.699341155032
+  },
+  {
+    "buildingCode": "SEW",
+    "displayName": "Sewage Sterilization Plant",
+    "campus": "East Campus",
+    "name": "Sewage Sterilization Plant",
+    "shortName": "SEW",
+    "address": "2005 N 43rd St",
+    "lat": 40.832833718122,
+    "lng": -96.65977719542
+  },
+  {
+    "buildingCode": "SHEL",
+    "displayName": "Sheldon Museum of Art",
+    "campus": "City Campus",
+    "name": "Sheldon Museum of Art",
+    "shortName": "SHEL",
+    "address": "451 N 12th St",
+    "lat": 40.817555942425,
+    "lng": -96.704458568512
+  },
+  {
+    "buildingCode": "SHOR",
+    "displayName": "Schorr Center",
+    "campus": "City Campus",
+    "name": "Schorr Center",
+    "shortName": "SHOR",
+    "address": "1100 T St",
+    "lat": 40.819614271496,
+    "lng": -96.705656447215
+  },
+  {
+    "buildingCode": "SMRH",
+    "displayName": "Smith Hall",
+    "campus": "City Campus",
+    "name": "Smith Hall",
+    "shortName": "SMRH",
+    "address": "1120 N 14th St",
+    "lat": 40.824697529277,
+    "lng": -96.700122656001
+  },
+  {
+    "buildingCode": "SPL",
+    "displayName": "Splinter Laboratories",
+    "campus": "East Campus",
+    "name": "Splinter Laboratories",
+    "shortName": "SPL",
+    "address": "2000 N 35th St",
+    "lat": 40.832716609621,
+    "lng": -96.669376085932
+  },
+  {
+    "buildingCode": "SSL",
+    "displayName": "Stewart Seed Laboratory",
+    "campus": "East Campus",
+    "name": "Stewart Seed Laboratory",
+    "shortName": "SSL",
+    "address": "2101 N 38th St",
+    "lat": 40.834522932224,
+    "lng": -96.66635775554
+  },
+  {
+    "buildingCode": "STE",
+    "displayName": "Stadium East",
+    "campus": "City Campus",
+    "name": "Stadium East",
+    "shortName": "STE",
+    "address": "1100 T St",
+    "lat": 40.82060965537,
+    "lng": -96.704701218204
+  },
+  {
+    "buildingCode": "STNO",
+    "displayName": "Stadium North",
+    "campus": "City Campus",
+    "name": "Stadium North",
+    "shortName": "STNO",
+    "address": "1100 T St",
+    "lat": 40.821377564135,
+    "lng": -96.705635619804
+  },
+  {
+    "buildingCode": "STSO",
+    "displayName": "Stadium South",
+    "campus": "City Campus",
+    "name": "Stadium South",
+    "shortName": "STSO",
+    "address": "1100 T St",
+    "lat": 40.819835503877,
+    "lng": -96.705646031132
+  },
+  {
+    "buildingCode": "STW",
+    "displayName": "Stadium West",
+    "campus": "City Campus",
+    "name": "Stadium West",
+    "shortName": "STW",
+    "address": "1100 T St",
+    "lat": 40.82062551528,
+    "lng": -96.706467352903
+  },
+  {
+    "buildingCode": "SVC",
+    "displayName": "Service Building",
+    "campus": "East Campus",
+    "name": "Service Building",
+    "shortName": "SVC",
+    "address": "1915 N 37th St",
+    "lat": 40.831943535217,
+    "lng": -96.668202211254
+  },
+  {
+    "buildingCode": "SZRH",
+    "displayName": "Sandoz Hall",
+    "campus": "City Campus",
+    "name": "Sandoz Hall",
+    "shortName": "SZRH",
+    "address": "820 N 17th St",
+    "lat": 40.821442272114,
+    "lng": -96.695618315974
   },
   {
     "buildingCode": "TEAC",
-    "inferredName": "Teachers College",
-    "sectionCount": 59,
-    "nameVariants": 11,
-    "sampleLat": 40.8213425,
-    "sampleLng": -96.7003555
+    "displayName": "Teachers College Hall",
+    "campus": "City Campus",
+    "name": "Teachers College Hall",
+    "shortName": "TEAC",
+    "address": "1400 Vine St",
+    "lat": 40.821294432211,
+    "lng": -96.700367616845
+  },
+  {
+    "buildingCode": "TELC",
+    "displayName": "Terry M. Carpenter Telecommunications Center",
+    "campus": "East Campus",
+    "name": "Terry M. Carpenter Telecommunications Center",
+    "shortName": "TELC",
+    "address": "1800 N 33rd St",
+    "lat": 40.831137410063,
+    "lng": -96.672073023464
   },
   {
     "buildingCode": "TEMP",
-    "inferredName": "Temple Building",
-    "sectionCount": 34,
-    "nameVariants": 9,
-    "sampleLat": 40.8165855,
-    "sampleLng": -96.7034836
+    "displayName": "Temple Building",
+    "campus": "City Campus",
+    "name": "Temple Building",
+    "shortName": "TEMP",
+    "address": "1209 R St",
+    "lat": 40.816568024326,
+    "lng": -96.70352845096
+  },
+  {
+    "buildingCode": "TGE",
+    "displayName": "Teaching Greenhouse East",
+    "campus": "East Campus",
+    "name": "Teaching Greenhouse East",
+    "shortName": "TGE",
+    "address": "3850 Center Dr",
+    "lat": 40.830930383078,
+    "lng": -96.665166476279
+  },
+  {
+    "buildingCode": "TGW",
+    "displayName": "Teaching Greenhouse West",
+    "campus": "East Campus",
+    "name": "Teaching Greenhouse West",
+    "shortName": "TGW",
+    "address": "3850 Center Dr",
+    "lat": 40.830930177011,
+    "lng": -96.665296866107
+  },
+  {
+    "buildingCode": "TRAN",
+    "displayName": "Transportation Services",
+    "campus": "City Campus",
+    "name": "Transportation Services",
+    "shortName": "TRAN",
+    "address": "1931 N Antelope Valley Pky",
+    "lat": 40.832785807379,
+    "lng": -96.702107433566
+  },
+  {
+    "buildingCode": "UNFCU",
+    "displayName": "University of Nebraska Federal Credit Union",
+    "campus": "Off Campus",
+    "name": "University of Nebraska Federal Credit Union",
+    "address": "1720 P St",
+    "lat": 40.814952916819,
+    "lng": -96.696387353894
+  },
+  {
+    "buildingCode": "UNST",
+    "displayName": "University Suites",
+    "campus": "City Campus",
+    "name": "University Suites",
+    "shortName": "UNST",
+    "address": "1780 R St",
+    "lat": 40.817621918716,
+    "lng": -96.695425838299
+  },
+  {
+    "buildingCode": "USDP",
+    "displayName": "USDA Physiology Building - USDA",
+    "campus": "East Campus",
+    "name": "USDA Physiology Building - USDA",
+    "shortName": "USDP",
+    "address": "3708 Merrill St",
+    "lat": 40.834577335917,
+    "lng": -96.667800350152
+  },
+  {
+    "buildingCode": "UST",
+    "displayName": "U Street Apartments",
+    "campus": "City Campus",
+    "name": "U Street Apartments",
+    "shortName": "UST",
+    "address": "2224 U St",
+    "lat": 40.82004521137,
+    "lng": -96.689017656802
+  },
+  {
+    "buildingCode": "UTF",
+    "displayName": "Utility Response Facility",
+    "campus": "East Campus",
+    "name": "Utility Response Facility",
+    "shortName": "UTF",
+    "address": "3730 Merrill St",
+    "lat": 40.834804774046,
+    "lng": -96.667183801561
+  },
+  {
+    "buildingCode": "VARH",
+    "displayName": "Varner Hall",
+    "campus": "Off Campus",
+    "name": "Varner Hall",
+    "shortName": "VARH",
+    "address": "3835 Holdrege St",
+    "lat": 40.827525977608,
+    "lng": -96.66523187051
+  },
+  {
+    "buildingCode": "VBS",
+    "displayName": "Veterinary Medicine and Biomedical Sciences Hall",
+    "campus": "East Campus",
+    "name": "Veterinary Medicine and Biomedical Sciences Hall",
+    "shortName": "VBS",
+    "address": "1880 N 42nd St",
+    "lat": 40.832191046566,
+    "lng": -96.660703065251
+  },
+  {
+    "buildingCode": "VBSA",
+    "displayName": "VBS Annex",
+    "campus": "East Campus",
+    "name": "VBS Annex",
+    "shortName": "VBSA",
+    "address": "1900 N 42nd St",
+    "lat": 40.832335449217,
+    "lng": -96.660143232048
+  },
+  {
+    "buildingCode": "VCSL",
+    "displayName": "Veterinary Clinical Skills Laboratory",
+    "campus": "East Campus",
+    "name": "Veterinary Clinical Skills Laboratory",
+    "shortName": "VCSL",
+    "address": "2000 N 43rd St",
+    "lat": 40.832903780982,
+    "lng": -96.659233495554
+  },
+  {
+    "buildingCode": "VILL",
+    "displayName": "The Village",
+    "campus": "City Campus",
+    "name": "The Village",
+    "shortName": "VILL",
+    "address": "1055 N 16th St",
+    "lat": 40.824094908967,
+    "lng": -96.69916417578
+  },
+  {
+    "buildingCode": "W1",
+    "displayName": "Warehouse 1",
+    "campus": "East Campus",
+    "name": "Warehouse 1",
+    "shortName": "W1",
+    "address": "3630 East Campus Loop N",
+    "lat": 40.833744737373,
+    "lng": -96.66839906716
+  },
+  {
+    "buildingCode": "W2",
+    "displayName": "Warehouse 2",
+    "campus": "East Campus",
+    "name": "Warehouse 2",
+    "shortName": "W2",
+    "address": "2105 N 38th St",
+    "lat": 40.834967166424,
+    "lng": -96.666448281301
   },
   {
     "buildingCode": "WAB",
-    "inferredName": "Woods Art",
-    "sectionCount": 63,
-    "nameVariants": 5,
-    "sampleLat": 40.8178368,
-    "sampleLng": -96.7050858
+    "displayName": "Woods Art Building",
+    "campus": "City Campus",
+    "name": "Woods Art Building",
+    "shortName": "WAB",
+    "address": "1140 R St",
+    "lat": 40.817842895238,
+    "lng": -96.705148419239
+  },
+  {
+    "buildingCode": "WAT",
+    "displayName": "Watson Building",
+    "campus": "City Campus",
+    "name": "Watson Building",
+    "shortName": "WAT",
+    "address": "1309 N 17th St",
+    "lat": 40.8259692469,
+    "lng": -96.697018197189
+  },
+  {
+    "buildingCode": "WCDC",
+    "displayName": "Willa S. Cather Dining Complex",
+    "campus": "City Campus",
+    "name": "Willa S. Cather Dining Complex",
+    "shortName": "WCDC",
+    "address": "530 N 17th St",
+    "lat": 40.818705330168,
+    "lng": -96.696012396918
+  },
+  {
+    "buildingCode": "WELC",
+    "displayName": "Welpton Courtroom Building",
+    "campus": "East Campus",
+    "name": "Welpton Courtroom Building",
+    "shortName": "WELC",
+    "address": "1875 N 42nd St",
+    "lat": 40.831262440021,
+    "lng": -96.660668389062
+  },
+  {
+    "buildingCode": "WHIT",
+    "displayName": "Prem S. Paul Research Center at Whittier School",
+    "campus": "City Campus",
+    "name": "Prem S. Paul Research Center at Whittier School",
+    "shortName": "WHIT",
+    "address": "2200 Vine St",
+    "lat": 40.821937750345,
+    "lng": -96.689300488038
+  },
+  {
+    "buildingCode": "WICK",
+    "displayName": "Wick Alumni Center",
+    "campus": "City Campus",
+    "name": "Wick Alumni Center",
+    "shortName": "WICK",
+    "address": "1520 R St",
+    "lat": 40.817303130841,
+    "lng": -96.699031619059
+  },
+  {
+    "buildingCode": "WL",
+    "displayName": "Water Sciences Laboratory",
+    "campus": "East Campus",
+    "name": "Water Sciences Laboratory",
+    "shortName": "WL",
+    "address": "1840 N 37th St",
+    "lat": 40.830945890681,
+    "lng": -96.667138650403
   },
   {
     "buildingCode": "WMB",
-    "inferredName": "Westbrook Music",
-    "sectionCount": 523,
-    "nameVariants": 9,
-    "sampleLat": 40.8169289,
-    "sampleLng": -96.7058258
+    "displayName": "Westbrook Music Building",
+    "campus": "City Campus",
+    "name": "Westbrook Music Building",
+    "shortName": "WMB",
+    "address": "1104 R",
+    "lat": 40.816539818859,
+    "lng": -96.70619959905
+  },
+  {
+    "buildingCode": "YS1",
+    "displayName": "1101 Y",
+    "campus": "Off Campus",
+    "name": "1101 Y",
+    "shortName": "YS1",
+    "address": "1101 Y St",
+    "lat": 40.824345935128,
+    "lng": -96.70497344782
   }
 ]
