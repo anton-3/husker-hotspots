@@ -808,10 +808,7 @@ export function CampusMap() {
             <MapPin className="h-4 w-4 text-white" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-white">UNL Campus Pulse</h1>
-            <p className="text-[10px] text-white/40">
-              Real-time Activity Heatmap
-            </p>
+            <h1 className="text-2xl font-bold text-white">Husker Hotspots</h1>
           </div>
         </div>
 

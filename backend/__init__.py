@@ -1,1 +1,1 @@
-# Backend package for UNL Campus Pulse API
+# Backend package for Husker Hotspots API
