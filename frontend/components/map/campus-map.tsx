@@ -5,7 +5,7 @@ import Map, { Source, Layer, NavigationControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { MAP_CONFIG, DATA_SOURCES, type DataSourceId, type DayOfWeek } from "@/lib/map/config";
-import { BUILDINGS, getBuildingById, BUILDING_CODE_TO_RICH_ID, type Building, type CampusBuilding } from "@/lib/map/buildings";
+import { BUILDINGS, getBuildingById, type Building, type CampusBuilding } from "@/lib/map/buildings";
 import {
   generateDayTimeline,
   generateInsights,
@@ -513,16 +513,11 @@ export function CampusMap() {
     };
   }, []);
 
-  // Current building occupancy (only for rich buildings; use rich id for lookup)
-  const richId = selectedBuilding
-    ? "capacity" in selectedBuilding
-      ? selectedBuilding.id
-      : BUILDING_CODE_TO_RICH_ID[selectedBuilding.id] ?? null
-    : null;
-  const richBuilding = richId ? getBuildingById(richId) ?? null : null;
+  // Current building: all 52 are rich (id = buildingCode); lookup by selected building id
+  const richBuilding = selectedBuilding ? getBuildingById(selectedBuilding.id) ?? null : null;
   const selectedBuildingOccupancy =
-    richId && currentSnapshot
-      ? currentSnapshot.buildings.find((b) => b.buildingId === richId) ?? null
+    richBuilding && currentSnapshot
+      ? currentSnapshot.buildings.find((b) => b.buildingId === richBuilding.id) ?? null
       : null;
 
   const showFullPopup = Boolean(
