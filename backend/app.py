@@ -5,6 +5,7 @@ Run from repo root: FLASK_APP=backend.app flask run
 
 from __future__ import annotations
 
+import os
 import re
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -13,7 +14,12 @@ from backend.density_aggregator import get_combined_density, get_combined_densit
 from backend.classes.density_field import get_building_timeline, get_building_at_time
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
+
+# CORS: allow localhost in dev; in production set CORS_ORIGINS (comma-separated) to your frontend URL(s).
+_default_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+_origins_env = os.environ.get("CORS_ORIGINS", "").strip()
+cors_origins = [o.strip() for o in _origins_env.split(",") if o.strip()] or _default_origins
+CORS(app, origins=cors_origins)
 
 # Default campus bounds (same as density_field modules)
 DEFAULT_SW = [-96.708, 40.812]
