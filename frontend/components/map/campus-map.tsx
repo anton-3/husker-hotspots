@@ -103,7 +103,7 @@ export function CampusMap() {
   });
 
   const [day, setDay] = useState<DayOfWeek>("Wednesday");
-  const [timeIndex, setTimeIndex] = useState(40); // 10:00 AM default (40 = 10*4)
+  const [timeIndex, setTimeIndex] = useState(24); // 6:00 AM default (24 = 6*4)
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
   const [selectedBuilding, setSelectedBuilding] = useState<SelectedBuilding | null>(null);
