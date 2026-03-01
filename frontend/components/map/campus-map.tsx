@@ -446,6 +446,20 @@ export function CampusMap() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  // Spacebar: pause/play timeline
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === " ") {
+        const target = e.target as HTMLElement;
+        if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        setIsPlaying((p) => !p);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   // Arrow keys: up/down = pitch, left/right = bearing (smooth while held, 1° at a time)
   useEffect(() => {
     const ARROW_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
