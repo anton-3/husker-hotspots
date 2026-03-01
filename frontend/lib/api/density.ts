@@ -181,6 +181,8 @@ export interface BuildingTimelineSlot {
   time: string;
   label: string;
   estimated_people: number;
+  /** Classes in session at this slot (included when fetching timeline for popup). */
+  classes?: ClassAtTime[];
 }
 
 export interface BuildingTimelineResponse {

@@ -586,14 +586,62 @@ def _compute_by_building_for_slot(
     return by_building
 
 
+def _building_slot_data(
+    sections: List[Dict[str, object]],
+    building_id: str,
+    weekday_code: str,
+    slot_minutes: int,
+    attendance_ratio: float = 0.82,
+) -> tuple[float, List[Dict[str, Any]]]:
+    """Return (estimated_people, classes) for one building at one slot. Used by get_building_timeline."""
+    estimated_people = 0.0
+    classes: List[Dict[str, Any]] = []
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        if str(section.get("building_key")) != building_id:
+            continue
+        meetings = section.get("meetings")
+        if not isinstance(meetings, list):
+            continue
+        section_presence, _ = _section_presence_and_spread(meetings, weekday_code, slot_minutes)
+        if section_presence <= 0.01:
+            continue
+        estimated_people += _estimate_section_people(
+            section["enrolled"],
+            section["capacity"],
+            attendance_ratio,
+        ) * section_presence
+        if _section_in_session_at_slot(meetings, weekday_code, slot_minutes):
+            enrolled_val = section.get("enrolled")
+            capacity_val = section.get("capacity")
+            enrolled_int = int(enrolled_val) if isinstance(enrolled_val, (int, float)) else 0
+            capacity_int = int(capacity_val) if isinstance(capacity_val, (int, float)) else 0
+            classes.append({
+                "course_label": str(section.get("course_label", "")),
+                "title": str(section.get("title", "")),
+                "room": str(section.get("room", "")),
+                "location": str(section.get("location", "")),
+                "enrolled": enrolled_int,
+                "capacity": capacity_int,
+                "start_time": str(section.get("start_time", "")),
+                "end_time": str(section.get("end_time", "")),
+                "days": str(section.get("days", "")),
+            })
+    return round(estimated_people, 3), classes
+
+
 def get_building_timeline(
     building_id: str,
     weekday: str,
     attendance_ratio: float = 0.82,
+    include_classes: bool = True,
 ) -> List[Dict[str, Any]]:
     """
     Return 96 slot entries (15-min intervals) for the given building and weekday.
-    Each slot has slot_index, time (HH:MM), label (e.g. "9:00 AM"), and estimated_people.
+    Each slot has slot_index, time (HH:MM), label (e.g. "9:00 AM"), estimated_people,
+    and (when include_classes=True) classes: list of sections in session at that slot.
+    One request when building is clicked supplies both timeline chart and "classes now" for any slot.
     """
     if weekday not in WEEKDAYS:
         raise ValueError(f"weekday must be one of: {', '.join(WEEKDAYS)}")
@@ -612,6 +660,13 @@ def get_building_timeline(
         if building_id in by_building:
             estimated_people = float(by_building[building_id]["estimated_people"])
 
+        if include_classes:
+            _, slot_classes = _building_slot_data(
+                sections, building_id, weekday_code, slot_minutes, attendance_ratio
+            )
+        else:
+            slot_classes = []
+
         hour = slot_index // 4
         minute = (slot_index % 4) * 15
         ampm = "AM" if hour < 12 else "PM"
@@ -619,12 +674,15 @@ def get_building_timeline(
         label = f"{display_hour}:{minute:02d} {ampm}"
         time_str = f"{hour:02d}:{minute:02d}"
 
-        slots.append({
+        slot_entry: Dict[str, Any] = {
             "slot_index": slot_index,
             "time": time_str,
             "label": label,
             "estimated_people": round(estimated_people, 3),
-        })
+        }
+        if include_classes:
+            slot_entry["classes"] = slot_classes
+        slots.append(slot_entry)
     return slots
 
 

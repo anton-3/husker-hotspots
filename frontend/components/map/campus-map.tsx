@@ -15,7 +15,6 @@ import {
 import {
   useDensityDay,
   useBuildingTimeline,
-  useBuildingAtTime,
   slotWeightsToHeatmapPoints,
   type ClassAtTime,
 } from "@/lib/api/density";
@@ -92,7 +91,7 @@ function scalePolygonGeometry(
 }
 
 export function CampusMap() {
-  console.log("[v0] CampusMap rendering, token exists:", !!MAPBOX_TOKEN);
+  // console.log("[v0] CampusMap rendering, token exists:", !!MAPBOX_TOKEN);
   // State
   const [viewState, setViewState] = useState<{
     longitude: number;
@@ -207,17 +206,11 @@ export function CampusMap() {
       }
     : undefined;
 
-  // Building timeline from API when a rich building is selected
+  // Building timeline from API when a rich building is selected (one request for full day: chart + classes per slot)
   const richBuildingForTimeline = selectedBuilding ? getBuildingById(selectedBuilding.id) ?? null : null;
   const { data: buildingTimelineData } = useBuildingTimeline(richBuildingForTimeline?.id ?? null, day);
-  // When day response has minimal buildings (slot.b), fetch class list on demand for popup
-  const currentTimeStr = slot?.time ?? null;
-  const { data: buildingAtTimeData } = useBuildingAtTime(
-    richBuildingForTimeline?.id ?? null,
-    currentTimeStr,
-    day
-  );
-  const classesAtTimeFromApi = buildingAtTimeData?.classes ?? null;
+  // Classes at current time: from timeline slots (same request as chart — no per-slot at-time requests)
+  const classesAtTimeFromTimeline = buildingTimelineData?.slots?.[timeIndex]?.classes ?? null;
 
   // Heatmap: use only API density data; keep previous frame's data while loading (no mock fallback)
   const heatmapPoints = densityHeatmapPoints ?? [];
@@ -755,7 +748,7 @@ export function CampusMap() {
           apiTimelineSlots={buildingTimelineData?.slots ?? null}
           sourceBreakdownOverride={sourceBreakdownOverride}
           classesAtTime={
-            classesAtTimeFromApi ??
+            classesAtTimeFromTimeline ??
             (densityData?.buildings?.find((b) => b.building_id === richBuilding.id) as
               | { classes?: ClassAtTime[] }
               | undefined
