@@ -1,5 +1,6 @@
 // UNL Campus Building Data
 // 12 key buildings with coordinates, metadata, and approximate footprint polygons
+// buildingCode mapping links API buildings (backend/scripts/buildings.json) to these rich records
 
 export interface Building {
   id: string;
@@ -12,6 +13,23 @@ export interface Building {
   description: string;
   polygon: [number, number][]; // Approximate building footprint
 }
+
+/** Minimal campus building from API (all 52). Used for click/hover when no rich data. */
+export interface CampusBuilding {
+  id: string; // buildingCode
+  name: string;
+  coordinates: [number, number]; // [lng, lat]
+}
+
+/** Map API buildingCode to rich Building id for popup/occupancy lookup. */
+export const BUILDING_CODE_TO_RICH_ID: Record<string, string> = {
+  AVH: "avery",
+  KAUF: "kauffman",
+  NU: "nebraska-union",
+  CREC: "campus-rec",
+  HAH: "hamilton",
+  LLS: "love-library",
+};
 
 export const BUILDINGS: Building[] = [
   {

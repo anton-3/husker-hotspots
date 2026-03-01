@@ -6,9 +6,9 @@ import type { DataSourceId, DayOfWeek } from "./config";
 
 export interface TimeSlot {
   hour: number;      // 0-23
-  minute: number;    // 0 or 30
+  minute: number;    // 0, 15, 30, or 45
   label: string;     // "9:00 AM"
-  index: number;     // 0-47
+  index: number;     // 0-95
 }
 
 export interface BuildingOccupancy {
@@ -29,12 +29,12 @@ export interface HeatmapPoint {
   weight: number; // 0-1
 }
 
-// Generate all 48 time slots (30-minute intervals)
+// Generate all 96 time slots (15-minute intervals)
 export function generateTimeSlots(): TimeSlot[] {
   const slots: TimeSlot[] = [];
-  for (let i = 0; i < 48; i++) {
-    const hour = Math.floor(i / 2);
-    const minute = (i % 2) * 30;
+  for (let i = 0; i < 96; i++) {
+    const hour = Math.floor(i / 4);
+    const minute = (i % 4) * 15;
     const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
     slots.push({
@@ -277,8 +277,8 @@ export function generateInsights(
     }
   }
 
-  // Future predictions - look ahead 2 hours
-  const futureIdx = Math.min(currentIdx + 4, 47);
+  // Future predictions - look ahead 2 hours (8 × 15 min)
+  const futureIdx = Math.min(currentIdx + 8, 95);
   if (futureIdx > currentIdx && timeline[futureIdx]) {
     const futureSnapshot = timeline[futureIdx];
     for (const futureBo of futureSnapshot.buildings) {

@@ -1,32 +1,100 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import Map, { NavigationControl } from "react-map-gl";
+import Map, { Source, Layer, NavigationControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { MAP_CONFIG, DATA_SOURCES, type DataSourceId, type DayOfWeek } from "@/lib/map/config";
-import { BUILDINGS, getBuildingById, type Building } from "@/lib/map/buildings";
+import { BUILDINGS, getBuildingById, BUILDING_CODE_TO_RICH_ID, type Building, type CampusBuilding } from "@/lib/map/buildings";
 import {
   generateDayTimeline,
   generateInsights,
   type TimelineSnapshot,
+  type HeatmapPoint,
 } from "@/lib/map/mock-data";
+import { useDensity } from "@/lib/api/density";
+import { useCampusBuildings, findClosestBuilding } from "@/lib/api/buildings";
+import {
+  heatmapPointsToGeoJSON,
+} from "@/lib/map/geojson";
 
-import { DeckGLOverlay } from "./deck-overlay";
-import { useMapLayers } from "./heatmap-layer";
 import { TimelineSlider } from "./timeline-slider";
 import { InsightsPanel } from "./insights-panel";
 import { DataSourceToggle } from "./data-source-toggle";
 import { Legend } from "./legend";
 import { BuildingPopup } from "./building-popup";
+import { MinimalBuildingPopup } from "./minimal-building-popup";
 import { MapPin, Layers } from "lucide-react";
+import type { MapLayerMouseEvent } from "mapbox-gl";
+import type { Map as MapboxMap } from "mapbox-gl";
+
+/** Selected building can be rich (12) or minimal (from API). */
+type SelectedBuilding = Building | CampusBuilding;
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+const EMPTY_HEATMAP_GEOJSON: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+  type: "FeatureCollection",
+  features: [],
+};
+
+const EMPTY_BUILDINGS_GEOJSON: GeoJSON.FeatureCollection<GeoJSON.Polygon> = {
+  type: "FeatureCollection",
+  features: [],
+};
+
+/** Blue tint for clickable (52) campus buildings — distinct from default building gradient */
+const CLICKABLE_BUILDING_COLOR = "#1e3a5f";
+/** Scale clickable extrusion slightly above base layer to avoid z-fighting */
+const CLICKABLE_BUILDING_HEIGHT_SCALE = 1.02;
+/** Scale clickable footprint horizontally so blue layer extends slightly past base */
+const CLICKABLE_BUILDING_HORIZONTAL_SCALE = 1.02;
+
+/** Scale a polygon ring around its centroid (for horizontal scale of clickable layer). */
+function scaleRing(ring: number[][], scale: number): number[][] {
+  if (ring.length === 0) return ring;
+  let cx = 0;
+  let cy = 0;
+  for (const [lng, lat] of ring) {
+    cx += lng;
+    cy += lat;
+  }
+  cx /= ring.length;
+  cy /= ring.length;
+  return ring.map(([lng, lat]) => [
+    cx + (lng - cx) * scale,
+    cy + (lat - cy) * scale,
+  ]);
+}
+
+function scalePolygonGeometry(
+  geom: GeoJSON.Polygon | GeoJSON.MultiPolygon,
+  scale: number
+): GeoJSON.Polygon | GeoJSON.MultiPolygon {
+  if (geom.type === "Polygon") {
+    return {
+      type: "Polygon",
+      coordinates: geom.coordinates.map((ring) => scaleRing(ring, scale)),
+    };
+  }
+  return {
+    type: "MultiPolygon",
+    coordinates: geom.coordinates.map((poly) =>
+      poly.map((ring) => scaleRing(ring, scale))
+    ),
+  };
+}
 
 export function CampusMap() {
   console.log("[v0] CampusMap rendering, token exists:", !!MAPBOX_TOKEN);
   // State
-  const [viewState, setViewState] = useState({
+  const [viewState, setViewState] = useState<{
+    longitude: number;
+    latitude: number;
+    zoom: number;
+    pitch: number;
+    bearing: number;
+  }>({
     longitude: MAP_CONFIG.center[0],
     latitude: MAP_CONFIG.center[1],
     zoom: MAP_CONFIG.defaultZoom,
@@ -35,20 +103,29 @@ export function CampusMap() {
   });
 
   const [day, setDay] = useState<DayOfWeek>("Wednesday");
-  const [timeIndex, setTimeIndex] = useState(20); // 10:00 AM default
+  const [timeIndex, setTimeIndex] = useState(40); // 10:00 AM default (40 = 10*4)
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
-  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<SelectedBuilding | null>(null);
   const [hoveredBuildingId, setHoveredBuildingId] = useState<string | null>(null);
   const [insightsOpen, setInsightsOpen] = useState(true);
   const [showSources, setShowSources] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(true);
   const [activeSources, setActiveSources] = useState<Set<DataSourceId>>(
     new Set(DATA_SOURCES.map((s) => s.id))
   );
   const [mapLoaded, setMapLoaded] = useState(false);
 
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
-  const playIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTickTimeRef = useRef<number>(0);
+  /** Accumulated clickable building features (deduped by id or geometry key) for merge on moveend */
+  const resolvedClickableFeaturesRef = useRef(
+    new globalThis.Map<string, GeoJSON.Feature<GeoJSON.Polygon>>()
+  );
+
+  // Smooth play progress 0–1 within current 15min tick (for slider animation only)
+  const [smoothProgress, setSmoothProgress] = useState(0);
+  const displayValue = Math.min(95, timeIndex + smoothProgress);
 
   // Generate timeline data (memoized per day)
   const timeline = useMemo(() => generateDayTimeline(day), [day]);
@@ -58,21 +135,64 @@ export function CampusMap() {
     [currentSnapshot, timeline]
   );
 
-  // Play/pause timeline
+  // Play/pause timeline: rAF drives smooth slider; time still advances every 15min
   useEffect(() => {
-    if (isPlaying) {
-      playIntervalRef.current = setInterval(() => {
-        setTimeIndex((prev) => (prev >= 47 ? 0 : prev + 1));
-      }, 1000 / playSpeed);
+    if (!isPlaying) {
+      setSmoothProgress(0);
+      return;
     }
-    return () => {
-      if (playIntervalRef.current) clearInterval(playIntervalRef.current);
+    lastTickTimeRef.current = Date.now();
+    let rafId: number;
+    const tickDuration = 500 / playSpeed;
+    const tick = () => {
+      const now = Date.now();
+      let elapsed = now - lastTickTimeRef.current;
+      if (elapsed >= tickDuration) {
+        setTimeIndex((prev) => (prev >= 95 ? 0 : prev + 1));
+        lastTickTimeRef.current = now;
+        elapsed = 0;
+      }
+      setSmoothProgress(Math.min(elapsed / tickDuration, 1));
+      rafId = requestAnimationFrame(tick);
     };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
   }, [isPlaying, playSpeed]);
 
-  // Building click handler - fly to building
+  const handleIndexChange = useCallback((value: number) => {
+    const idx = Math.round(Math.min(95, Math.max(0, value)));
+    setTimeIndex(idx);
+    setSmoothProgress(0);
+    lastTickTimeRef.current = Date.now();
+  }, []);
+
+  // Density from API (cached by TanStack Query per day + time)
+  const { data: densityData, isPending: densityLoading } = useDensity(day, timeIndex, timeline);
+  const densityHeatmapPoints = densityData?.heatmap_points ?? null;
+
+  // Heatmap: use only API density data; keep previous frame's data while loading (no mock fallback)
+  const heatmapPoints = densityHeatmapPoints ?? [];
+  const heatmapPointsFiltered = useMemo(() => {
+    if (activeSources.size === 7) return heatmapPoints;
+    const ratio = activeSources.size / 7;
+    return heatmapPoints.map((p) => ({ ...p, weight: p.weight * ratio }));
+  }, [heatmapPoints, activeSources]);
+  const heatmapGeoJSON = useMemo(
+    () =>
+      heatmapPointsFiltered.length > 0
+        ? heatmapPointsToGeoJSON(heatmapPointsFiltered)
+        : EMPTY_HEATMAP_GEOJSON,
+    [heatmapPointsFiltered]
+  );
+
+  const { data: campusBuildingsList = [] } = useCampusBuildings();
+
+  // Building footprints as GeoJSON for Mapbox fill layer — REMOVED (use 3D buildings for click/hover)
+  // buildingGeoJSON removed
+
+  // Building click handler - fly to building (accepts rich or minimal)
   const handleBuildingClick = useCallback(
-    (building: Building) => {
+    (building: SelectedBuilding) => {
       setSelectedBuilding(building);
       mapRef.current?.flyTo({
         center: building.coordinates,
@@ -167,25 +287,173 @@ export function CampusMap() {
         labelLayerId
       );
     }
+
+    // GeoJSON source + layer for clickable (52) buildings — drawn on top with blue tint
+    if (!map.getSource("clickable-buildings")) {
+      map.addSource("clickable-buildings", {
+        type: "geojson",
+        data: EMPTY_BUILDINGS_GEOJSON,
+      });
+    }
+    if (!map.getLayer("3d-buildings-clickable")) {
+      map.addLayer(
+        {
+          id: "3d-buildings-clickable",
+          source: "clickable-buildings",
+          type: "fill-extrusion",
+          minzoom: 14,
+          paint: {
+            "fill-extrusion-color": CLICKABLE_BUILDING_COLOR,
+            "fill-extrusion-height": [
+              "*",
+              ["get", "height"],
+              CLICKABLE_BUILDING_HEIGHT_SCALE,
+            ],
+            "fill-extrusion-base": ["get", "min_height"],
+            "fill-extrusion-opacity": 0.7,
+          },
+        },
+        labelLayerId
+      );
+    }
   }, []);
 
-  // Deck.gl layers
-  const deckLayers = useMapLayers({
-    heatmapPoints: currentSnapshot?.heatmapPoints ?? [],
-    buildingOccupancies: currentSnapshot?.buildings ?? [],
-    selectedBuildingId: selectedBuilding?.id ?? null,
-    hoveredBuildingId,
-    activeSources,
-    onBuildingClick: handleBuildingClick,
-    onBuildingHover: setHoveredBuildingId,
-  });
+  // Map click: query 3D building layer, resolve to campus building, select and fly
+  const handleMapClick = useCallback(
+    (e: MapLayerMouseEvent) => {
+      const map = mapRef.current?.getMap();
+      if (!map) return;
+      if (!map.getLayer("3d-buildings")) return; // Layer added in handleMapLoad; not ready yet
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ["3d-buildings", "3d-buildings-clickable"],
+      });
+      if (features?.length) {
+        const { lng, lat } = e.lngLat;
+        const campus = findClosestBuilding(campusBuildingsList, lng, lat);
+        if (campus) {
+          handleBuildingClick(campus);
+          return;
+        }
+      }
+      if (selectedBuilding) {
+        handleCloseBuilding();
+      } else {
+        setSelectedBuilding(null);
+      }
+    },
+    [campusBuildingsList, handleBuildingClick, handleCloseBuilding, selectedBuilding]
+  );
 
-  // Current building occupancy data
-  const selectedBuildingOccupancy = selectedBuilding
-    ? currentSnapshot?.buildings.find(
-        (b) => b.buildingId === selectedBuilding.id
-      )
+  // Map mouse move: hover 3D building, resolve to campus building for cursor
+  const handleMapMouseMove = useCallback(
+    (e: MapLayerMouseEvent) => {
+      const map = mapRef.current?.getMap();
+      if (!map) return;
+      if (!map.getLayer("3d-buildings")) {
+        setHoveredBuildingId(null);
+        return;
+      }
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ["3d-buildings", "3d-buildings-clickable"],
+      });
+      if (features?.length) {
+        const { lng, lat } = e.lngLat;
+        const campus = findClosestBuilding(campusBuildingsList, lng, lat);
+        setHoveredBuildingId(campus?.id ?? null);
+      } else {
+        setHoveredBuildingId(null);
+      }
+    },
+    [campusBuildingsList]
+  );
+
+  const handleMapMouseLeave = useCallback(() => {
+    setHoveredBuildingId(null);
+  }, []);
+
+  // Resolve 52 clickable buildings to Mapbox building geometries and update the clickable-buildings source
+  const resolveClickableBuildings = useCallback(
+    (map: MapboxMap, buildings: CampusBuilding[]) => {
+      if (!map.getLayer("3d-buildings") || !map.getSource("clickable-buildings")) return;
+      const seen = resolvedClickableFeaturesRef.current;
+      for (const building of buildings) {
+        const [lng, lat] = building.coordinates;
+        const point = map.project([lng, lat]);
+        const features = map.queryRenderedFeatures(point, { layers: ["3d-buildings"] });
+        for (const f of features) {
+          const geom = f.geometry;
+          if (geom.type !== "Polygon" && geom.type !== "MultiPolygon") continue;
+          const props = f.properties as { height?: number; min_height?: number };
+          const height = props?.height ?? 0;
+          const minHeight = props?.min_height ?? 0;
+          const key =
+            f.id != null ? `id:${f.id}` : `geom:${JSON.stringify(geom.coordinates)}`;
+          if (seen.has(key)) continue;
+          const scaledGeometry = scalePolygonGeometry(
+            geom as GeoJSON.Polygon | GeoJSON.MultiPolygon,
+            CLICKABLE_BUILDING_HORIZONTAL_SCALE
+          );
+          const feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> = {
+            type: "Feature",
+            geometry: scaledGeometry,
+            properties: { height, min_height: minHeight },
+          };
+          seen.set(key, feature as GeoJSON.Feature<GeoJSON.Polygon>);
+        }
+      }
+      const collection: GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon> = {
+        type: "FeatureCollection",
+        features: Array.from(seen.values()),
+      };
+      (
+        map.getSource("clickable-buildings") as { setData(data: GeoJSON.FeatureCollection): void }
+      ).setData(collection);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!mapLoaded || campusBuildingsList.length === 0) return;
+    const map = mapRef.current?.getMap();
+    if (!map || !map.getLayer("3d-buildings") || !map.getSource("clickable-buildings")) return;
+    resolveClickableBuildings(map, campusBuildingsList);
+    const onMoveEnd = () => resolveClickableBuildings(map, campusBuildingsList);
+    map.on("moveend", onMoveEnd);
+    return () => {
+      map.off("moveend", onMoveEnd);
+    };
+  }, [mapLoaded, campusBuildingsList, resolveClickableBuildings]);
+
+  // Toggle heatmap visibility with 'h' key
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "h" || e.key === "H") {
+        const target = e.target as HTMLElement;
+        if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        setShowHeatmap((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  // Current building occupancy (only for rich buildings; use rich id for lookup)
+  const richId = selectedBuilding
+    ? "capacity" in selectedBuilding
+      ? selectedBuilding.id
+      : BUILDING_CODE_TO_RICH_ID[selectedBuilding.id] ?? null
     : null;
+  const richBuilding = richId ? getBuildingById(richId) ?? null : null;
+  const selectedBuildingOccupancy =
+    richId && currentSnapshot
+      ? currentSnapshot.buildings.find((b) => b.buildingId === richId) ?? null
+      : null;
+
+  const showFullPopup = Boolean(
+    richBuilding && selectedBuildingOccupancy
+  );
+  const showMinimalPopup = Boolean(selectedBuilding && !showFullPopup);
 
   if (!MAPBOX_TOKEN) {
     console.log("[v0] No Mapbox token found");
@@ -259,11 +527,48 @@ export function CampusMap() {
         maxZoom={MAP_CONFIG.maxZoom}
         antialias
         onLoad={handleMapLoad}
+        onClick={handleMapClick}
+        onMouseMove={handleMapMouseMove}
+        onMouseLeave={handleMapMouseLeave}
         style={{ width: "100%", height: "100%" }}
         cursor={hoveredBuildingId ? "pointer" : "grab"}
       >
         <NavigationControl position="top-right" style={{ marginTop: 80 }} />
-        {mapLoaded && <DeckGLOverlay layers={deckLayers} />}
+
+        {/* Heatmap (on top) */}
+        {showHeatmap && (
+          <Source id="heatmap-data" type="geojson" data={heatmapGeoJSON}>
+            <Layer
+              id="heatmap-layer"
+              type="heatmap"
+              paint={{
+                "heatmap-weight": ["get", "weight"],
+                "heatmap-intensity": 1.8,
+                "heatmap-color": [
+                  "interpolate",
+                  ["linear"],
+                  ["heatmap-density"],
+                  0,
+                  "rgba(0,0,0,0)",
+                  0.1,
+                  "rgba(59,130,246,0.35)",
+                  0.25,
+                  "rgba(34,197,94,0.45)",
+                  0.45,
+                  "rgba(234,179,8,0.55)",
+                  0.6,
+                  "rgba(249,115,22,0.7)",
+                  0.8,
+                  "rgba(239,68,68,0.85)",
+                  1,
+                  "rgba(220,38,38,0.95)",
+                ],
+                "heatmap-radius": 45,
+                "heatmap-opacity": 0.85,
+              }}
+            />
+          </Source>
+        )}
       </Map>
 
       {/* Data source toggles */}
@@ -282,14 +587,20 @@ export function CampusMap() {
         onInsightClick={handleInsightClick}
       />
 
-      {/* Building detail popup */}
-      {selectedBuilding && selectedBuildingOccupancy && (
+      {/* Building detail popup: full when rich + occupancy, else minimal */}
+      {showFullPopup && richBuilding && selectedBuildingOccupancy && (
         <BuildingPopup
-          building={selectedBuilding}
+          building={richBuilding}
           currentOccupancy={selectedBuildingOccupancy.occupancyPercent}
           currentOccupantCount={selectedBuildingOccupancy.occupantCount}
           timeline={timeline}
           currentTimeIndex={timeIndex}
+          onClose={handleCloseBuilding}
+        />
+      )}
+      {showMinimalPopup && selectedBuilding && (
+        <MinimalBuildingPopup
+          building={{ id: selectedBuilding.id, name: selectedBuilding.name }}
           onClose={handleCloseBuilding}
         />
       )}
@@ -299,8 +610,8 @@ export function CampusMap() {
 
       {/* Timeline slider */}
       <TimelineSlider
-        currentIndex={timeIndex}
-        onIndexChange={setTimeIndex}
+        currentIndex={displayValue}
+        onIndexChange={handleIndexChange}
         isPlaying={isPlaying}
         onPlayToggle={() => setIsPlaying((p) => !p)}
         playSpeed={playSpeed}

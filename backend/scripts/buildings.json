@@ -1,0 +1,418 @@
+[
+  {
+    "buildingCode": "ACB",
+    "inferredName": "Agricultural Comm Bldg",
+    "sectionCount": 2,
+    "nameVariants": 1,
+    "sampleLat": 40.8290939,
+    "sampleLng": -96.6684494
+  },
+  {
+    "buildingCode": "ANDN",
+    "inferredName": "Andersen Hall",
+    "sectionCount": 97,
+    "nameVariants": 17,
+    "sampleLat": 40.8152237,
+    "sampleLng": -96.6991272
+  },
+  {
+    "buildingCode": "ANDR",
+    "inferredName": "Andrews Hall",
+    "sectionCount": 104,
+    "nameVariants": 21,
+    "sampleLat": 40.8193321,
+    "sampleLng": -96.701767
+  },
+  {
+    "buildingCode": "ANSC",
+    "inferredName": "Animal Science",
+    "sectionCount": 10,
+    "nameVariants": 5,
+    "sampleLat": 40.8323326,
+    "sampleLng": -96.6644058
+  },
+  {
+    "buildingCode": "ARCH",
+    "inferredName": "Architecture Hall",
+    "sectionCount": 90,
+    "nameVariants": 8,
+    "sampleLat": 40.8174973,
+    "sampleLng": -96.7060623
+  },
+  {
+    "buildingCode": "AVH",
+    "inferredName": "Avery Hall",
+    "sectionCount": 134,
+    "nameVariants": 13,
+    "sampleLat": 40.8193321,
+    "sampleLng": -96.7044067
+  },
+  {
+    "buildingCode": "BEAD",
+    "inferredName": "Beadle Center E103",
+    "sectionCount": 87,
+    "nameVariants": 10,
+    "sampleLat": 40.8198967,
+    "sampleLng": -96.6932755
+  },
+  {
+    "buildingCode": "BESY",
+    "inferredName": "Bessey Hall",
+    "sectionCount": 66,
+    "nameVariants": 14,
+    "sampleLat": 40.8200111,
+    "sampleLng": -96.7032471
+  },
+  {
+    "buildingCode": "BKC",
+    "inferredName": "Barkley Center",
+    "sectionCount": 2,
+    "nameVariants": 1,
+    "sampleLat": 40.8287735,
+    "sampleLng": -96.6609116
+  },
+  {
+    "buildingCode": "BL",
+    "inferredName": "Brace Lab",
+    "sectionCount": 83,
+    "nameVariants": 9,
+    "sampleLat": 40.8180008,
+    "sampleLng": -96.7061844
+  },
+  {
+    "buildingCode": "BURN",
+    "inferredName": "Burnett",
+    "sectionCount": 178,
+    "nameVariants": 23,
+    "sampleLat": 40.8193474,
+    "sampleLng": -96.703186
+  },
+  {
+    "buildingCode": "CEMA",
+    "inferredName": "Center for Emerging Arts",
+    "sectionCount": 25,
+    "nameVariants": 8,
+    "sampleLat": 40.815926,
+    "sampleLng": -96.702415
+  },
+  {
+    "buildingCode": "CHA",
+    "inferredName": "Chase Hall",
+    "sectionCount": 3,
+    "nameVariants": 3,
+    "sampleLat": 40.8313904,
+    "sampleLng": -96.6689148
+  },
+  {
+    "buildingCode": "CPEH",
+    "inferredName": "Carolyn Pope Edwards Hall",
+    "sectionCount": 74,
+    "nameVariants": 12,
+    "sampleLat": 40.8218002,
+    "sampleLng": -96.7008209
+  },
+  {
+    "buildingCode": "CREC",
+    "inferredName": "Campus Rec",
+    "sectionCount": 46,
+    "nameVariants": 7,
+    "sampleLat": 40.8219299,
+    "sampleLng": -96.7023697
+  },
+  {
+    "buildingCode": "DINS",
+    "inferredName": "Dinsdale Learning Commons Arr",
+    "sectionCount": 2,
+    "nameVariants": 1,
+    "sampleLat": 40.8293991,
+    "sampleLng": -96.6661224
+  },
+  {
+    "buildingCode": "ENTO",
+    "inferredName": "Entomology Hall",
+    "sectionCount": 2,
+    "nameVariants": 1,
+    "sampleLat": 40.8300591,
+    "sampleLng": -96.6684036
+  },
+  {
+    "buildingCode": "ERC",
+    "inferredName": "Engineering Research Ctr D127B",
+    "sectionCount": 4,
+    "nameVariants": 1,
+    "sampleLat": 40.82263,
+    "sampleLng": -96.69809
+  },
+  {
+    "buildingCode": "FIC",
+    "inferredName": "Food Innovation Center",
+    "sectionCount": 8,
+    "nameVariants": 2,
+    "sampleLat": null,
+    "sampleLng": null
+  },
+  {
+    "buildingCode": "FOOD",
+    "inferredName": "Food Industry Complex",
+    "sectionCount": 3,
+    "nameVariants": 2,
+    "sampleLat": 40.828949,
+    "sampleLng": -96.6669617
+  },
+  {
+    "buildingCode": "FYH",
+    "inferredName": "Filley Hall",
+    "sectionCount": 2,
+    "nameVariants": 1,
+    "sampleLat": 40.8288879,
+    "sampleLng": -96.6674118
+  },
+  {
+    "buildingCode": "GNHS",
+    "inferredName": "Newkirk Human Sci Building",
+    "sectionCount": 3,
+    "nameVariants": 3,
+    "sampleLat": 40.8300591,
+    "sampleLng": -96.6694412
+  },
+  {
+    "buildingCode": "HAH",
+    "inferredName": "Hamilton Hall",
+    "sectionCount": 193,
+    "nameVariants": 29,
+    "sampleLat": 40.8186989,
+    "sampleLng": -96.7044525
+  },
+  {
+    "buildingCode": "HARH",
+    "inferredName": "Hardin Hall",
+    "sectionCount": 4,
+    "nameVariants": 2,
+    "sampleLat": 40.8288879,
+    "sampleLng": -96.671936
+  },
+  {
+    "buildingCode": "HENZ",
+    "inferredName": "Henzlik Hall",
+    "sectionCount": 74,
+    "nameVariants": 12,
+    "sampleLat": 40.8211174,
+    "sampleLng": -96.7002182
+  },
+  {
+    "buildingCode": "HLH",
+    "inferredName": "Howard L. Hawks Hall",
+    "sectionCount": 300,
+    "nameVariants": 25,
+    "sampleLat": 40.820183,
+    "sampleLng": -96.70122
+  },
+  {
+    "buildingCode": "JH",
+    "inferredName": "Jorgensen Hall",
+    "sectionCount": 135,
+    "nameVariants": 15,
+    "sampleLat": 40.821862,
+    "sampleLng": -96.69849
+  },
+  {
+    "buildingCode": "KAUF",
+    "inferredName": "Kauffman",
+    "sectionCount": 7,
+    "nameVariants": 3,
+    "sampleLat": 40.8194618,
+    "sampleLng": -96.7003937
+  },
+  {
+    "buildingCode": "KEIM",
+    "inferredName": "Keim Hall",
+    "sectionCount": 4,
+    "nameVariants": 3,
+    "sampleLat": 40.8307571,
+    "sampleLng": -96.666153
+  },
+  {
+    "buildingCode": "KH",
+    "inferredName": "Kiewit Hall A253",
+    "sectionCount": 158,
+    "nameVariants": 19,
+    "sampleLat": 40.82088,
+    "sampleLng": -96.69653
+  },
+  {
+    "buildingCode": "KRH",
+    "inferredName": "Kimbal Recital Hall",
+    "sectionCount": 19,
+    "nameVariants": 2,
+    "sampleLat": 40.8166351,
+    "sampleLng": -96.7050095
+  },
+  {
+    "buildingCode": "LAW",
+    "inferredName": "Ross McCollum Hall",
+    "sectionCount": 1,
+    "nameVariants": 1,
+    "sampleLat": 40.8308067,
+    "sampleLng": -96.6602631
+  },
+  {
+    "buildingCode": "LCM",
+    "inferredName": "The Agency",
+    "sectionCount": 12,
+    "nameVariants": 5,
+    "sampleLat": 40.81508,
+    "sampleLng": -96.70024
+  },
+  {
+    "buildingCode": "LLS",
+    "inferredName": "Love Library",
+    "sectionCount": 16,
+    "nameVariants": 1,
+    "sampleLat": 40.8178253,
+    "sampleLng": -96.7024536
+  },
+  {
+    "buildingCode": "LPH",
+    "inferredName": "Louise Pound Hall",
+    "sectionCount": 131,
+    "nameVariants": 21,
+    "sampleLat": 40.8178368,
+    "sampleLng": -96.7033539
+  },
+  {
+    "buildingCode": "M&N",
+    "inferredName": "Military & Naval Science",
+    "sectionCount": 23,
+    "nameVariants": 5,
+    "sampleLat": null,
+    "sampleLng": null
+  },
+  {
+    "buildingCode": "MANT",
+    "inferredName": "Manter Hall",
+    "sectionCount": 84,
+    "nameVariants": 12,
+    "sampleLat": 40.8188744,
+    "sampleLng": -96.7051773
+  },
+  {
+    "buildingCode": "MOLR",
+    "inferredName": "Morrison Center",
+    "sectionCount": 1,
+    "nameVariants": 1,
+    "sampleLat": 40.831833,
+    "sampleLng": -96.659163
+  },
+  {
+    "buildingCode": "MORR",
+    "inferredName": "Morrill Hall",
+    "sectionCount": 9,
+    "nameVariants": 1,
+    "sampleLat": 40.8199158,
+    "sampleLng": -96.701767
+  },
+  {
+    "buildingCode": "NH",
+    "inferredName": "Nebraska Hall",
+    "sectionCount": 51,
+    "nameVariants": 17,
+    "sampleLat": 40.823082,
+    "sampleLng": -96.6975403
+  },
+  {
+    "buildingCode": "NU",
+    "inferredName": "Nebraska Union",
+    "sectionCount": 1,
+    "nameVariants": 1,
+    "sampleLat": 40.8177872,
+    "sampleLng": -96.7003708
+  },
+  {
+    "buildingCode": "OAC",
+    "inferredName": "Outdoor Adventures Center Arra",
+    "sectionCount": 9,
+    "nameVariants": 1,
+    "sampleLat": 40.82314,
+    "sampleLng": -96.7008
+  },
+  {
+    "buildingCode": "OLDH",
+    "inferredName": "Oldfather Hall",
+    "sectionCount": 127,
+    "nameVariants": 17,
+    "sampleLat": 40.8197021,
+    "sampleLng": -96.70327
+  },
+  {
+    "buildingCode": "OTHM",
+    "inferredName": "Othmer Hall",
+    "sectionCount": 41,
+    "nameVariants": 6,
+    "sampleLat": 40.8212776,
+    "sampleLng": -96.6973724
+  },
+  {
+    "buildingCode": "PLSH",
+    "inferredName": "Plant Sciences",
+    "sectionCount": 16,
+    "nameVariants": 4,
+    "sampleLat": 40.8311958,
+    "sampleLng": -96.666153
+  },
+  {
+    "buildingCode": "RH",
+    "inferredName": "Richards Hall",
+    "sectionCount": 128,
+    "nameVariants": 10,
+    "sampleLat": 40.8186989,
+    "sampleLng": -96.7063141
+  },
+  {
+    "buildingCode": "RVB",
+    "inferredName": "Ross-Van Brunt",
+    "sectionCount": 14,
+    "nameVariants": 4,
+    "sampleLat": 40.8164902,
+    "sampleLng": -96.7030792
+  },
+  {
+    "buildingCode": "SEC",
+    "inferredName": "Scott Engineering Ctr Arr",
+    "sectionCount": 12,
+    "nameVariants": 4,
+    "sampleLat": 40.8220749,
+    "sampleLng": -96.6976013
+  },
+  {
+    "buildingCode": "TEAC",
+    "inferredName": "Teachers College",
+    "sectionCount": 59,
+    "nameVariants": 11,
+    "sampleLat": 40.8213425,
+    "sampleLng": -96.7003555
+  },
+  {
+    "buildingCode": "TEMP",
+    "inferredName": "Temple Building",
+    "sectionCount": 34,
+    "nameVariants": 9,
+    "sampleLat": 40.8165855,
+    "sampleLng": -96.7034836
+  },
+  {
+    "buildingCode": "WAB",
+    "inferredName": "Woods Art",
+    "sectionCount": 63,
+    "nameVariants": 5,
+    "sampleLat": 40.8178368,
+    "sampleLng": -96.7050858
+  },
+  {
+    "buildingCode": "WMB",
+    "inferredName": "Westbrook Music",
+    "sectionCount": 523,
+    "nameVariants": 9,
+    "sampleLat": 40.8169289,
+    "sampleLng": -96.7058258
+  }
+]
