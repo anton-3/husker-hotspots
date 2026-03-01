@@ -364,10 +364,10 @@ export function CampusMap() {
     [currentSnapshot, buildingFootprintsVersion, buildingIndex]
   );
 
-  const heatmapPoints =
-    densityHeatmapPoints && densityHeatmapPoints.length > 0
-      ? densityHeatmapPoints
-      : fallbackHeatmapPoints;
+  const heatmapPoints = fallbackHeatmapPoints;
+    // densityHeatmapPoints && densityHeatmapPoints.length > 0
+    //   ? densityHeatmapPoints
+    //   : fallbackHeatmapPoints;
   const heatmapPointsFiltered = useMemo(() => {
     if (activeSources.size === 7) return heatmapPoints;
     const ratio = activeSources.size / 7;
