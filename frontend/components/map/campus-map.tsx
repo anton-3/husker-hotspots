@@ -514,16 +514,16 @@ export function CampusMap() {
       setViewState((prev) => {
         const next = { ...prev };
         if (pressed.has("ArrowUp")) {
-          next.pitch = Math.min(maxPitch, prev.pitch + pitchDelta);
+          next.pitch = Math.min(maxPitch, prev.pitch - pitchDelta);
         }
         if (pressed.has("ArrowDown")) {
-          next.pitch = Math.max(minPitch, prev.pitch - pitchDelta);
+          next.pitch = Math.max(minPitch, prev.pitch + pitchDelta);
         }
         if (pressed.has("ArrowLeft")) {
-          next.bearing = prev.bearing - bearingDelta;
+          next.bearing = prev.bearing + bearingDelta;
         }
         if (pressed.has("ArrowRight")) {
-          next.bearing = prev.bearing + bearingDelta;
+          next.bearing = prev.bearing - bearingDelta;
         }
         return next;
       });
@@ -669,6 +669,7 @@ export function CampusMap() {
       <Map
         ref={mapRef}
         {...viewState}
+        keyboard={false}
         onMove={(evt) => setViewState(evt.viewState)}
         mapboxAccessToken={MAPBOX_TOKEN}
         mapStyle={MAP_CONFIG.style}
