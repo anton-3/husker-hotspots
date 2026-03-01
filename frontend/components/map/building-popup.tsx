@@ -129,6 +129,18 @@ export function BuildingPopup({
       ? sourceBreakdownOverride
       : sourceBreakdownFromTimeline;
 
+  // Only show classes that are in session at the current map time (start <= current < end)
+  const classesInSession = useMemo(() => {
+    const slot = timeline[currentTimeIndex]?.time;
+    if (!slot || classesAtTime.length === 0) return classesAtTime;
+    const currentHHMM = `${String(slot.hour).padStart(2, "0")}:${String(slot.minute).padStart(2, "0")}`;
+    return classesAtTime.filter(
+      (cls) =>
+        cls.start_time <= currentHHMM &&
+        currentHHMM < cls.end_time
+    );
+  }, [timeline, currentTimeIndex, classesAtTime]);
+
   const typeColor = BUILDING_TYPE_COLORS[building.type];
   const occupancyPercent = Math.round(currentOccupancy * 100);
 
@@ -317,11 +329,11 @@ export function BuildingPopup({
                       Classes right now
                       {currentTimeLabel ? ` (${currentTimeLabel})` : ""}
                     </h4>
-                    {classesAtTime.length === 0 ? (
+                    {classesInSession.length === 0 ? (
                       <p className="text-xs text-white/40">No scheduled classes at this time.</p>
                     ) : (
                       <ul className="space-y-2">
-                        {classesAtTime.map((cls, i) => (
+                        {classesInSession.map((cls, i) => (
                           <li
                             key={`${cls.course_label}-${cls.room}-${i}`}
                             className="rounded-lg border border-white/10 bg-white/5 p-2.5"

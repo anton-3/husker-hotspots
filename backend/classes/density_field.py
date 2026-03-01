@@ -188,6 +188,22 @@ def _meeting_presence_weight(
     return 0.0, 1.0
 
 
+def _section_in_session_at_slot(
+    meetings: List[Dict[str, object]],
+    weekday_code: str,
+    slot_minutes: int,
+) -> bool:
+    """True if any meeting is in session at slot_minutes (start <= slot < end)."""
+    for meeting in meetings:
+        if weekday_code not in str(meeting.get("days", "")):
+            continue
+        start_min = int(meeting["start"])
+        end_min = int(meeting["end"])
+        if start_min <= slot_minutes < end_min:
+            return True
+    return False
+
+
 def _section_presence_and_spread(
     meetings: List[Dict[str, object]],
     weekday_code: str,
@@ -312,19 +328,20 @@ def generate_people_density_field(
         else:
             capacity_int = 0
 
-        by_building[building_key]["classes"].append(
-            {
-                "course_label": str(section.get("course_label", "")),
-                "title": str(section.get("title", "")),
-                "room": str(section.get("room", "")),
-                "location": str(section.get("location", "")),
-                "enrolled": enrolled_int,
-                "capacity": capacity_int,
-                "start_time": str(section.get("start_time", "")),
-                "end_time": str(section.get("end_time", "")),
-                "days": str(section.get("days", "")),
-            }
-        )
+        if _section_in_session_at_slot(meetings, weekday_code, slot_minutes):
+            by_building[building_key]["classes"].append(
+                {
+                    "course_label": str(section.get("course_label", "")),
+                    "title": str(section.get("title", "")),
+                    "room": str(section.get("room", "")),
+                    "location": str(section.get("location", "")),
+                    "enrolled": enrolled_int,
+                    "capacity": capacity_int,
+                    "start_time": str(section.get("start_time", "")),
+                    "end_time": str(section.get("end_time", "")),
+                    "days": str(section.get("days", "")),
+                }
+            )
 
     for building in by_building.values():
         spread_weight = float(building["_spread_weight"])
