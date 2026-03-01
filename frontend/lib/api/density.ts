@@ -23,6 +23,8 @@ export interface DensityResponse {
   requested_time: string;
   weekday: string;
   time_slot: string;
+  /** Per-building occupancy at current time (from classes provider). */
+  buildings?: { building_id: string; estimated_people: number; active_sections?: number }[];
 }
 
 const API_BASE =
@@ -61,6 +63,49 @@ export async function fetchDensity(
   }
 
   return res.json() as Promise<DensityResponse>;
+}
+
+export interface BuildingTimelineSlot {
+  slot_index: number;
+  time: string;
+  label: string;
+  estimated_people: number;
+}
+
+export interface BuildingTimelineResponse {
+  building_id: string;
+  weekday: string;
+  slots: BuildingTimelineSlot[];
+}
+
+/**
+ * Fetch 96-slot timeline (estimated_people per 15-min slot) for a building and weekday.
+ */
+export async function fetchBuildingTimeline(
+  buildingId: string,
+  weekday: string
+): Promise<BuildingTimelineResponse> {
+  const url = `${API_BASE}/api/density/building/${encodeURIComponent(buildingId)}/timeline?weekday=${encodeURIComponent(weekday)}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error((err as { error?: string }).error ?? `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<BuildingTimelineResponse>;
+}
+
+/**
+ * Fetch building timeline for the selected building and day.
+ * Enabled only when buildingId is non-null.
+ */
+export function useBuildingTimeline(buildingId: string | null, weekday: string) {
+  return useQuery({
+    queryKey: ["buildingTimeline", buildingId, weekday] as const,
+    queryFn: () => fetchBuildingTimeline(buildingId!, weekday),
+    enabled: buildingId != null && Boolean(weekday),
+    staleTime: Infinity,
+    placeholderData: (previousData) => previousData,
+  });
 }
 
 // Query key factory for TanStack Query cache

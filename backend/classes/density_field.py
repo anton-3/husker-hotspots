@@ -5,7 +5,7 @@ import math
 from functools import lru_cache
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Any
 
 WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 WEEKDAY_TO_CODE = {
@@ -340,3 +340,79 @@ def generate_people_density_field(
         "active_buildings": per_building,
         "people_field": people_field,
     }
+
+
+def _compute_by_building_for_slot(
+    sections: List[Dict[str, object]],
+    weekday_code: str,
+    slot_minutes: int,
+    attendance_ratio: float = 0.82,
+) -> Dict[str, Dict[str, Any]]:
+    """Compute per-building estimated_people for a single 15-min slot. Used by get_building_timeline."""
+    by_building: Dict[str, Dict[str, Any]] = {}
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        meetings = section.get("meetings")
+        if not isinstance(meetings, list):
+            continue
+        section_presence, _ = _section_presence_and_spread(meetings, weekday_code, slot_minutes)
+        if section_presence <= 0.01:
+            continue
+        estimated_people = _estimate_section_people(
+            section["enrolled"],
+            section["capacity"],
+            attendance_ratio,
+        )
+        adjusted_people = estimated_people * section_presence
+        if adjusted_people <= 0.05:
+            continue
+        building_key = str(section["building_key"])
+        if building_key not in by_building:
+            by_building[building_key] = {"estimated_people": 0.0}
+        by_building[building_key]["estimated_people"] += adjusted_people
+    for b in by_building.values():
+        b["estimated_people"] = round(float(b["estimated_people"]), 3)
+    return by_building
+
+
+def get_building_timeline(
+    building_id: str,
+    weekday: str,
+    attendance_ratio: float = 0.82,
+) -> List[Dict[str, Any]]:
+    """
+    Return 96 slot entries (15-min intervals) for the given building and weekday.
+    Each slot has slot_index, time (HH:MM), label (e.g. "9:00 AM"), and estimated_people.
+    """
+    if weekday not in WEEKDAYS:
+        raise ValueError(f"weekday must be one of: {', '.join(WEEKDAYS)}")
+    weekday_code = WEEKDAY_TO_CODE[weekday]
+    classes_dir = Path(__file__).resolve().parent
+    section_index = _load_section_index(str(classes_dir))
+    sections = section_index["sections"]
+
+    slots: List[Dict[str, Any]] = []
+    for slot_index in range(96):
+        slot_minutes = slot_index * 15
+        by_building = _compute_by_building_for_slot(
+            sections, weekday_code, slot_minutes, attendance_ratio
+        )
+        estimated_people = 0.0
+        if building_id in by_building:
+            estimated_people = float(by_building[building_id]["estimated_people"])
+
+        hour = slot_index // 4
+        minute = (slot_index % 4) * 15
+        ampm = "AM" if hour < 12 else "PM"
+        display_hour = 12 if hour == 0 else (hour if hour <= 12 else hour - 12)
+        label = f"{display_hour}:{minute:02d} {ampm}"
+        time_str = f"{hour:02d}:{minute:02d}"
+
+        slots.append({
+            "slot_index": slot_index,
+            "time": time_str,
+            "label": label,
+            "estimated_people": round(estimated_people, 3),
+        })
+    return slots

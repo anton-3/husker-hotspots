@@ -10,6 +10,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from backend.density_aggregator import get_combined_density
+from backend.classes.density_field import get_building_timeline
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
@@ -82,6 +83,35 @@ def api_density():
         return jsonify(payload)
     except Exception as e:
         app.logger.exception("density aggregation failed")
+        return jsonify({"error": str(e)}), 503
+
+
+VALID_WEEKDAYS = [
+    "Sunday", "Monday", "Tuesday", "Wednesday",
+    "Thursday", "Friday", "Saturday",
+]
+
+
+@app.route("/api/density/building/<building_id>/timeline", methods=["GET"])
+def api_building_timeline(building_id: str):
+    """
+    GET /api/density/building/<building_id>/timeline?weekday=Wednesday
+    Returns 96 slots with estimated_people per slot for that building and day.
+    """
+    weekday = request.args.get("weekday", "").strip()
+    if not weekday or weekday not in VALID_WEEKDAYS:
+        return jsonify({"error": "Invalid or missing weekday"}), 400
+    try:
+        slots = get_building_timeline(building_id, weekday)
+        return jsonify({
+            "building_id": building_id,
+            "weekday": weekday,
+            "slots": slots,
+        })
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        app.logger.exception("building timeline failed")
         return jsonify({"error": str(e)}), 503
 
 

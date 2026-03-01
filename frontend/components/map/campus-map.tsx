@@ -12,7 +12,7 @@ import {
   type TimelineSnapshot,
   type HeatmapPoint,
 } from "@/lib/map/mock-data";
-import { useDensity } from "@/lib/api/density";
+import { useDensity, useBuildingTimeline } from "@/lib/api/density";
 import { useCampusBuildings, findClosestBuilding } from "@/lib/api/buildings";
 import {
   heatmapPointsToGeoJSON,
@@ -173,6 +173,10 @@ export function CampusMap() {
   // Density from API (cached by TanStack Query per day + time)
   const { data: densityData, isPending: densityLoading } = useDensity(day, timeIndex, timeline);
   const densityHeatmapPoints = densityData?.heatmap_points ?? null;
+
+  // Building timeline from API when a rich building is selected
+  const richBuildingForTimeline = selectedBuilding ? getBuildingById(selectedBuilding.id) ?? null : null;
+  const { data: buildingTimelineData } = useBuildingTimeline(richBuildingForTimeline?.id ?? null, day);
 
   // Heatmap: use only API density data; keep previous frame's data while loading (no mock fallback)
   const heatmapPoints = densityHeatmapPoints ?? [];
@@ -515,15 +519,43 @@ export function CampusMap() {
 
   // Current building: all 52 are rich (id = buildingCode); lookup by selected building id
   const richBuilding = selectedBuilding ? getBuildingById(selectedBuilding.id) ?? null : null;
-  const selectedBuildingOccupancy =
-    richBuilding && currentSnapshot
-      ? currentSnapshot.buildings.find((b) => b.buildingId === richBuilding.id) ?? null
-      : null;
+  const { selectedBuildingOccupancy, usedApiOccupancy } = useMemo(() => {
+    if (!richBuilding) return { selectedBuildingOccupancy: null, usedApiOccupancy: false };
+    const apiBuilding = densityData?.buildings?.find((b) => b.building_id === richBuilding.id);
+    if (apiBuilding != null) {
+      const occupancyPercent = Math.min(1, apiBuilding.estimated_people / richBuilding.capacity);
+      const occupantCount = Math.round(apiBuilding.estimated_people);
+      return {
+        selectedBuildingOccupancy: {
+          buildingId: richBuilding.id,
+          occupancyPercent,
+          occupantCount,
+          sources: { classes: occupancyPercent },
+        },
+        usedApiOccupancy: true,
+      };
+    }
+    const mockOcc = currentSnapshot?.buildings.find((b) => b.buildingId === richBuilding.id) ?? null;
+    return { selectedBuildingOccupancy: mockOcc, usedApiOccupancy: false };
+  }, [richBuilding, densityData?.buildings, currentSnapshot]);
 
   const showFullPopup = Boolean(
     richBuilding && selectedBuildingOccupancy
   );
   const showMinimalPopup = Boolean(selectedBuilding && !showFullPopup);
+
+  const classesSource = DATA_SOURCES.find((s) => s.id === "classes");
+  const sourceBreakdownOverride =
+    usedApiOccupancy && selectedBuildingOccupancy && classesSource
+      ? [
+          {
+            id: classesSource.id,
+            label: classesSource.label,
+            value: Math.round(selectedBuildingOccupancy.occupancyPercent * 100),
+            color: classesSource.color,
+          },
+        ]
+      : undefined;
 
   if (!MAPBOX_TOKEN) {
     console.log("[v0] No Mapbox token found");
@@ -666,6 +698,8 @@ export function CampusMap() {
           timeline={timeline}
           currentTimeIndex={timeIndex}
           onClose={handleCloseBuilding}
+          apiTimelineSlots={buildingTimelineData?.slots ?? null}
+          sourceBreakdownOverride={sourceBreakdownOverride}
         />
       )}
       {showMinimalPopup && selectedBuilding && (

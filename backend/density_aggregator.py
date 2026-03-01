@@ -47,6 +47,7 @@ def get_combined_density(
     resolution: Optional[Dict[str, int]] = None
     time_slot: Optional[str] = None
     sources: List[str] = []
+    buildings: List[Dict[str, Any]] = []
 
     for name, get_provider in DENSITY_REGISTRY:
         try:
@@ -65,6 +66,19 @@ def get_combined_density(
         pf = result.get("people_field")
         if not pf or not isinstance(pf, list):
             continue
+
+        if name == "classes":
+            active_buildings = result.get("active_buildings")
+            if isinstance(active_buildings, list):
+                buildings = [
+                    {
+                        "building_id": str(b.get("key", "")),
+                        "estimated_people": float(b.get("estimated_people", 0)),
+                        "active_sections": int(b.get("active_sections", 0)),
+                    }
+                    for b in active_buildings
+                    if isinstance(b, dict)
+                ]
 
         lng_axis = result.get("lng_axis")
         lat_axis = result.get("lat_axis")
@@ -118,4 +132,5 @@ def get_combined_density(
         "requested_time": requested_time,
         "weekday": weekday,
         "time_slot": time_slot,
+        "buildings": buildings,
     }

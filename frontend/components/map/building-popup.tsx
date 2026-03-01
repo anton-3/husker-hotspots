@@ -22,6 +22,10 @@ interface BuildingPopupProps {
   timeline: TimelineSnapshot[];
   currentTimeIndex: number;
   onClose: () => void;
+  /** When provided, chart and peak use API timeline instead of mock timeline. */
+  apiTimelineSlots?: { time: string; label?: string; estimated_people: number }[] | null;
+  /** When provided, Activity Sources section shows this instead of deriving from timeline. */
+  sourceBreakdownOverride?: { id: string; label: string; value: number; color?: string }[] | null;
 }
 
 export function BuildingPopup({
@@ -31,11 +35,23 @@ export function BuildingPopup({
   timeline,
   currentTimeIndex,
   onClose,
+  apiTimelineSlots = null,
+  sourceBreakdownOverride = null,
 }: BuildingPopupProps) {
-  // Build hourly chart data from the timeline
+  // Build hourly chart data: from API timeline when provided, else mock timeline
   const chartData = useMemo(() => {
+    if (apiTimelineSlots && apiTimelineSlots.length > 0) {
+      return apiTimelineSlots
+        .filter((_, i) => i % 2 === 0)
+        .map((slot) => ({
+          time: (slot.label ?? slot.time).replace(":00 ", " "),
+          occupancy: Math.round(
+            (100 * slot.estimated_people) / Math.max(1, building.capacity)
+          ),
+        }));
+    }
     return timeline
-      .filter((_, i) => i % 2 === 0) // Every hour
+      .filter((_, i) => i % 2 === 0)
       .map((snap) => {
         const bOcc = snap.buildings.find((b) => b.buildingId === building.id);
         return {
@@ -43,10 +59,25 @@ export function BuildingPopup({
           occupancy: Math.round((bOcc?.occupancyPercent ?? 0) * 100),
         };
       });
-  }, [timeline, building.id]);
+  }, [apiTimelineSlots, timeline, building.id, building.capacity]);
 
-  // Find peak hour
+  // Find peak hour: from API timeline when provided, else mock timeline
   const peakData = useMemo(() => {
+    if (apiTimelineSlots && apiTimelineSlots.length > 0) {
+      let maxPeople = 0;
+      let peakLabel = "";
+      for (const slot of apiTimelineSlots) {
+        if (slot.estimated_people > maxPeople) {
+          maxPeople = slot.estimated_people;
+          peakLabel = (slot.label ?? slot.time).replace(":00 ", " ");
+        }
+      }
+      const maxOccPercent =
+        building.capacity > 0
+          ? Math.round(100 * (maxPeople / building.capacity))
+          : 0;
+      return { maxOcc: Math.min(100, maxOccPercent), peakTime: peakLabel };
+    }
     let maxOcc = 0;
     let peakTime = "";
     for (const snap of timeline) {
@@ -57,10 +88,10 @@ export function BuildingPopup({
       }
     }
     return { maxOcc: Math.round(maxOcc * 100), peakTime };
-  }, [timeline, building.id]);
+  }, [apiTimelineSlots, timeline, building.id, building.capacity]);
 
-  // Get source breakdown for current time
-  const sourceBreakdown = useMemo(() => {
+  // Source breakdown: override when provided (API), else derive from mock timeline
+  const sourceBreakdownFromTimeline = useMemo(() => {
     const snap = timeline[currentTimeIndex];
     if (!snap) return [];
     const bOcc = snap.buildings.find((b) => b.buildingId === building.id);
@@ -73,6 +104,11 @@ export function BuildingPopup({
       value: Math.round((bOcc.sources[src.id] ?? 0) * 100),
     }));
   }, [timeline, currentTimeIndex, building.id]);
+
+  const displaySourceBreakdown =
+    sourceBreakdownOverride && sourceBreakdownOverride.length > 0
+      ? sourceBreakdownOverride
+      : sourceBreakdownFromTimeline;
 
   const typeColor = BUILDING_TYPE_COLORS[building.type];
   const occupancyPercent = Math.round(currentOccupancy * 100);
@@ -218,25 +254,25 @@ export function BuildingPopup({
             </div>
 
             {/* Source breakdown */}
-            {sourceBreakdown.length > 0 && (
+            {displaySourceBreakdown.length > 0 && (
               <div>
                 <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
                   Activity Sources
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
-                  {sourceBreakdown.map((src) => (
+                  {displaySourceBreakdown.map((src) => (
                     <span
                       key={src.id}
                       className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium"
                       style={{
-                        borderColor: src.color + "40",
-                        backgroundColor: src.color + "15",
-                        color: src.color,
+                        borderColor: (src.color ?? "#94a3b8") + "40",
+                        backgroundColor: (src.color ?? "#94a3b8") + "15",
+                        color: src.color ?? "#94a3b8",
                       }}
                     >
                       <span
                         className="h-1.5 w-1.5 rounded-full"
-                        style={{ backgroundColor: src.color }}
+                        style={{ backgroundColor: src.color ?? "#94a3b8" }}
                       />
                       {src.label} {src.value}%
                     </span>
