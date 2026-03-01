@@ -2,7 +2,7 @@
 
 export function Legend() {
   return (
-    <div className="absolute left-4 top-14 z-30 rounded-xl border border-white/10 bg-black/70 px-4 py-3 my-4 backdrop-blur-xl md:top-auto md:bottom-28">
+    <div className="absolute left-4 top-14 z-30 rounded-xl border border-white/10 bg-black/70 px-4 py-3 my-4 backdrop-blur-xl md:top-auto md:bottom-10">
       <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
         Activity Level
       </h3>

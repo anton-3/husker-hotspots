@@ -165,8 +165,8 @@ export function BuildingPopup({
         aria-hidden
         onClick={onClose}
       />
-      <div className="fixed inset-0 z-40 flex items-center justify-center p-3 animate-in fade-in duration-300 sm:p-4 lg:pointer-events-none lg:absolute lg:inset-auto lg:bottom-28 lg:right-[340px] lg:block lg:p-0 lg:animate-none">
-        <div className="flex h-[85vh] w-full max-w-[min(95vw,420px)] flex-col overflow-hidden rounded-xl border border-white/10 bg-black/80 backdrop-blur-xl lg:pointer-events-auto lg:h-[calc(100vh-180px)] lg:max-w-none lg:w-96 animate-in slide-in-from-right-4 duration-300">
+      <div className="fixed sm:mb-24 lg:mb-0 inset-0 z-40 flex items-center justify-center p-3 animate-in fade-in duration-300 sm:p-4 lg:pointer-events-none lg:absolute lg:inset-auto lg:bottom-[11rem] lg:right-[340px] lg:block lg:p-0 lg:animate-none">
+        <div className="flex h-[80vh] w-full max-w-[min(95vw,420px)] flex-col overflow-hidden rounded-xl border border-white/10 bg-black/80 backdrop-blur-xl lg:pointer-events-auto lg:h-[calc(85vh-14rem)] lg:max-w-none lg:w-96 animate-in slide-in-from-right-4 duration-300">
           {/* Header */}
           <div className="flex shrink-0 items-start justify-between border-b border-white/10 p-4">
             <div className="flex-1 min-w-0">

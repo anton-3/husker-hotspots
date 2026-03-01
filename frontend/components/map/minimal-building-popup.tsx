@@ -9,7 +9,7 @@ interface MinimalBuildingPopupProps {
 
 export function MinimalBuildingPopup({ building, onClose }: MinimalBuildingPopupProps) {
   return (
-    <div className="absolute bottom-28 right-4 z-40 w-80 animate-in slide-in-from-right-4 fade-in duration-300 lg:bottom-28 lg:right-[340px]">
+    <div className="absolute bottom-28 right-4 z-40 w-80 animate-in slide-in-from-right-4 fade-in duration-300 lg:bottom-[11rem] lg:right-[340px]">
       <div className="rounded-xl border border-white/10 bg-black/80 backdrop-blur-xl">
         <div className="flex items-start justify-between border-b border-white/10 p-4">
           <div className="flex-1">
