@@ -214,8 +214,12 @@ export function CampusMap() {
   // Classes at current time: from timeline slots (same request as chart — no per-slot at-time requests)
   const classesAtTimeFromTimeline = buildingTimelineData?.slots?.[timeIndex]?.classes ?? null;
 
-  // Heatmap: use only API density data; keep previous frame's data while loading (no mock fallback)
-  const heatmapPoints = densityHeatmapPoints ?? [];
+  // Heatmap: prefer API density data, but fall back to mock timeline heatmap when API is unavailable
+  const mockHeatmapPoints = currentSnapshot?.heatmapPoints ?? [];
+  const heatmapPoints =
+    densityHeatmapPoints && densityHeatmapPoints.length > 0
+      ? densityHeatmapPoints
+      : mockHeatmapPoints;
   const heatmapPointsFiltered = useMemo(() => {
     if (activeSources.size === 7) return heatmapPoints;
     const ratio = activeSources.size / 7;
@@ -709,7 +713,7 @@ export function CampusMap() {
               type="heatmap"
               paint={{
                 "heatmap-weight": ["get", "weight"],
-                "heatmap-intensity": 1.8,
+                "heatmap-intensity": 1.5,
                 "heatmap-color": [
                   "interpolate",
                   ["linear"],
@@ -729,8 +733,8 @@ export function CampusMap() {
                   1,
                   "rgba(220,38,38,0.95)",
                 ],
-                "heatmap-radius": 45,
-                "heatmap-opacity": 0.85,
+                "heatmap-radius": 30,
+                "heatmap-opacity": 0.5,
               }}
             />
           </Source>

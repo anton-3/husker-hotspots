@@ -189,7 +189,7 @@ function generateHeatmapPoints(
 
     // Generate scattered points around the building center proportional to occupancy
     const numPoints = Math.max(1, Math.round(bo.occupancyPercent * 20));
-    const spread = 0.0008; // ~80m spread
+    const spread = 0.0006; // ~40m
 
     for (let i = 0; i < numPoints; i++) {
       const angle = Math.random() * 2 * Math.PI;
