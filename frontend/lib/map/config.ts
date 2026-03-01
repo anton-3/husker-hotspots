@@ -11,6 +11,16 @@ export const MAP_CONFIG = {
   bearing: -15,
   style: "mapbox://styles/mapbox/dark-v11",
   transitionDuration: 1500,
+  /** Keyboard: up/down arrow step (degrees) */
+  pitchStep: 1,
+  /** Keyboard: left/right arrow step (degrees) */
+  bearingStep: 1,
+  /** Keyboard hold: pitch change per second (degrees) */
+  keyboardPitchRate: 45,
+  /** Keyboard hold: bearing change per second (degrees) */
+  keyboardBearingRate: 45,
+  minPitch: 0,
+  maxPitch: 85,
 } as const;
 
 export const HEATMAP_COLORS = {

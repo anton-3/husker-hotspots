@@ -118,6 +118,10 @@ export function CampusMap() {
 
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const lastTickTimeRef = useRef<number>(0);
+  /** Arrow keys currently held for smooth pitch/bearing */
+  const arrowKeysPressedRef = useRef(new Set<string>());
+  const arrowKeyLastTickRef = useRef<number>(0);
+  const arrowKeyRafRef = useRef<number>(0);
   /** Accumulated clickable building features (deduped by id or geometry key) for merge on moveend */
   const resolvedClickableFeaturesRef = useRef(
     new globalThis.Map<string, GeoJSON.Feature<GeoJSON.Polygon>>()
@@ -436,6 +440,77 @@ export function CampusMap() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  // Arrow keys: up/down = pitch, left/right = bearing (smooth while held, 1° at a time)
+  useEffect(() => {
+    const ARROW_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
+    const { minPitch, maxPitch, keyboardPitchRate, keyboardBearingRate } = MAP_CONFIG;
+
+    const tick = () => {
+      const now = performance.now();
+      const dtSec = arrowKeyLastTickRef.current
+        ? (now - arrowKeyLastTickRef.current) / 1000
+        : 0;
+      arrowKeyLastTickRef.current = now;
+
+      const pressed = arrowKeysPressedRef.current;
+      if (pressed.size === 0) return;
+
+      const pitchDelta = keyboardPitchRate * dtSec;
+      const bearingDelta = keyboardBearingRate * dtSec;
+
+      setViewState((prev) => {
+        const next = { ...prev };
+        if (pressed.has("ArrowUp")) {
+          next.pitch = Math.min(maxPitch, prev.pitch + pitchDelta);
+        }
+        if (pressed.has("ArrowDown")) {
+          next.pitch = Math.max(minPitch, prev.pitch - pitchDelta);
+        }
+        if (pressed.has("ArrowLeft")) {
+          next.bearing = prev.bearing - bearingDelta;
+        }
+        if (pressed.has("ArrowRight")) {
+          next.bearing = prev.bearing + bearingDelta;
+        }
+        return next;
+      });
+
+      arrowKeyRafRef.current = requestAnimationFrame(tick);
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+      if (!ARROW_KEYS.has(e.key)) return;
+      e.preventDefault();
+      const wasEmpty = arrowKeysPressedRef.current.size === 0;
+      arrowKeysPressedRef.current.add(e.key);
+      if (wasEmpty) {
+        arrowKeyLastTickRef.current = performance.now();
+        arrowKeyRafRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (!ARROW_KEYS.has(e.key)) return;
+      arrowKeysPressedRef.current.delete(e.key);
+    };
+
+    const onBlur = () => {
+      arrowKeysPressedRef.current.clear();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("blur", onBlur);
+      cancelAnimationFrame(arrowKeyRafRef.current);
+    };
   }, []);
 
   // Current building occupancy (only for rich buildings; use rich id for lookup)
