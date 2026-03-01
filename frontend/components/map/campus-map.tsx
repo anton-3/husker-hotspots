@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import Map, { Source, Layer, NavigationControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import { MAP_CONFIG, DATA_SOURCES, type DataSourceId, type DayOfWeek } from "@/lib/map/config";
+import { MAP_CONFIG, DATA_SOURCES, CAMPUS_BUILDING_TINT, type DataSourceId, type DayOfWeek } from "@/lib/map/config";
 import { BUILDINGS, getBuildingById, BUILDING_CODE_TO_RICH_ID, type Building, type CampusBuilding } from "@/lib/map/buildings";
 import {
   generateDayTimeline,
@@ -13,7 +13,7 @@ import {
   type HeatmapPoint,
 } from "@/lib/map/mock-data";
 import { useDensity } from "@/lib/api/density";
-import { useCampusBuildings, findClosestBuilding } from "@/lib/api/buildings";
+import { useCampusBuildings, findClosestBuilding, CLOSEST_BUILDING_THRESHOLD_M } from "@/lib/api/buildings";
 import {
   heatmapPointsToGeoJSON,
 } from "@/lib/map/geojson";
@@ -36,6 +36,25 @@ const EMPTY_HEATMAP_GEOJSON: GeoJSON.FeatureCollection<GeoJSON.Point> = {
   type: "FeatureCollection",
   features: [],
 };
+
+/**
+ * GeoJSON FeatureCollection of campus building points for the circle layer (clickable indicator).
+ */
+function campusPointsToGeoJSON(
+  campusBuildings: Array<{ coordinates: [number, number]; id: string }>
+): GeoJSON.FeatureCollection<GeoJSON.Point> {
+  if (campusBuildings.length === 0) {
+    return { type: "FeatureCollection", features: [] };
+  }
+  return {
+    type: "FeatureCollection",
+    features: campusBuildings.map((b) => ({
+      type: "Feature" as const,
+      geometry: { type: "Point" as const, coordinates: b.coordinates },
+      properties: { id: b.id },
+    })),
+  };
+}
 
 export function CampusMap() {
   console.log("[v0] CampusMap rendering, token exists:", !!MAPBOX_TOKEN);
@@ -134,6 +153,11 @@ export function CampusMap() {
   );
 
   const { data: campusBuildingsList = [] } = useCampusBuildings();
+
+  const campusPointsGeoJSON = useMemo(
+    () => campusPointsToGeoJSON(campusBuildingsList),
+    [campusBuildingsList]
+  );
 
   // Building footprints as GeoJSON for Mapbox fill layer — REMOVED (use 3D buildings for click/hover)
   // buildingGeoJSON removed
@@ -396,6 +420,22 @@ export function CampusMap() {
         cursor={hoveredBuildingId ? "pointer" : "grab"}
       >
         <NavigationControl position="top-right" style={{ marginTop: 80 }} />
+
+        {/* Clickable campus building indicators (lighter blue circles at each point) */}
+        {campusPointsGeoJSON.features.length > 0 && (
+          <Source id="campus-points" type="geojson" data={campusPointsGeoJSON}>
+            <Layer
+              id="campus-circles"
+              type="circle"
+              paint={{
+                "circle-radius": 18,
+                "circle-color": CAMPUS_BUILDING_TINT,
+                "circle-opacity": 0.45,
+                "circle-blur": 0.2,
+              }}
+            />
+          </Source>
+        )}
 
         {/* Heatmap (on top) */}
         {showHeatmap && (

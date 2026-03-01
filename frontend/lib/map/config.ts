@@ -13,6 +13,9 @@ export const MAP_CONFIG = {
   transitionDuration: 1500,
 } as const;
 
+/** Lighter blue tint for clickable campus buildings on the 3D map. */
+export const CAMPUS_BUILDING_TINT = "#2a3f5f";
+
 export const HEATMAP_COLORS = {
   low: [34, 197, 94],       // green-500
   medium: [234, 179, 8],    // yellow-500
