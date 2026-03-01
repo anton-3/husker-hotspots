@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { X, MapPin, Clock, Users, TrendingUp } from "lucide-react";
+import { X, MapPin, Clock, Users } from "lucide-react";
 import {
   AreaChart,
   Area,
@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BUILDING_TYPE_COLORS, type Building } from "@/lib/map/buildings";
 import type { TimelineSnapshot } from "@/lib/map/mock-data";
 import { DATA_SOURCES } from "@/lib/map/config";
@@ -141,213 +142,224 @@ export function BuildingPopup({
       : "#22c55e";
 
   return (
-    <div className="absolute bottom-28 right-4 z-40 w-80 animate-in slide-in-from-right-4 fade-in duration-300 lg:bottom-28 lg:right-[340px]">
-      <div className="rounded-xl border border-white/10 bg-black/80 backdrop-blur-xl">
-        {/* Header */}
-        <div className="flex items-start justify-between border-b border-white/10 p-4">
-          <div className="flex-1">
-            <div className="mb-1 flex items-center gap-2">
-              <span
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: typeColor }}
-              />
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-white/50">
-                {building.type}
-              </span>
-            </div>
-            <h2 className="text-lg font-bold text-white text-balance">
-              {building.name}
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
-            aria-label="Close building details"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <ScrollArea className="max-h-[calc(100vh-300px)]">
-          <div className="space-y-4 p-4">
-            {/* Occupancy gauge */}
-            <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-white/50">Current Occupancy</p>
-                  <p className="text-2xl font-bold" style={{ color: statusColor }}>
-                    {occupancyPercent}%
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-white/50">Estimated</p>
-                  <p className="text-lg font-semibold text-white">
-                    {currentOccupantCount.toLocaleString()}
-                    <span className="text-xs text-white/40">
-                      {" "}/ {building.capacity.toLocaleString()}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              {/* Progress bar */}
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${occupancyPercent}%`,
-                    backgroundColor: statusColor,
-                  }}
+    <>
+      {/* Mobile: dimmed backdrop */}
+      <div
+        className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+        aria-hidden
+        onClick={onClose}
+      />
+      <div className="fixed inset-0 z-40 flex items-center justify-center p-3 animate-in fade-in duration-300 sm:p-4 lg:pointer-events-none lg:absolute lg:inset-auto lg:bottom-28 lg:right-[340px] lg:block lg:p-0 lg:animate-none">
+        <div className="flex h-[85vh] w-full max-w-[min(95vw,420px)] flex-col overflow-hidden rounded-xl border border-white/10 bg-black/80 backdrop-blur-xl lg:pointer-events-auto lg:h-[calc(100vh-180px)] lg:max-w-none lg:w-96 animate-in slide-in-from-right-4 duration-300">
+          {/* Header */}
+          <div className="flex shrink-0 items-start justify-between border-b border-white/10 p-4">
+            <div className="flex-1 min-w-0">
+              <div className="mb-1 flex items-center gap-2">
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: typeColor }}
                 />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/50">
+                  {building.type}
+                </span>
               </div>
+              <h2 className="text-lg font-bold text-white text-balance">
+                {building.name}
+              </h2>
             </div>
-
-            {/* Details */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2">
-                <Clock className="h-3.5 w-3.5 text-white/40" />
-                <span className="text-xs text-white/70">{building.hours}</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2">
-                <MapPin className="h-3.5 w-3.5 text-white/40" />
-                <span className="text-xs text-white/70">{building.address || building.shortName}</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2">
-                <Users className="h-3.5 w-3.5 text-white/40" />
-                <span className="text-xs text-white/70">Cap: {building.capacity.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2">
-                <TrendingUp className="h-3.5 w-3.5 text-white/40" />
-                <span className="text-xs text-white/70">Peak: {peakData.peakTime}</span>
-              </div>
-            </div>
-
-            {/* Chart */}
-            <div>
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
-                24-Hour Activity
-              </h4>
-              <div className="h-32 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient id={`grad-${building.id}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={typeColor} stopOpacity={0.4} />
-                        <stop offset="100%" stopColor={typeColor} stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis
-                      dataKey="time"
-                      tick={{ fontSize: 9, fill: "rgba(255,255,255,0.3)" }}
-                      axisLine={false}
-                      tickLine={false}
-                      interval={5}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 9, fill: "rgba(255,255,255,0.3)" }}
-                      axisLine={false}
-                      tickLine={false}
-                      domain={[0, 100]}
-                      width={25}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: "rgba(0,0,0,0.8)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "8px",
-                        fontSize: "12px",
-                        color: "white",
-                      }}
-                      formatter={(value: number) => [`${value}%`, "Occupancy"]}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="occupancy"
-                      stroke={typeColor}
-                      strokeWidth={2}
-                      fill={`url(#grad-${building.id})`}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Source breakdown */}
-            {displaySourceBreakdown.length > 0 && (
-              <div>
-                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
-                  Activity Sources
-                </h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {displaySourceBreakdown.map((src) => (
-                    <span
-                      key={src.id}
-                      className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium"
-                      style={{
-                        borderColor: (src.color ?? "#94a3b8") + "40",
-                        backgroundColor: (src.color ?? "#94a3b8") + "15",
-                        color: src.color ?? "#94a3b8",
-                      }}
-                    >
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ backgroundColor: src.color ?? "#94a3b8" }}
-                      />
-                      {src.label} {src.value}%
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Classes right now */}
-            <div>
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
-                Classes right now
-                {currentTimeLabel ? ` (${currentTimeLabel})` : ""}
-              </h4>
-              {classesAtTime.length === 0 ? (
-                <p className="text-xs text-white/40">No scheduled classes at this time.</p>
-              ) : (
-                <ul className="space-y-2">
-                  {classesAtTime.map((cls, i) => (
-                    <li
-                      key={`${cls.course_label}-${cls.room}-${i}`}
-                      className="rounded-lg border border-white/10 bg-white/5 p-2.5"
-                    >
-                      <div className="font-medium text-white text-xs">
-                        {cls.course_label}
-                        {cls.title ? ` — ${cls.title}` : ""}
-                      </div>
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-white/60">
-                        {cls.room && (
-                          <span className="inline-flex items-center gap-1">
-                            <MapPin className="h-3 w-3 shrink-0" />
-                            Room {cls.room}
-                          </span>
-                        )}
-                        <span className="inline-flex items-center gap-1">
-                          <Users className="h-3 w-3 shrink-0" />
-                          {cls.enrolled}/{cls.capacity}
-                        </span>
-                        {(cls.start_time || cls.end_time) && (
-                          <span className="inline-flex items-center gap-1">
-                            <Clock className="h-3 w-3 shrink-0" />
-                            {formatTime(cls.start_time)}–{formatTime(cls.end_time)}
-                            {cls.days ? ` (${cls.days})` : ""}
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Description */}
-            <p className="text-xs text-white/40 text-pretty">{building.description}</p>
+            <button
+              onClick={onClose}
+              className="ml-2 shrink-0 rounded-lg p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+              aria-label="Close building details"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-        </ScrollArea>
+
+          <Tabs defaultValue="overview" className="flex min-h-0 flex-1 flex-col">
+            <TabsList className="mx-4 mt-2 shrink-0 w-fit bg-white/5 p-[3px] [&>button]:text-white/90 [&>button]:data-[state=active]:bg-white/10 [&>button]:data-[state=active]:text-white">
+              <TabsTrigger value="overview" className="text-white/90 data-[state=active]:text-white">Overview</TabsTrigger>
+              <TabsTrigger value="classes" className="text-white/90 data-[state=active]:text-white">Classes now</TabsTrigger>
+            </TabsList>
+
+            <ScrollArea className="flex-1 min-h-0">
+              <TabsContent value="overview" className="mt-0 focus-visible:outline-none">
+                <div className="space-y-4 p-4">
+                  {/* Occupancy gauge */}
+                  <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-white/50">Current Occupancy</p>
+                        <p className="text-2xl font-bold" style={{ color: statusColor }}>
+                          {occupancyPercent}%
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-white/50">Estimated</p>
+                        <p className="text-lg font-semibold text-white">
+                          {currentOccupantCount.toLocaleString()}
+                          <span className="text-xs text-white/40">
+                            {" "}/ {building.capacity.toLocaleString()}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${occupancyPercent}%`,
+                          backgroundColor: statusColor,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2">
+                      <Clock className="h-3.5 w-3.5 shrink-0 text-white/40" />
+                      <span className="text-xs text-white/70 truncate">{building.hours}</span>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 min-w-0">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-white/40" />
+                      <span className="text-xs text-white/70 truncate">{building.address || building.shortName}</span>
+                    </div>
+                  </div>
+
+                  {/* Chart */}
+                  <div>
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
+                      24-Hour Activity
+                    </h4>
+                    <div className="h-32 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData}>
+                          <defs>
+                            <linearGradient id={`grad-${building.id}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={typeColor} stopOpacity={0.4} />
+                              <stop offset="100%" stopColor={typeColor} stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <XAxis
+                            dataKey="time"
+                            tick={{ fontSize: 9, fill: "rgba(255,255,255,0.3)" }}
+                            axisLine={false}
+                            tickLine={false}
+                            interval={5}
+                          />
+                          <YAxis
+                            tick={{ fontSize: 9, fill: "rgba(255,255,255,0.3)" }}
+                            axisLine={false}
+                            tickLine={false}
+                            domain={[0, 100]}
+                            width={25}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              background: "rgba(0,0,0,0.8)",
+                              border: "1px solid rgba(255,255,255,0.1)",
+                              borderRadius: "8px",
+                              fontSize: "12px",
+                              color: "white",
+                            }}
+                            formatter={(value: number) => [`${value}%`, "Occupancy"]}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="occupancy"
+                            stroke={typeColor}
+                            strokeWidth={2}
+                            fill={`url(#grad-${building.id})`}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Source breakdown */}
+                  {displaySourceBreakdown.length > 0 && (
+                    <div>
+                      <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
+                        Activity Sources
+                      </h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {displaySourceBreakdown.map((src) => (
+                          <span
+                            key={src.id}
+                            className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium"
+                            style={{
+                              borderColor: (src.color ?? "#94a3b8") + "40",
+                              backgroundColor: (src.color ?? "#94a3b8") + "15",
+                              color: src.color ?? "#94a3b8",
+                            }}
+                          >
+                            <span
+                              className="h-1.5 w-1.5 rounded-full shrink-0"
+                              style={{ backgroundColor: src.color ?? "#94a3b8" }}
+                            />
+                            {src.label} {src.value}%
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Description */}
+                  <p className="text-xs text-white/40 text-pretty">{building.description}</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="classes" className="mt-0 focus-visible:outline-none">
+                <div className="space-y-4 p-4">
+                  <div>
+                    <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">
+                      Classes right now
+                      {currentTimeLabel ? ` (${currentTimeLabel})` : ""}
+                    </h4>
+                    {classesAtTime.length === 0 ? (
+                      <p className="text-xs text-white/40">No scheduled classes at this time.</p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {classesAtTime.map((cls, i) => (
+                          <li
+                            key={`${cls.course_label}-${cls.room}-${i}`}
+                            className="rounded-lg border border-white/10 bg-white/5 p-2.5"
+                          >
+                            <div className="font-medium text-white text-xs">
+                              {cls.course_label}
+                              {cls.title ? ` — ${cls.title}` : ""}
+                            </div>
+                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-white/60">
+                              {cls.room && (
+                                <span className="inline-flex items-center gap-1">
+                                  <MapPin className="h-3 w-3 shrink-0" />
+                                  Room {cls.room}
+                                </span>
+                              )}
+                              <span className="inline-flex items-center gap-1">
+                                <Users className="h-3 w-3 shrink-0" />
+                                {cls.enrolled}/{cls.capacity}
+                              </span>
+                              {(cls.start_time || cls.end_time) && (
+                                <span className="inline-flex items-center gap-1">
+                                  <Clock className="h-3 w-3 shrink-0" />
+                                  {formatTime(cls.start_time)}–{formatTime(cls.end_time)}
+                                  {cls.days ? ` (${cls.days})` : ""}
+                                </span>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+            </ScrollArea>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
