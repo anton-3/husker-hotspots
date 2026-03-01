@@ -69,6 +69,15 @@ const SELLECK_IDS = new Set([
 ]);
 const SELLECK_SHAPE_ID = "SELL";
 
+const TOOLTIPS = [
+  "Try clicking on a building!",
+  "Use arrow keys to change the camera angle!",
+  "Press space to play/pause the heatmap!",
+];
+
+/** Breakpoint (px) below which we treat as mobile and show static tip only */
+const TOOLTIP_MOBILE_BREAKPOINT = 768;
+
 type Ring = [number, number][];
 
 function pointInRing(point: [number, number], ring: Ring): boolean {
@@ -185,6 +194,9 @@ export function CampusMap() {
   );
   const [mapLoaded, setMapLoaded] = useState(false);
   const [buildingFootprintsVersion, setBuildingFootprintsVersion] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [tooltipText, setTooltipText] = useState(TOOLTIPS[0]);
+  const [tooltipIndex, setTooltipIndex] = useState(0);
 
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const lastTickTimeRef = useRef<number>(0);
@@ -735,6 +747,56 @@ export function CampusMap() {
     };
   }, []);
 
+  // Mobile detection for tooltip (static on mobile, animated on desktop)
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${TOOLTIP_MOBILE_BREAKPOINT - 1}px)`);
+    const handle = () => setIsMobile(mql.matches);
+    handle();
+    mql.addEventListener("change", handle);
+    return () => mql.removeEventListener("change", handle);
+  }, []);
+
+  // Animated tooltip: type out → hold → backspace → next (desktop only)
+  useEffect(() => {
+    if (isMobile) return;
+    const full = TOOLTIPS[tooltipIndex];
+    let cancelled = false;
+    const typeMs = 50;
+    const holdMs = 2800;
+    const backspaceMs = 35;
+
+    const typeNext = (i: number) => {
+      if (cancelled) return;
+      if (i <= full.length) {
+        setTooltipText(full.slice(0, i));
+        if (i < full.length) setTimeout(() => typeNext(i + 1), typeMs);
+        else setTimeout(hold, holdMs);
+      }
+    };
+    const hold = () => {
+      if (cancelled) return;
+      let j = full.length;
+      const backNext = () => {
+        if (cancelled) return;
+        if (j >= 0) {
+          setTooltipText(full.slice(0, j));
+          j--;
+          if (j >= 0) setTimeout(() => backNext(), backspaceMs);
+          else
+            setTimeout(
+              () => setTooltipIndex((prev) => (prev + 1) % TOOLTIPS.length),
+              400
+            );
+        }
+      };
+      backNext();
+    };
+    typeNext(0);
+    return () => {
+      cancelled = true;
+    };
+  }, [isMobile, tooltipIndex]);
+
   // Current building: all 52 are rich (id = buildingCode); lookup by selected building id
   const richBuilding = selectedBuilding ? getBuildingById(selectedBuilding.id) ?? null : null;
   const { selectedBuildingOccupancy, usedApiOccupancy } = useMemo(() => {
@@ -811,6 +873,21 @@ export function CampusMap() {
             <h1 className="text-2xl font-bold text-white">Husker Hotspots</h1>
           </div>
         </div>
+
+        {/* Centered tooltip: desktop only (animated); hidden on mobile */}
+        {!isMobile && (
+          <div
+            className="absolute left-1/2 top-0 flex h-full -translate-x-1/2 items-center justify-center pointer-events-none"
+            aria-live="polite"
+          >
+            <span className="text-sm text-white/70">
+              {tooltipText}
+              {/* <span className="animate-pulse" style={{ opacity: 0.8 }} aria-hidden>
+                |
+              </span> */}
+            </span>
+          </div>
+        )}
 
         <div className="flex items-center gap-3">
           <div className="hidden items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 md:flex">
