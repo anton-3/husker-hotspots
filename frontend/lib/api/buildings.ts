@@ -15,7 +15,7 @@ export interface ApiBuildingRow {
   nameVariants?: number;
 }
 
-export const CLOSEST_BUILDING_THRESHOLD_M = 80;
+const CLOSEST_BUILDING_THRESHOLD_M = 80;
 
 /** Approximate meters per degree at mid-latitudes for quick distance. */
 function metersBetween(
