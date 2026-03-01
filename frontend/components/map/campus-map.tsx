@@ -57,6 +57,68 @@ const CLICKABLE_BUILDING_HEIGHT_SCALE = 1.02;
 /** Scale clickable footprint horizontally so blue layer extends slightly past base */
 const CLICKABLE_BUILDING_HORIZONTAL_SCALE = 1.02;
 
+const SELLECK_IDS = new Set([
+  "SELD",
+  "SELE",
+  "SELF",
+  "SELG",
+  "SELH",
+  "SELJ",
+  "SELK",
+  "SELL",
+]);
+const SELLECK_SHAPE_ID = "SELL";
+
+type Ring = [number, number][];
+
+function pointInRing(point: [number, number], ring: Ring): boolean {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function randomPointInGeometry(
+  geom: GeoJSON.Polygon | GeoJSON.MultiPolygon
+): [number, number] | null {
+  const polygons = geom.type === "Polygon" ? [geom.coordinates] : geom.coordinates;
+  if (!polygons.length || !polygons[0].length || !polygons[0][0].length) return null;
+  const ring = polygons[0][0] as Ring;
+  if (!ring.length) return null;
+
+  let minX = ring[0][0];
+  let maxX = ring[0][0];
+  let minY = ring[0][1];
+  let maxY = ring[0][1];
+  for (const [lng, lat] of ring) {
+    if (lng < minX) minX = lng;
+    if (lng > maxX) maxX = lng;
+    if (lat < minY) minY = lat;
+    if (lat > maxY) maxY = lat;
+  }
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const lng = minX + Math.random() * (maxX - minX);
+    const lat = minY + Math.random() * (maxY - minY);
+    if (pointInRing([lng, lat], ring)) return [lng, lat];
+  }
+
+  let cx = 0;
+  let cy = 0;
+  for (const [lng, lat] of ring) {
+    cx += lng;
+    cy += lat;
+  }
+  cx /= ring.length;
+  cy /= ring.length;
+  return [cx, cy];
+}
+
 /** Scale a polygon ring around its centroid (for horizontal scale of clickable layer). */
 function scaleRing(ring: number[][], scale: number): number[][] {
   if (ring.length === 0) return ring;
@@ -122,6 +184,7 @@ export function CampusMap() {
     new Set(DATA_SOURCES.map((s) => s.id))
   );
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [buildingFootprintsVersion, setBuildingFootprintsVersion] = useState(0);
 
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const lastTickTimeRef = useRef<number>(0);
@@ -132,6 +195,10 @@ export function CampusMap() {
   /** Accumulated clickable building features (deduped by id or geometry key) for merge on moveend */
   const resolvedClickableFeaturesRef = useRef(
     new globalThis.Map<string, GeoJSON.Feature<GeoJSON.Polygon>>()
+  );
+  /** Map of campus building id -> resolved Mapbox building footprint geometry */
+  const buildingFootprintsRef = useRef(
+    new globalThis.Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
   );
 
   // Smooth play progress 0–1 within current 15min tick (for slider animation only)
@@ -213,13 +280,94 @@ export function CampusMap() {
   const { data: buildingTimelineData } = useBuildingTimeline(richBuildingForTimeline?.id ?? null, day);
   // Classes at current time: from timeline slots (same request as chart — no per-slot at-time requests)
   const classesAtTimeFromTimeline = buildingTimelineData?.slots?.[timeIndex]?.classes ?? null;
+  const buildingIndex = useMemo(
+    () => new globalThis.Map(BUILDINGS.map((b) => [b.id, b])),
+    []
+  );
 
-  // Heatmap: prefer API density data, but fall back to mock timeline heatmap when API is unavailable
-  const mockHeatmapPoints = currentSnapshot?.heatmapPoints ?? [];
+  // Heatmap: prefer API density data, but when unavailable, generate points inside
+  // each building's resolved footprint geometry from the 3D building layer.
+  const computeFallbackHeatmapPoints = (): HeatmapPoint[] => {
+    if (!currentSnapshot) return [];
+    const footprints = buildingFootprintsRef.current;
+    const points: HeatmapPoint[] = [];
+
+    for (const bo of currentSnapshot.buildings) {
+      const building = buildingIndex.get(bo.buildingId);
+      if (!building) continue;
+
+      const effectiveId = SELLECK_IDS.has(bo.buildingId)
+        ? SELLECK_SHAPE_ID
+        : bo.buildingId;
+      const geom = footprints.get(effectiveId);
+
+      let numPoints = Math.max(1, Math.round(bo.occupancyPercent * 20));
+
+      if (building.type === "library") {
+        numPoints = Math.max(1, Math.round(numPoints * 3));
+      }
+
+      let neighborBuilding: Building | null = null;
+      let neighborGeom: GeoJSON.Polygon | GeoJSON.MultiPolygon | undefined;
+      if (building.type === "library" && bo.occupancyPercent > 0.5) {
+        let minDist = Infinity;
+        for (const other of BUILDINGS) {
+          if (other.id === building.id) continue;
+          const dx = other.coordinates[0] - building.coordinates[0];
+          const dy = other.coordinates[1] - building.coordinates[1];
+          const d2 = dx * dx + dy * dy;
+          if (d2 < minDist) {
+            minDist = d2;
+            neighborBuilding = other;
+          }
+        }
+        if (neighborBuilding) {
+          neighborGeom = footprints.get(neighborBuilding.id);
+        }
+      }
+
+      for (let i = 0; i < numPoints; i++) {
+        let coordinates: [number, number] | null = null;
+        let targetGeom = geom;
+        let targetCenter = building.coordinates;
+
+        if (neighborBuilding && Math.random() < 0.3) {
+          targetGeom = neighborGeom ?? targetGeom;
+          targetCenter = neighborBuilding.coordinates;
+        }
+
+        if (targetGeom) {
+          const p = randomPointInGeometry(targetGeom);
+          if (p) coordinates = p;
+        }
+        if (!coordinates) {
+          const spread = 0.0004;
+          const angle = Math.random() * 2 * Math.PI;
+          const r = Math.random() * spread * Math.sqrt(bo.occupancyPercent || 0.2);
+          coordinates = [
+            targetCenter[0] + r * Math.cos(angle),
+            targetCenter[1] + r * Math.sin(angle),
+          ];
+        }
+        points.push({
+          coordinates,
+          weight: bo.occupancyPercent * (0.7 + Math.random() * 0.3),
+        });
+      }
+    }
+
+    return points;
+  };
+
+  const fallbackHeatmapPoints = useMemo(
+    () => computeFallbackHeatmapPoints(),
+    [currentSnapshot, buildingFootprintsVersion, buildingIndex]
+  );
+
   const heatmapPoints =
     densityHeatmapPoints && densityHeatmapPoints.length > 0
       ? densityHeatmapPoints
-      : mockHeatmapPoints;
+      : fallbackHeatmapPoints;
   const heatmapPointsFiltered = useMemo(() => {
     if (activeSources.size === 7) return heatmapPoints;
     const ratio = activeSources.size / 7;
@@ -423,6 +571,7 @@ export function CampusMap() {
     (map: MapboxMap, buildings: CampusBuilding[]) => {
       if (!map.getLayer("3d-buildings") || !map.getSource("clickable-buildings")) return;
       const seen = resolvedClickableFeaturesRef.current;
+       const footprints = buildingFootprintsRef.current;
       for (const building of buildings) {
         const [lng, lat] = building.coordinates;
         const point = map.project([lng, lat]);
@@ -446,6 +595,7 @@ export function CampusMap() {
             properties: { height, min_height: minHeight, building_id: building.id },
           };
           seen.set(key, feature as GeoJSON.Feature<GeoJSON.Polygon>);
+          footprints.set(building.id, scaledGeometry);
         }
       }
       const collection: GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon> = {
@@ -455,8 +605,9 @@ export function CampusMap() {
       (
         map.getSource("clickable-buildings") as { setData(data: GeoJSON.FeatureCollection): void }
       ).setData(collection);
+      setBuildingFootprintsVersion((v) => v + 1);
     },
-    []
+    [setBuildingFootprintsVersion]
   );
 
   useEffect(() => {

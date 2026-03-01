@@ -176,7 +176,7 @@ function generateBuildingOccupancy(
   };
 }
 
-// Generate scattered heatmap points around each building
+// Generate scattered heatmap points inside a simple footprint shape per building
 function generateHeatmapPoints(
   buildings: BuildingOccupancy[],
   buildingMap: Map<string, Building>
@@ -187,17 +187,22 @@ function generateHeatmapPoints(
     const building = buildingMap.get(bo.buildingId);
     if (!building) continue;
 
-    // Generate scattered points around the building center proportional to occupancy
+    // Generate scattered points inside a rectangle-style footprint around the building
     const numPoints = Math.max(1, Math.round(bo.occupancyPercent * 20));
-    const spread = 0.0006; // ~40m
+    const spread = 0.0006; // base half-width in degrees (~30–40m)
 
     for (let i = 0; i < numPoints; i++) {
-      const angle = Math.random() * 2 * Math.PI;
-      const r = Math.random() * spread * Math.sqrt(bo.occupancyPercent);
+      const scale = Math.sqrt(bo.occupancyPercent || 0.2);
+      const halfWidthLng = spread * scale; // east–west extent
+      const halfHeightLat = spread * 0.6 * scale; // north–south extent (slightly squashed)
+
+      // Sample a random point inside the rectangle centered on the building
+      const dx = (Math.random() * 2 - 1) * halfWidthLng;
+      const dy = (Math.random() * 2 - 1) * halfHeightLat;
       points.push({
         coordinates: [
-          building.coordinates[0] + r * Math.cos(angle),
-          building.coordinates[1] + r * Math.sin(angle),
+          building.coordinates[0] + dx,
+          building.coordinates[1] + dy,
         ],
         weight: bo.occupancyPercent * (0.7 + Math.random() * 0.3),
       });
