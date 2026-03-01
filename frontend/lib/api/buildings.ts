@@ -8,11 +8,30 @@ import type { CampusBuilding } from "@/lib/map/buildings";
 
 export interface ApiBuildingRow {
   buildingCode: string;
-  inferredName: string;
-  sampleLat: number | null;
-  sampleLng: number | null;
+  /** Old format (list-unique-buildings.js) */
+  inferredName?: string;
+  sampleLat?: number | null;
+  sampleLng?: number | null;
+  /** Current format (buildings.json) */
+  displayName?: string;
+  name?: string;
+  lat?: number | null;
+  lng?: number | null;
   sectionCount?: number;
   nameVariants?: number;
+}
+
+/** Normalize API row to lat/lng/name; supports both buildings.json and list-unique-buildings output. */
+function toCampusBuilding(r: ApiBuildingRow): CampusBuilding | null {
+  const lat = r.sampleLat ?? r.lat ?? null;
+  const lng = r.sampleLng ?? r.lng ?? null;
+  if (lat == null || lng == null) return null;
+  const name = r.inferredName ?? r.displayName ?? r.name ?? r.buildingCode;
+  return {
+    id: r.buildingCode,
+    name: typeof name === "string" ? name.replace(/&amp;/g, "&") : r.buildingCode,
+    coordinates: [lng, lat] as [number, number],
+  };
 }
 
 const CLOSEST_BUILDING_THRESHOLD_M = 80;
@@ -38,13 +57,12 @@ export async function fetchBuildings(): Promise<CampusBuilding[]> {
   const res = await fetch("/api/buildings");
   if (!res.ok) throw new Error("Failed to load buildings");
   const rows = (await res.json()) as ApiBuildingRow[];
-  return rows
-    .filter((r) => r.sampleLat != null && r.sampleLng != null)
-    .map((r) => ({
-      id: r.buildingCode,
-      name: r.inferredName,
-      coordinates: [r.sampleLng!, r.sampleLat!] as [number, number],
-    }));
+  const out: CampusBuilding[] = [];
+  for (const r of rows) {
+    const b = toCampusBuilding(r);
+    if (b) out.push(b);
+  }
+  return out;
 }
 
 export function useCampusBuildings() {
