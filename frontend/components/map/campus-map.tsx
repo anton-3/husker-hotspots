@@ -50,6 +50,8 @@ const EMPTY_BUILDINGS_GEOJSON: GeoJSON.FeatureCollection<GeoJSON.Polygon> = {
 
 /** Blue tint for clickable (52) campus buildings — distinct from default building gradient */
 const CLICKABLE_BUILDING_COLOR = "#1e3a5f";
+/** Red highlight when a building is selected */
+const SELECTED_BUILDING_COLOR = "#b91c1c";
 /** Scale clickable extrusion slightly above base layer to avoid z-fighting */
 const CLICKABLE_BUILDING_HEIGHT_SCALE = 1.02;
 /** Scale clickable footprint horizontally so blue layer extends slightly past base */
@@ -437,7 +439,7 @@ export function CampusMap() {
           const feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> = {
             type: "Feature",
             geometry: scaledGeometry,
-            properties: { height, min_height: minHeight },
+            properties: { height, min_height: minHeight, building_id: building.id },
           };
           seen.set(key, feature as GeoJSON.Feature<GeoJSON.Polygon>);
         }
@@ -464,6 +466,20 @@ export function CampusMap() {
       map.off("moveend", onMoveEnd);
     };
   }, [mapLoaded, campusBuildingsList, resolveClickableBuildings]);
+
+  // Highlight selected building in red; restore blue when deselected
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const map = mapRef.current?.getMap();
+    if (!map || !map.getLayer("3d-buildings-clickable")) return;
+    const selectedId = selectedBuilding?.id ?? "";
+    map.setPaintProperty("3d-buildings-clickable", "fill-extrusion-color", [
+      "case",
+      ["==", ["get", "building_id"], selectedId],
+      SELECTED_BUILDING_COLOR,
+      CLICKABLE_BUILDING_COLOR,
+    ]);
+  }, [mapLoaded, selectedBuilding]);
 
   // Toggle heatmap visibility with 'h' key
   useEffect(() => {
