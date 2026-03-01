@@ -26,6 +26,7 @@ import { BuildingPopup } from "./building-popup";
 import { MinimalBuildingPopup } from "./minimal-building-popup";
 import { MapPin, Layers } from "lucide-react";
 import type { MapLayerMouseEvent } from "mapbox-gl";
+import type { Map as MapboxMap } from "mapbox-gl";
 
 /** Selected building can be rich (12) or minimal (from API). */
 type SelectedBuilding = Building | CampusBuilding;
@@ -36,6 +37,53 @@ const EMPTY_HEATMAP_GEOJSON: GeoJSON.FeatureCollection<GeoJSON.Point> = {
   type: "FeatureCollection",
   features: [],
 };
+
+const EMPTY_BUILDINGS_GEOJSON: GeoJSON.FeatureCollection<GeoJSON.Polygon> = {
+  type: "FeatureCollection",
+  features: [],
+};
+
+/** Blue tint for clickable (52) campus buildings — distinct from default building gradient */
+const CLICKABLE_BUILDING_COLOR = "#1e3a5f";
+/** Scale clickable extrusion slightly above base layer to avoid z-fighting */
+const CLICKABLE_BUILDING_HEIGHT_SCALE = 1.02;
+/** Scale clickable footprint horizontally so blue layer extends slightly past base */
+const CLICKABLE_BUILDING_HORIZONTAL_SCALE = 1.02;
+
+/** Scale a polygon ring around its centroid (for horizontal scale of clickable layer). */
+function scaleRing(ring: number[][], scale: number): number[][] {
+  if (ring.length === 0) return ring;
+  let cx = 0;
+  let cy = 0;
+  for (const [lng, lat] of ring) {
+    cx += lng;
+    cy += lat;
+  }
+  cx /= ring.length;
+  cy /= ring.length;
+  return ring.map(([lng, lat]) => [
+    cx + (lng - cx) * scale,
+    cy + (lat - cy) * scale,
+  ]);
+}
+
+function scalePolygonGeometry(
+  geom: GeoJSON.Polygon | GeoJSON.MultiPolygon,
+  scale: number
+): GeoJSON.Polygon | GeoJSON.MultiPolygon {
+  if (geom.type === "Polygon") {
+    return {
+      type: "Polygon",
+      coordinates: geom.coordinates.map((ring) => scaleRing(ring, scale)),
+    };
+  }
+  return {
+    type: "MultiPolygon",
+    coordinates: geom.coordinates.map((poly) =>
+      poly.map((ring) => scaleRing(ring, scale))
+    ),
+  };
+}
 
 export function CampusMap() {
   console.log("[v0] CampusMap rendering, token exists:", !!MAPBOX_TOKEN);
@@ -70,6 +118,10 @@ export function CampusMap() {
 
   const mapRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const lastTickTimeRef = useRef<number>(0);
+  /** Accumulated clickable building features (deduped by id or geometry key) for merge on moveend */
+  const resolvedClickableFeaturesRef = useRef(
+    new globalThis.Map<string, GeoJSON.Feature<GeoJSON.Polygon>>()
+  );
 
   // Smooth play progress 0–1 within current 15min tick (for slider animation only)
   const [smoothProgress, setSmoothProgress] = useState(0);
@@ -235,6 +287,35 @@ export function CampusMap() {
         labelLayerId
       );
     }
+
+    // GeoJSON source + layer for clickable (52) buildings — drawn on top with blue tint
+    if (!map.getSource("clickable-buildings")) {
+      map.addSource("clickable-buildings", {
+        type: "geojson",
+        data: EMPTY_BUILDINGS_GEOJSON,
+      });
+    }
+    if (!map.getLayer("3d-buildings-clickable")) {
+      map.addLayer(
+        {
+          id: "3d-buildings-clickable",
+          source: "clickable-buildings",
+          type: "fill-extrusion",
+          minzoom: 14,
+          paint: {
+            "fill-extrusion-color": CLICKABLE_BUILDING_COLOR,
+            "fill-extrusion-height": [
+              "*",
+              ["get", "height"],
+              CLICKABLE_BUILDING_HEIGHT_SCALE,
+            ],
+            "fill-extrusion-base": ["get", "min_height"],
+            "fill-extrusion-opacity": 0.7,
+          },
+        },
+        labelLayerId
+      );
+    }
   }, []);
 
   // Map click: query 3D building layer, resolve to campus building, select and fly
@@ -243,7 +324,9 @@ export function CampusMap() {
       const map = mapRef.current?.getMap();
       if (!map) return;
       if (!map.getLayer("3d-buildings")) return; // Layer added in handleMapLoad; not ready yet
-      const features = map.queryRenderedFeatures(e.point, { layers: ["3d-buildings"] });
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ["3d-buildings", "3d-buildings-clickable"],
+      });
       if (features?.length) {
         const { lng, lat } = e.lngLat;
         const campus = findClosestBuilding(campusBuildingsList, lng, lat);
@@ -270,7 +353,9 @@ export function CampusMap() {
         setHoveredBuildingId(null);
         return;
       }
-      const features = map.queryRenderedFeatures(e.point, { layers: ["3d-buildings"] });
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ["3d-buildings", "3d-buildings-clickable"],
+      });
       if (features?.length) {
         const { lng, lat } = e.lngLat;
         const campus = findClosestBuilding(campusBuildingsList, lng, lat);
@@ -285,6 +370,59 @@ export function CampusMap() {
   const handleMapMouseLeave = useCallback(() => {
     setHoveredBuildingId(null);
   }, []);
+
+  // Resolve 52 clickable buildings to Mapbox building geometries and update the clickable-buildings source
+  const resolveClickableBuildings = useCallback(
+    (map: MapboxMap, buildings: CampusBuilding[]) => {
+      if (!map.getLayer("3d-buildings") || !map.getSource("clickable-buildings")) return;
+      const seen = resolvedClickableFeaturesRef.current;
+      for (const building of buildings) {
+        const [lng, lat] = building.coordinates;
+        const point = map.project([lng, lat]);
+        const features = map.queryRenderedFeatures(point, { layers: ["3d-buildings"] });
+        for (const f of features) {
+          const geom = f.geometry;
+          if (geom.type !== "Polygon" && geom.type !== "MultiPolygon") continue;
+          const props = f.properties as { height?: number; min_height?: number };
+          const height = props?.height ?? 0;
+          const minHeight = props?.min_height ?? 0;
+          const key =
+            f.id != null ? `id:${f.id}` : `geom:${JSON.stringify(geom.coordinates)}`;
+          if (seen.has(key)) continue;
+          const scaledGeometry = scalePolygonGeometry(
+            geom as GeoJSON.Polygon | GeoJSON.MultiPolygon,
+            CLICKABLE_BUILDING_HORIZONTAL_SCALE
+          );
+          const feature: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> = {
+            type: "Feature",
+            geometry: scaledGeometry,
+            properties: { height, min_height: minHeight },
+          };
+          seen.set(key, feature as GeoJSON.Feature<GeoJSON.Polygon>);
+        }
+      }
+      const collection: GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon> = {
+        type: "FeatureCollection",
+        features: Array.from(seen.values()),
+      };
+      (
+        map.getSource("clickable-buildings") as { setData(data: GeoJSON.FeatureCollection): void }
+      ).setData(collection);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!mapLoaded || campusBuildingsList.length === 0) return;
+    const map = mapRef.current?.getMap();
+    if (!map || !map.getLayer("3d-buildings") || !map.getSource("clickable-buildings")) return;
+    resolveClickableBuildings(map, campusBuildingsList);
+    const onMoveEnd = () => resolveClickableBuildings(map, campusBuildingsList);
+    map.on("moveend", onMoveEnd);
+    return () => {
+      map.off("moveend", onMoveEnd);
+    };
+  }, [mapLoaded, campusBuildingsList, resolveClickableBuildings]);
 
   // Toggle heatmap visibility with 'h' key
   useEffect(() => {
