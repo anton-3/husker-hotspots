@@ -256,14 +256,6 @@
     "sampleLng": -96.6602631
   },
   {
-    "buildingCode": "LCM",
-    "inferredName": "The Agency",
-    "sectionCount": 12,
-    "nameVariants": 5,
-    "sampleLat": 40.81508,
-    "sampleLng": -96.70024
-  },
-  {
     "buildingCode": "LLS",
     "inferredName": "Love Library",
     "sectionCount": 16,

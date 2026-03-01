@@ -670,7 +670,11 @@ export function CampusMap() {
       )}
       {showMinimalPopup && selectedBuilding && (
         <MinimalBuildingPopup
-          building={{ id: selectedBuilding.id, name: selectedBuilding.name }}
+          building={{
+            id: selectedBuilding.id,
+            name: selectedBuilding.name,
+            address: richBuilding?.address,
+          }}
           onClose={handleCloseBuilding}
         />
       )}

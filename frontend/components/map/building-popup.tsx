@@ -155,7 +155,7 @@ export function BuildingPopup({
               </div>
               <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2">
                 <MapPin className="h-3.5 w-3.5 text-white/40" />
-                <span className="text-xs text-white/70">{building.shortName}</span>
+                <span className="text-xs text-white/70">{building.address || building.shortName}</span>
               </div>
               <div className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2">
                 <Users className="h-3.5 w-3.5 text-white/40" />

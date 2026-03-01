@@ -3,7 +3,7 @@
 import { X } from "lucide-react";
 
 interface MinimalBuildingPopupProps {
-  building: { id: string; name: string };
+  building: { id: string; name: string; address?: string };
   onClose: () => void;
 }
 
@@ -27,9 +27,13 @@ export function MinimalBuildingPopup({ building, onClose }: MinimalBuildingPopup
           </button>
         </div>
         <div className="p-4">
-          <p className="text-sm text-white/60">
-            No data for this building yet.
-          </p>
+          {building.address ? (
+            <p className="text-sm text-white/60">{building.address}</p>
+          ) : (
+            <p className="text-sm text-white/60">
+              No data for this building yet.
+            </p>
+          )}
         </div>
       </div>
     </div>
