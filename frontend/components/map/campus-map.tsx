@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import Map, { NavigationControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import { MAP_CONFIG, CAMPUS_BOUNDS, DATA_SOURCES, type DataSourceId, type DayOfWeek } from "@/lib/map/config";
+import { MAP_CONFIG, DATA_SOURCES, type DataSourceId, type DayOfWeek } from "@/lib/map/config";
 import { BUILDINGS, getBuildingById, type Building } from "@/lib/map/buildings";
 import {
   generateDayTimeline,
@@ -142,49 +142,30 @@ export function CampusMap() {
     }
 
     if (!map.getLayer("3d-buildings")) {
-      const campusPolygon = {
-        type: "Polygon" as const,
-        coordinates: [
-          [
-            [CAMPUS_BOUNDS[0][0], CAMPUS_BOUNDS[0][1]],
-            [CAMPUS_BOUNDS[1][0], CAMPUS_BOUNDS[0][1]],
-            [CAMPUS_BOUNDS[1][0], CAMPUS_BOUNDS[1][1]],
-            [CAMPUS_BOUNDS[0][0], CAMPUS_BOUNDS[1][1]],
-            [CAMPUS_BOUNDS[0][0], CAMPUS_BOUNDS[0][1]],
-          ],
-        ],
-      };
-
-      const buildingLayer: any = {
-        id: "3d-buildings",
-        source: "composite",
-        "source-layer": "building",
-        filter: [
-          "all",
-          ["==", "extrude", "true"],
-          [
-            "within",
-            campusPolygon,
-          ],
-        ],
-        type: "fill-extrusion",
-        minzoom: 14,
-        paint: {
-          "fill-extrusion-color": [
-            "interpolate",
-            ["linear"],
-            ["get", "height"],
-            0, "#1a1a2e",
-            50, "#16213e",
-            100, "#0f3460",
-          ],
-          "fill-extrusion-height": ["get", "height"],
-          "fill-extrusion-base": ["get", "min_height"],
-          "fill-extrusion-opacity": 0.7,
+      map.addLayer(
+        {
+          id: "3d-buildings",
+          source: "composite",
+          "source-layer": "building",
+          filter: ["==", "extrude", "true"],
+          type: "fill-extrusion",
+          minzoom: 14,
+          paint: {
+            "fill-extrusion-color": [
+              "interpolate",
+              ["linear"],
+              ["get", "height"],
+              0, "#1a1a2e",
+              50, "#16213e",
+              100, "#0f3460",
+            ],
+            "fill-extrusion-height": ["get", "height"],
+            "fill-extrusion-base": ["get", "min_height"],
+            "fill-extrusion-opacity": 0.7,
+          },
         },
-      };
-
-      map.addLayer(buildingLayer, labelLayerId);
+        labelLayerId
+      );
     }
   }, []);
 
@@ -276,7 +257,6 @@ export function CampusMap() {
         mapStyle={MAP_CONFIG.style}
         minZoom={MAP_CONFIG.minZoom}
         maxZoom={MAP_CONFIG.maxZoom}
-        maxBounds={CAMPUS_BOUNDS}
         antialias
         onLoad={handleMapLoad}
         style={{ width: "100%", height: "100%" }}

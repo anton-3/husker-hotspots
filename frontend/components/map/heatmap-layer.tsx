@@ -7,8 +7,7 @@ import { BUILDINGS, BUILDING_TYPE_COLORS, type Building } from "@/lib/map/buildi
 import type { BuildingOccupancy, HeatmapPoint } from "@/lib/map/mock-data";
 import type { DataSourceId } from "@/lib/map/config";
 
-// 使用图层钩子参数
-interface 使用图层参数 {
+interface UseMapLayersProps {
   heatmapPoints: HeatmapPoint[];
   buildingOccupancies: BuildingOccupancy[];
   selectedBuildingId: string | null;
@@ -19,59 +18,59 @@ interface 使用图层参数 {
 }
 
 export function useMapLayers({
-  heatmapPoints: 热力点列表,
-  buildingOccupancies: 楼宇占用列表,
-  selectedBuildingId: 已选楼宇ID,
-  hoveredBuildingId: 悬停楼宇ID,
-  activeSources: 激活数据源,
-  onBuildingClick: 点击楼宇回调,
-  onBuildingHover: 悬停楼宇回调,
-}: 使用图层参数) {
-  // 根据激活的数据源过滤热力图点位
-  const 过滤后的点位 = useMemo<HeatmapPoint[]>(() => {
-    if (激活数据源.size === 7) return 热力点列表; // 全部激活
-    // 简化处理：根据激活数据源数量按比例调整权重
-    const 比例 = 激活数据源.size / 7;
-    return 热力点列表.map((点: HeatmapPoint) => ({ ...点, weight: 点.weight * 比例 }));
-  }, [热力点列表, 激活数据源]);
+  heatmapPoints,
+  buildingOccupancies,
+  selectedBuildingId,
+  hoveredBuildingId,
+  activeSources,
+  onBuildingClick,
+  onBuildingHover,
+}: UseMapLayersProps) {
+  // Filter heatmap points by active sources
+  const filteredPoints = useMemo(() => {
+    if (activeSources.size === 7) return heatmapPoints; // All active
+    // For simplicity, apply a weight multiplier based on active source count
+    const ratio = activeSources.size / 7;
+    return heatmapPoints.map((p) => ({ ...p, weight: p.weight * ratio }));
+  }, [heatmapPoints, activeSources]);
 
-  const 图层集合 = useMemo(() => {
-    // 基于楼宇数据构建 GeoJSON 要素
-    const 楼宇要素列表 = BUILDINGS.map((楼宇: Building) => {
-      const 占用记录 = 楼宇占用列表.find((项: BuildingOccupancy) => 项.buildingId === 楼宇.id);
-      const 占用率 = 占用记录?.occupancyPercent ?? 0;
-      const 是否选中 = 楼宇.id === 已选楼宇ID;
-      const 是否悬停 = 楼宇.id === 悬停楼宇ID;
+  const layers = useMemo(() => {
+    // Build GeoJSON features for building footprints
+    const buildingFeatures = BUILDINGS.map((building) => {
+      const occ = buildingOccupancies.find((b) => b.buildingId === building.id);
+      const occupancy = occ?.occupancyPercent ?? 0;
+      const isSelected = building.id === selectedBuildingId;
+      const isHovered = building.id === hoveredBuildingId;
 
       return {
         type: "Feature" as const,
         geometry: {
           type: "Polygon" as const,
-          coordinates: [楼宇.polygon],
+          coordinates: [building.polygon],
         },
         properties: {
-          id: 楼宇.id,
-          name: 楼宇.name,
-          type: 楼宇.type,
-          occupancy: 占用率,
-          isSelected: 是否选中,
-          isHovered: 是否悬停,
+          id: building.id,
+          name: building.name,
+          type: building.type,
+          occupancy,
+          isSelected,
+          isHovered,
         },
       };
     });
 
-    const 楼宇GeoJson = {
+    const buildingGeoJson = {
       type: "FeatureCollection" as const,
-      features: 楼宇要素列表,
+      features: buildingFeatures,
     };
 
     return [
-      // 校园整体活动热力图图层
+      // Heatmap layer for campus-wide activity density
       new HeatmapLayer({
         id: "campus-heatmap",
-        data: 过滤后的点位,
-        getPosition: (点: HeatmapPoint) => 点.coordinates,
-        getWeight: (点: HeatmapPoint) => 点.weight,
+        data: filteredPoints,
+        getPosition: (d: HeatmapPoint) => d.coordinates,
+        getWeight: (d: HeatmapPoint) => d.weight,
         radiusPixels: 60,
         intensity: 1.2,
         threshold: 0.05,
@@ -86,70 +85,66 @@ export function useMapLayers({
         opacity: 0.7,
       }),
 
-      // 楼宇轮廓多边形（可交互）
+      // Building footprint polygons (interactive)
       new GeoJsonLayer({
         id: "building-footprints",
-        data: 楼宇GeoJson,
+        data: buildingGeoJson,
         pickable: true,
         stroked: true,
         filled: true,
         extruded: false,
-        getFillColor: (要素: any) => {
-          const 基础颜色 = 十六进制转RGB(
-            BUILDING_TYPE_COLORS[要素.properties.type as Building["type"]] || "#6b7280"
+        getFillColor: (f: (typeof buildingFeatures)[0]) => {
+          const baseColor = hexToRgb(
+            BUILDING_TYPE_COLORS[f.properties.type as Building["type"]] || "#6b7280"
           );
-          if (要素.properties.isSelected) return [...基础颜色, 140];
-          if (要素.properties.isHovered) return [...基础颜色, 100];
-          return [...基础颜色, 40];
+          if (f.properties.isSelected) return [...baseColor, 140];
+          if (f.properties.isHovered) return [...baseColor, 100];
+          return [...baseColor, 40];
         },
-        getLineColor: (要素: any) => {
-          const 基础颜色 = 十六进制转RGB(
-            BUILDING_TYPE_COLORS[要素.properties.type as Building["type"]] || "#6b7280"
+        getLineColor: (f: (typeof buildingFeatures)[0]) => {
+          const baseColor = hexToRgb(
+            BUILDING_TYPE_COLORS[f.properties.type as Building["type"]] || "#6b7280"
           );
-          if (要素.properties.isSelected) return [...基础颜色, 255];
-          if (要素.properties.isHovered) return [...基础颜色, 200];
-          return [...基础颜色, 80];
+          if (f.properties.isSelected) return [...baseColor, 255];
+          if (f.properties.isHovered) return [...baseColor, 200];
+          return [...baseColor, 80];
         },
-        getLineWidth: (要素: any) =>
-          要素.properties.isSelected ? 3 : 要素.properties.isHovered ? 2 : 1,
+        getLineWidth: (f: (typeof buildingFeatures)[0]) =>
+          f.properties.isSelected ? 3 : f.properties.isHovered ? 2 : 1,
         lineWidthUnits: "pixels" as const,
-        onClick: (信息: { object?: (typeof 楼宇要素列表)[0] }) => {
-          if (信息.object) {
-            const 楼宇 = BUILDINGS.find(
-              (项) => 项.id === 信息.object!.properties.id
+        onClick: (info: { object?: (typeof buildingFeatures)[0] }) => {
+          if (info.object) {
+            const building = BUILDINGS.find(
+              (b) => b.id === info.object!.properties.id
             );
-            if (楼宇) 点击楼宇回调(楼宇);
+            if (building) onBuildingClick(building);
           }
         },
-        onHover: (信息: { object?: (typeof 楼宇要素列表)[0] }) => {
-          悬停楼宇回调(信息.object?.properties.id ?? null);
+        onHover: (info: { object?: (typeof buildingFeatures)[0] }) => {
+          onBuildingHover(info.object?.properties.id ?? null);
         },
         updateTriggers: {
-          getFillColor: [已选楼宇ID, 悬停楼宇ID],
-          getLineColor: [已选楼宇ID, 悬停楼宇ID],
-          getLineWidth: [已选楼宇ID, 悬停楼宇ID],
+          getFillColor: [selectedBuildingId, hoveredBuildingId],
+          getLineColor: [selectedBuildingId, hoveredBuildingId],
+          getLineWidth: [selectedBuildingId, hoveredBuildingId],
         },
       }),
     ];
   }, [
-    过滤后的点位,
-    楼宇占用列表,
-    已选楼宇ID,
-    悬停楼宇ID,
-    点击楼宇回调,
-    悬停楼宇回调,
+    filteredPoints,
+    buildingOccupancies,
+    selectedBuildingId,
+    hoveredBuildingId,
+    onBuildingClick,
+    onBuildingHover,
   ]);
 
-  return 图层集合;
+  return layers;
 }
 
-function 十六进制转RGB(hex: string): [number, number, number] {
-  const 匹配结果 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return 匹配结果
-    ? [
-        parseInt(匹配结果[1], 16),
-        parseInt(匹配结果[2], 16),
-        parseInt(匹配结果[3], 16),
-      ]
+function hexToRgb(hex: string): [number, number, number] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
     : [107, 114, 128];
 }

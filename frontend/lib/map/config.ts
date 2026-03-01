@@ -1,14 +1,6 @@
 // UNL Campus Map Configuration
 // Centered on Kauffman Residential Center, 630 N 14th St, Lincoln, NE 68508
 
-// Derived from parsed_sections.json (Spring 2026) lat/lon extent with a small padding
-// west:  -96.7088141, east: -96.656663
-// south: 40.81258,    north: 40.8348326
-export const CAMPUS_BOUNDS: [[number, number], [number, number]] = [
-  [-96.7088141, 40.81258],
-  [-96.656663, 40.8348326],
-];
-
 export const MAP_CONFIG = {
   center: [-96.7025, 40.8202] as [number, number],
   defaultZoom: 15.5,
