@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { X, MapPin, Clock, Users } from "lucide-react";
 import {
   AreaChart,
@@ -16,6 +17,9 @@ import { BUILDING_TYPE_COLORS, type Building } from "@/lib/map/buildings";
 import type { TimelineSnapshot } from "@/lib/map/mock-data";
 import { DATA_SOURCES } from "@/lib/map/config";
 import type { ClassAtTime } from "@/lib/api/density";
+
+const CATALOG_SEARCH_BASE =
+  "https://catalog.unl.edu/search/?caturl=%252Fundergraduate&scontext=courses&search=";
 
 /** Format "HH:MM" to "10:00 AM" / "2:30 PM". */
 function formatTime(hhmm: string): string {
@@ -333,36 +337,53 @@ export function BuildingPopup({
                       <p className="text-xs text-white/40">No scheduled classes at this time.</p>
                     ) : (
                       <ul className="space-y-2">
-                        {classesInSession.map((cls, i) => (
-                          <li
-                            key={`${cls.course_label}-${cls.room}-${i}`}
-                            className="rounded-lg border border-white/10 bg-white/5 p-2.5"
-                          >
-                            <div className="font-medium text-white text-xs">
-                              {cls.course_label}
-                              {cls.title ? ` — ${cls.title}` : ""}
-                            </div>
-                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-white/60">
-                              {cls.room && (
-                                <span className="inline-flex items-center gap-1">
-                                  <MapPin className="h-3 w-3 shrink-0" />
-                                  Room {cls.room}
-                                </span>
-                              )}
-                              <span className="inline-flex items-center gap-1">
-                                <Users className="h-3 w-3 shrink-0" />
-                                {cls.enrolled}/{cls.capacity}
-                              </span>
-                              {(cls.start_time || cls.end_time) && (
-                                <span className="inline-flex items-center gap-1">
-                                  <Clock className="h-3 w-3 shrink-0" />
-                                  {formatTime(cls.start_time)}–{formatTime(cls.end_time)}
-                                  {cls.days ? ` (${cls.days})` : ""}
-                                </span>
-                              )}
-                            </div>
-                          </li>
-                        ))}
+                        <AnimatePresence initial={false}>
+                          {classesInSession.map((cls, i) => {
+                            const catalogUrl = `${CATALOG_SEARCH_BASE}${encodeURIComponent(cls.course_label)}`;
+                            const itemKey = `${cls.course_label}-${cls.room ?? ""}-${cls.start_time}-${i}`;
+                            return (
+                              <motion.li
+                                key={itemKey}
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <a
+                                  href={catalogUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block rounded-lg border border-white/10 bg-white/5 p-2.5 transition-[transform,background-color,box-shadow] duration-150 hover:scale-[1.02] hover:bg-white/10 hover:shadow-md hover:shadow-black/20 cursor-pointer"
+                                >
+                                  <div className="font-medium text-white text-xs">
+                                    {cls.course_label}
+                                    {cls.title ? ` — ${cls.title}` : ""}
+                                  </div>
+                                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-white/60">
+                                    {cls.room && (
+                                      <span className="inline-flex items-center gap-1">
+                                        <MapPin className="h-3 w-3 shrink-0" />
+                                        Room {cls.room}
+                                      </span>
+                                    )}
+                                    <span className="inline-flex items-center gap-1">
+                                      <Users className="h-3 w-3 shrink-0" />
+                                      {cls.enrolled}/{cls.capacity}
+                                    </span>
+                                    {(cls.start_time || cls.end_time) && (
+                                      <span className="inline-flex items-center gap-1">
+                                        <Clock className="h-3 w-3 shrink-0" />
+                                        {formatTime(cls.start_time)}–{formatTime(cls.end_time)}
+                                        {cls.days ? ` (${cls.days})` : ""}
+                                      </span>
+                                    )}
+                                  </div>
+                                </a>
+                              </motion.li>
+                            );
+                          })}
+                        </AnimatePresence>
                       </ul>
                     )}
                   </div>
