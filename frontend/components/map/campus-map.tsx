@@ -800,7 +800,7 @@ export function CampusMap() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#0a0a0f]">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0a0a0f]">
       {/* Header bar */}
       <header className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between border-b border-white/5 bg-black/60 px-5 py-3 backdrop-blur-xl">
         <div className="flex items-center gap-3">
@@ -833,8 +833,9 @@ export function CampusMap() {
         </div>
       </header>
 
-      {/* Map */}
-      <Map
+      {/* Map area: flex-1 so timeline stays visible at bottom */}
+      <div className="relative flex-1 min-h-0">
+        <Map
         ref={mapRef}
         {...viewState}
         keyboard={false}
@@ -941,18 +942,22 @@ export function CampusMap() {
       {/* Legend */}
       <Legend />
 
-      {/* Timeline slider */}
-      <TimelineSlider
-        currentIndex={displayValue}
-        onIndexChange={handleIndexChange}
-        isPlaying={isPlaying}
-        onPlayToggle={() => setIsPlaying((p) => !p)}
-        playSpeed={playSpeed}
-        onSpeedChange={setPlaySpeed}
-        day={day}
-        onDayChange={setDay}
-        timeLabel={currentSnapshot?.time.label ?? ""}
-      />
+      </div>
+
+      {/* Timeline slider: above all elements, always visible and interactable */}
+      <div className="flex-shrink-0 z-50">
+        <TimelineSlider
+          currentIndex={displayValue}
+          onIndexChange={handleIndexChange}
+          isPlaying={isPlaying}
+          onPlayToggle={() => setIsPlaying((p) => !p)}
+          playSpeed={playSpeed}
+          onSpeedChange={setPlaySpeed}
+          day={day}
+          onDayChange={setDay}
+          timeLabel={currentSnapshot?.time.label ?? ""}
+        />
+      </div>
     </div>
   );
 }
