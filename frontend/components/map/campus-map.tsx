@@ -109,7 +109,7 @@ export function CampusMap() {
   const [selectedBuilding, setSelectedBuilding] = useState<SelectedBuilding | null>(null);
   const [hoveredBuildingId, setHoveredBuildingId] = useState<string | null>(null);
   const [insightsOpen, setInsightsOpen] = useState(true);
-  const [showSources, setShowSources] = useState(true);
+  const [showSources, setShowSources] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(true);
   const [activeSources, setActiveSources] = useState<Set<DataSourceId>>(
     new Set(DATA_SOURCES.map((s) => s.id))
@@ -682,12 +682,12 @@ export function CampusMap() {
       )}
 
       {/* Insights panel */}
-      <InsightsPanel
+      {/* <InsightsPanel
         insights={insights}
         isOpen={insightsOpen}
         onToggle={() => setInsightsOpen((p) => !p)}
         onInsightClick={handleInsightClick}
-      />
+      /> */}
 
       {/* Building detail popup: full when rich + occupancy, else minimal */}
       {showFullPopup && richBuilding && selectedBuildingOccupancy && (
