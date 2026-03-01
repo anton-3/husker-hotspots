@@ -403,6 +403,155 @@ def generate_people_density_field(
     }
 
 
+def generate_people_density_field_day(
+    weekday: str,
+    southwest: List[float] | None = None,
+    northeast: List[float] | None = None,
+    cols: int = 60,
+    rows: int = 45,
+    spread: float = 0.32,
+    attendance_ratio: float = 0.82,
+) -> Dict[str, object]:
+    """
+    One pass over sections; compute 96 slot grids and 96 minimal building lists.
+    Returns: bounds, resolution, lng_axis, lat_axis, slot_fields (list of 96 people_field),
+    slot_buildings (list of 96 lists of { building_id, estimated_people }).
+    """
+    if weekday not in WEEKDAYS:
+        raise ValueError(f"weekday must be one of: {', '.join(WEEKDAYS)}")
+    if cols < 2 or rows < 2:
+        raise ValueError("cols and rows must be >= 2")
+    if not (0.015 <= spread <= 1.0):
+        raise ValueError("spread must be between 0.015 and 1.0")
+    if not (0.2 <= attendance_ratio <= 1.0):
+        raise ValueError("attendance_ratio must be between 0.2 and 1.0")
+
+    sw = southwest if southwest is not None else DEFAULT_BOUNDS["southwest"]
+    ne = northeast if northeast is not None else DEFAULT_BOUNDS["northeast"]
+    weekday_code = WEEKDAY_TO_CODE[weekday]
+
+    classes_dir = Path(__file__).resolve().parent
+    section_index = _load_section_index(str(classes_dir))
+    sections = section_index["sections"]
+    parse_stats = section_index["stats"]
+
+    # 96 slots: each slot has by_building dict (building_key -> agg data for grid + minimal output)
+    # Use list of dicts: by_building_per_slot[slot_index][building_key] = { lat, lng, estimated_people, avg_spread_multiplier, _spread_weight }
+    by_building_per_slot: List[Dict[str, Dict[str, Any]]] = [{} for _ in range(96)]
+
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        meetings = section.get("meetings")
+        if not isinstance(meetings, list):
+            continue
+
+        building_key = str(section["building_key"])
+
+        for slot_index in range(96):
+            slot_minutes = slot_index * 15
+            section_presence, section_spread_mult = _section_presence_and_spread(
+                meetings, weekday_code, slot_minutes
+            )
+            if section_presence <= 0.01:
+                continue
+
+            estimated_people = _estimate_section_people(
+                section["enrolled"],
+                section["capacity"],
+                attendance_ratio,
+            )
+            adjusted_people = estimated_people * section_presence
+            if adjusted_people <= 0.05:
+                continue
+
+            by_building = by_building_per_slot[slot_index]
+            if building_key not in by_building:
+                by_building[building_key] = {
+                    "key": building_key,
+                    "lat": float(section["lat"]),
+                    "lng": float(section["lng"]),
+                    "estimated_people": 0.0,
+                    "avg_spread_multiplier": 1.0,
+                    "_spread_weight": 0.0,
+                }
+
+            by_building[building_key]["estimated_people"] = (
+                float(by_building[building_key]["estimated_people"]) + adjusted_people
+            )
+            by_building[building_key]["avg_spread_multiplier"] = (
+                float(by_building[building_key]["avg_spread_multiplier"])
+                + section_spread_mult * adjusted_people
+            )
+            by_building[building_key]["_spread_weight"] = (
+                float(by_building[building_key]["_spread_weight"]) + adjusted_people
+            )
+
+    # Normalize avg_spread_multiplier per building per slot and build minimal building list per slot
+    slot_buildings_minimal: List[List[Dict[str, Any]]] = []
+    for slot_index in range(96):
+        by_building = by_building_per_slot[slot_index]
+        minimal = []
+        for building in by_building.values():
+            spread_weight = float(building["_spread_weight"])
+            if spread_weight > 0:
+                building["avg_spread_multiplier"] = round(
+                    float(building["avg_spread_multiplier"]) / spread_weight, 4
+                )
+            else:
+                building["avg_spread_multiplier"] = 1.0
+            building["estimated_people"] = round(float(building["estimated_people"]), 3)
+            del building["_spread_weight"]
+            minimal.append({
+                "building_id": str(building["key"]),
+                "estimated_people": float(building["estimated_people"]),
+            })
+        slot_buildings_minimal.append(minimal)
+
+    sw_lng, sw_lat = sw
+    ne_lng, ne_lat = ne
+    lng_step = (ne_lng - sw_lng) / (cols - 1)
+    lat_step = (ne_lat - sw_lat) / (rows - 1)
+    lng_axis = [round(sw_lng + c * lng_step, 7) for c in range(cols)]
+    lat_axis = [round(sw_lat + r * lat_step, 7) for r in range(rows)]
+    sigma_lng = max((ne_lng - sw_lng) * spread / 12.0, 1e-9)
+    sigma_lat = max((ne_lat - sw_lat) * spread / 12.0, 1e-9)
+
+    # Build 96 grids
+    slot_fields: List[List[List[float]]] = []
+    for slot_index in range(96):
+        per_building = list(by_building_per_slot[slot_index].values())
+        people_field: List[List[float]] = []
+        for lat in lat_axis:
+            row_values: List[float] = []
+            for lng in lng_axis:
+                density = 0.0
+                for building in per_building:
+                    people = float(building["estimated_people"])
+                    if people <= 0:
+                        continue
+                    spread_multiplier = float(building.get("avg_spread_multiplier", 1.0))
+                    local_sigma_lng = sigma_lng * spread_multiplier
+                    local_sigma_lat = sigma_lat * spread_multiplier
+                    dx = (lng - float(building["lng"])) / local_sigma_lng
+                    dy = (lat - float(building["lat"])) / local_sigma_lat
+                    density += people * math.exp(-0.5 * (dx * dx + dy * dy))
+                row_values.append(round(density, 5))
+            people_field.append(row_values)
+        slot_fields.append(people_field)
+
+    return {
+        "weekday": weekday,
+        "bounds": {"southwest": sw, "northeast": ne},
+        "resolution": {"cols": cols, "rows": rows},
+        "lng_axis": lng_axis,
+        "lat_axis": lat_axis,
+        "parse_stats": parse_stats,
+        "slot_fields": slot_fields,
+        "slot_buildings": slot_buildings_minimal,
+    }
+
+
 def _compute_by_building_for_slot(
     sections: List[Dict[str, object]],
     weekday_code: str,
@@ -477,3 +626,66 @@ def get_building_timeline(
             "estimated_people": round(estimated_people, 3),
         })
     return slots
+
+
+def get_building_at_time(
+    building_id: str,
+    time_str: str,
+    weekday: str,
+    attendance_ratio: float = 0.82,
+) -> Dict[str, Any]:
+    """
+    Return one building's estimated_people and classes at a single time slot.
+    Used by the at-time API for popup class list without embedding in day response.
+    """
+    if weekday not in WEEKDAYS:
+        raise ValueError(f"weekday must be one of: {', '.join(WEEKDAYS)}")
+    slot = _normalize_requested_time(time_str)
+    slot_minutes = _minutes_from_hhmm(slot)
+    weekday_code = WEEKDAY_TO_CODE[weekday]
+
+    classes_dir = Path(__file__).resolve().parent
+    section_index = _load_section_index(str(classes_dir))
+    sections = section_index["sections"]
+
+    estimated_people = 0.0
+    classes: List[Dict[str, Any]] = []
+
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        if str(section.get("building_key")) != building_id:
+            continue
+        meetings = section.get("meetings")
+        if not isinstance(meetings, list):
+            continue
+        section_presence, _ = _section_presence_and_spread(meetings, weekday_code, slot_minutes)
+        if section_presence <= 0.01:
+            continue
+        estimated_people += _estimate_section_people(
+            section["enrolled"],
+            section["capacity"],
+            attendance_ratio,
+        ) * section_presence
+        if _section_in_session_at_slot(meetings, weekday_code, slot_minutes):
+            enrolled_val = section.get("enrolled")
+            capacity_val = section.get("capacity")
+            enrolled_int = int(enrolled_val) if isinstance(enrolled_val, (int, float)) else 0
+            capacity_int = int(capacity_val) if isinstance(capacity_val, (int, float)) else 0
+            classes.append({
+                "course_label": str(section.get("course_label", "")),
+                "title": str(section.get("title", "")),
+                "room": str(section.get("room", "")),
+                "location": str(section.get("location", "")),
+                "enrolled": enrolled_int,
+                "capacity": capacity_int,
+                "start_time": str(section.get("start_time", "")),
+                "end_time": str(section.get("end_time", "")),
+                "days": str(section.get("days", "")),
+            })
+
+    return {
+        "building_id": building_id,
+        "estimated_people": round(estimated_people, 3),
+        "classes": classes,
+    }

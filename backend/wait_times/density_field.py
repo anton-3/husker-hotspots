@@ -274,3 +274,83 @@ def generate_people_density_field(
         "lat_axis": lat_axis,
         "people_field": people_field,
     }
+
+
+def generate_people_density_field_day(
+    weekday: str,
+    southwest: List[float] | None = None,
+    northeast: List[float] | None = None,
+    cols: int = 60,
+    rows: int = 45,
+    spread: float = 0.3,
+) -> Dict[str, object]:
+    """
+    One pass over locations; compute 96 slot grids.
+    Returns: bounds, resolution, lng_axis, lat_axis, slot_fields (list of 96 people_field).
+    """
+    if weekday not in WEEKDAYS:
+        raise ValueError(f"weekday must be one of: {', '.join(WEEKDAYS)}")
+    if cols < 2 or rows < 2:
+        raise ValueError("cols and rows must be >= 2")
+    if not (0.015 <= spread <= 1.0):
+        raise ValueError("spread must be between 0.015 and 1.0")
+
+    sw = southwest if southwest is not None else DEFAULT_BOUNDS["southwest"]
+    ne = northeast if northeast is not None else DEFAULT_BOUNDS["northeast"]
+
+    wait_times_dir = Path(__file__).resolve().parent
+    wait_data, baselines = _load_wait_data(wait_times_dir)
+
+    sw_lng, sw_lat = sw
+    ne_lng, ne_lat = ne
+    lng_step = (ne_lng - sw_lng) / (cols - 1)
+    lat_step = (ne_lat - sw_lat) / (rows - 1)
+    lng_axis = [round(sw_lng + c * lng_step, 7) for c in range(cols)]
+    lat_axis = [round(sw_lat + r * lat_step, 7) for r in range(rows)]
+    sigma_lng = max((ne_lng - sw_lng) * spread / 12.0, 1e-9)
+    sigma_lat = max((ne_lat - sw_lat) * spread / 12.0, 1e-9)
+
+    slot_fields: List[List[List[float]]] = []
+    for slot_index in range(96):
+        hour = slot_index // 4
+        minute = (slot_index % 4) * 15
+        slot = f"{hour:02d}:{minute:02d}"
+
+        per_location = []
+        for location in LOCATIONS:
+            location_key = str(location["key"])
+            wait = wait_data[location_key][weekday].get(slot, -1)
+            estimated_people = _estimate_people(
+                location, wait, baselines[location_key], weekday, slot
+            )
+            per_location.append({
+                "key": location_key,
+                "lat": float(location["lat"]),
+                "lng": float(location["lng"]),
+                "estimated_people": estimated_people,
+            })
+
+        people_field = []
+        for lat in lat_axis:
+            row_values = []
+            for lng in lng_axis:
+                density = 0.0
+                for item in per_location:
+                    people = item["estimated_people"]
+                    if people <= 0:
+                        continue
+                    dx = (lng - item["lng"]) / sigma_lng
+                    dy = (lat - item["lat"]) / sigma_lat
+                    density += people * math.exp(-0.5 * (dx * dx + dy * dy))
+                row_values.append(round(density, 5))
+            people_field.append(row_values)
+        slot_fields.append(people_field)
+
+    return {
+        "weekday": weekday,
+        "bounds": {"southwest": sw, "northeast": ne},
+        "resolution": {"cols": cols, "rows": rows},
+        "lng_axis": lng_axis,
+        "lat_axis": lat_axis,
+        "slot_fields": slot_fields,
+    }

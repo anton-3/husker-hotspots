@@ -9,8 +9,8 @@ import re
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from backend.density_aggregator import get_combined_density
-from backend.classes.density_field import get_building_timeline
+from backend.density_aggregator import get_combined_density, get_combined_density_day
+from backend.classes.density_field import get_building_timeline, get_building_at_time
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
@@ -18,6 +18,10 @@ CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
 # Default campus bounds (same as density_field modules)
 DEFAULT_SW = [-96.708, 40.812]
 DEFAULT_NE = [-96.69, 40.825]
+
+# In-memory cache for full-day density by weekday (fixed 60×45, default bounds).
+# Key: weekday string; value: compact response dict (bounds, resolution, lng_axis, lat_axis, weekday, sources, slots).
+_density_day_cache: dict[str, dict] = {}
 
 
 def _parse_bounds(s: str) -> tuple[list[float], list[float]] | None:
@@ -91,6 +95,42 @@ VALID_WEEKDAYS = [
     "Thursday", "Friday", "Saturday",
 ]
 
+# Fixed resolution for day endpoint (smaller payload and faster).
+DAY_COLS = 60
+DAY_ROWS = 45
+
+
+@app.route("/api/density/day", methods=["GET"])
+def api_density_day():
+    """
+    GET /api/density/day?weekday=Wednesday
+    Returns density for all 96 time slots (00:00–23:45) for the given weekday.
+    Uses fixed 60×45 grid and default bounds. Response is compact: shared axes,
+    slots with sparse weights (w) and minimal buildings (b). Cached by weekday.
+    """
+    weekday = request.args.get("weekday", "").strip()
+
+    if not weekday or weekday not in VALID_WEEKDAYS:
+        return jsonify({"error": "Invalid or missing weekday"}), 400
+
+    # Day endpoint uses fixed resolution and default bounds; cache key is weekday only.
+    if weekday in _density_day_cache:
+        return jsonify(_density_day_cache[weekday])
+
+    try:
+        result = get_combined_density_day(
+            weekday=weekday,
+            southwest=DEFAULT_SW,
+            northeast=DEFAULT_NE,
+            cols=DAY_COLS,
+            rows=DAY_ROWS,
+        )
+        _density_day_cache[weekday] = result
+        return jsonify(result)
+    except Exception as e:
+        app.logger.exception("density day aggregation failed")
+        return jsonify({"error": str(e)}), 503
+
 
 @app.route("/api/density/building/<building_id>/timeline", methods=["GET"])
 def api_building_timeline(building_id: str):
@@ -112,6 +152,33 @@ def api_building_timeline(building_id: str):
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         app.logger.exception("building timeline failed")
+        return jsonify({"error": str(e)}), 503
+
+
+@app.route("/api/density/building/<building_id>/at-time", methods=["GET"])
+def api_building_at_time(building_id: str):
+    """
+    GET /api/density/building/<building_id>/at-time?time=10:00&weekday=Wednesday
+    Returns building_id, estimated_people, and classes at that time (for popup class list).
+    """
+    time_str = request.args.get("time", "").strip()
+    weekday = request.args.get("weekday", "").strip()
+    if not re.match(r"^\d{1,2}:\d{2}$", time_str):
+        return jsonify({"error": "Invalid time; use HH:MM"}), 400
+    parts = time_str.split(":")
+    hour, minute = int(parts[0]), int(parts[1])
+    if hour < 0 or hour > 23 or minute < 0 or minute > 59:
+        return jsonify({"error": "Time out of range"}), 400
+    time_str = f"{hour:02d}:{minute:02d}"
+    if not weekday or weekday not in VALID_WEEKDAYS:
+        return jsonify({"error": "Invalid or missing weekday"}), 400
+    try:
+        result = get_building_at_time(building_id, time_str, weekday)
+        return jsonify(result)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        app.logger.exception("building at-time failed")
         return jsonify({"error": str(e)}), 503
 
 

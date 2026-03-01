@@ -12,7 +12,13 @@ import {
   type TimelineSnapshot,
   type HeatmapPoint,
 } from "@/lib/map/mock-data";
-import { useDensity, useBuildingTimeline } from "@/lib/api/density";
+import {
+  useDensityDay,
+  useBuildingTimeline,
+  useBuildingAtTime,
+  slotWeightsToHeatmapPoints,
+  type ClassAtTime,
+} from "@/lib/api/density";
 import { useCampusBuildings, findClosestBuilding } from "@/lib/api/buildings";
 import {
   heatmapPointsToGeoJSON,
@@ -170,13 +176,48 @@ export function CampusMap() {
     lastTickTimeRef.current = Date.now();
   }, []);
 
-  // Density from API (cached by TanStack Query per day + time)
-  const { data: densityData, isPending: densityLoading } = useDensity(day, timeIndex, timeline);
-  const densityHeatmapPoints = densityData?.heatmap_points ?? null;
+  // Full-day density: fetch once per day, then index by timeIndex (no request on slider/play)
+  const { data: dayData, isPending: densityLoading } = useDensityDay(day);
+  const slot = dayData?.slots?.[timeIndex];
+  // Reconstruct heatmap points: compact response has slot.w + shared axes; legacy has slot.heatmap_points
+  const densityHeatmapPoints =
+    slot?.w != null && dayData?.lng_axis && dayData?.lat_axis && dayData?.resolution
+      ? slotWeightsToHeatmapPoints(
+          slot.w as [number, number][],
+          dayData.lng_axis,
+          dayData.lat_axis,
+          dayData.resolution
+        )
+      : slot?.heatmap_points ?? null;
+  // Buildings: compact has slot.b (minimal); legacy has slot.buildings (full). Normalize to { building_id, estimated_people }[] for occupancy.
+  const slotBuildings = slot?.b ?? slot?.buildings ?? null;
+  // Single-slot-shaped object for building popup and any code that expects densityData
+  const densityData = dayData && slot
+    ? {
+        bounds: dayData.bounds,
+        resolution: dayData.resolution,
+        lng_axis: dayData.lng_axis,
+        lat_axis: dayData.lat_axis,
+        heatmap_points: densityHeatmapPoints ?? [],
+        buildings: slotBuildings ?? [],
+        sources: dayData.sources ?? [],
+        requested_time: slot.time,
+        weekday: dayData.weekday,
+        time_slot: slot.time,
+      }
+    : undefined;
 
   // Building timeline from API when a rich building is selected
   const richBuildingForTimeline = selectedBuilding ? getBuildingById(selectedBuilding.id) ?? null : null;
   const { data: buildingTimelineData } = useBuildingTimeline(richBuildingForTimeline?.id ?? null, day);
+  // When day response has minimal buildings (slot.b), fetch class list on demand for popup
+  const currentTimeStr = slot?.time ?? null;
+  const { data: buildingAtTimeData } = useBuildingAtTime(
+    richBuildingForTimeline?.id ?? null,
+    currentTimeStr,
+    day
+  );
+  const classesAtTimeFromApi = buildingAtTimeData?.classes ?? null;
 
   // Heatmap: use only API density data; keep previous frame's data while loading (no mock fallback)
   const heatmapPoints = densityHeatmapPoints ?? [];
@@ -296,7 +337,7 @@ export function CampusMap() {
       );
     }
 
-    // GeoJSON source + layer for clickable (52) buildings — drawn on top with blue tint
+    // GeoJSON source + layer for clickable (51) buildings — drawn on top with blue tint
     if (!map.getSource("clickable-buildings")) {
       map.addSource("clickable-buildings", {
         type: "geojson",
@@ -309,7 +350,6 @@ export function CampusMap() {
           id: "3d-buildings-clickable",
           source: "clickable-buildings",
           type: "fill-extrusion",
-          minzoom: 14,
           paint: {
             "fill-extrusion-color": CLICKABLE_BUILDING_COLOR,
             "fill-extrusion-height": [
@@ -615,7 +655,7 @@ export function CampusMap() {
           <div className="hidden items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 md:flex">
             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
             <span className="text-xs text-white/60">
-              {currentSnapshot?.time.label} - {day}
+              {densityLoading ? "Loading…" : `${currentSnapshot?.time.label} - ${day}`}
             </span>
           </div>
           <button
@@ -715,7 +755,12 @@ export function CampusMap() {
           apiTimelineSlots={buildingTimelineData?.slots ?? null}
           sourceBreakdownOverride={sourceBreakdownOverride}
           classesAtTime={
-            densityData?.buildings?.find((b) => b.building_id === richBuilding.id)?.classes ?? []
+            classesAtTimeFromApi ??
+            (densityData?.buildings?.find((b) => b.building_id === richBuilding.id) as
+              | { classes?: ClassAtTime[] }
+              | undefined
+            )?.classes ??
+            []
           }
           currentTimeLabel={currentSnapshot?.time.label ?? ""}
         />
