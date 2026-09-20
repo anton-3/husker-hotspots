@@ -43,6 +43,18 @@ pnpm start
 
 The deployment start command must be `pnpm start`, not `pnpm dev`. `pnpm dev` starts Next's development runtime and is only for local development; Next 16 can crash there with `_interop_require_wildcard._ is not a function`.
 
+### Docker deployment
+
+The repository includes production Dockerfiles and a Compose configuration. Before building, provide the public Mapbox token and API URL through the environment:
+
+```env
+NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token
+NEXT_PUBLIC_API_URL=https://skersapi.schlarbys.com
+CORS_ORIGINS=https://your-frontend-domain.example
+```
+
+The frontend API URL is a build argument because `NEXT_PUBLIC_*` values are embedded into the browser bundle. The backend uses Gunicorn and binds to `0.0.0.0:5000`; the frontend uses `next start` and binds to `0.0.0.0:3000`. Compose waits for the backend health check before starting the frontend.
+
 ---
 
 ## Code overview
