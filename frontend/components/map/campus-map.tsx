@@ -70,7 +70,7 @@ const SELLECK_IDS = new Set([
 const SELLECK_SHAPE_ID = "SELL";
 
 const TOOLTIPS = [
-  "Try clicking on a building!",
+  "Try clicking on a highlighted building!",
   "Use arrow keys to change the camera angle!",
   "Press space to play/pause the heatmap!",
 ];
@@ -626,10 +626,25 @@ export function CampusMap() {
     if (!mapLoaded || campusBuildingsList.length === 0) return;
     const map = mapRef.current?.getMap();
     if (!map || !map.getLayer("3d-buildings") || !map.getSource("clickable-buildings")) return;
+
+    // The 3D building layer has just been added during map load. On the first
+    // pass Mapbox may not have rendered its tiles yet, so queryRenderedFeatures
+    // can return nothing. Retry once the map has rendered/settled so the
+    // highlighted-building source is populated without requiring a zoom.
+    const resolveWhenRendered = () => {
+      resolveClickableBuildings(map, campusBuildingsList);
+    };
+
     resolveClickableBuildings(map, campusBuildingsList);
+    map.once("render", resolveWhenRendered);
+    map.once("idle", resolveWhenRendered);
+    map.triggerRepaint();
+
     const onMoveEnd = () => resolveClickableBuildings(map, campusBuildingsList);
     map.on("moveend", onMoveEnd);
     return () => {
+      map.off("render", resolveWhenRendered);
+      map.off("idle", resolveWhenRendered);
       map.off("moveend", onMoveEnd);
     };
   }, [mapLoaded, campusBuildingsList, resolveClickableBuildings]);
