@@ -15,11 +15,28 @@ from backend.classes.density_field import get_building_timeline, get_building_at
 
 app = Flask(__name__)
 
-# CORS: allow localhost in dev; in production set CORS_ORIGINS (comma-separated) to your frontend URL(s).
-_default_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
+# CORS: this API serves public, read-only data and does not use cookies or other
+# browser credentials. Allow every frontend origin by default so deploying the
+# API and UI on different domains works without an easy-to-miss environment
+# variable. Deployments can still restrict access with a comma-separated
+# CORS_ORIGINS value, e.g. "https://husker-hotspots.example,https://www.example".
 _origins_env = os.environ.get("CORS_ORIGINS", "").strip()
-cors_origins = [o.strip() for o in _origins_env.split(",") if o.strip()] or _default_origins
-CORS(app, origins=cors_origins)
+if not _origins_env or _origins_env == "*":
+    cors_origins: str | list[str] = "*"
+else:
+    cors_origins = [
+        origin.strip().rstrip("/")
+        for origin in _origins_env.split(",")
+        if origin.strip()
+    ]
+
+CORS(
+    app,
+    resources={r"/*": {"origins": cors_origins}},
+    allow_headers="*",
+    methods=["GET", "HEAD", "OPTIONS"],
+    max_age=86400,
+)
 
 # Default campus bounds (same as density_field modules)
 DEFAULT_SW = [-96.708, 40.812]

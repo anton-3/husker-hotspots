@@ -44,7 +44,7 @@ Open [http://localhost:3000](http://localhost:3000). The map requires a [Mapbox 
 
 ### Backend (`backend/`)
 
-- **API**: `app.py` — Flask app with CORS for localhost. Key routes:
+- **API**: `app.py` — Flask app with cross-origin access for browser clients. Key routes:
   - `GET /api/density` — Combined heatmap at a single time and weekday (query: `time`, `weekday`, optional `cols`, `rows`, `bounds`).
   - `GET /api/density/day` — Full day (96 × 15-minute slots) for a weekday; used for the timeline animation.
   - `GET /api/density/building/<id>/timeline` — Per-building estimated people per 15-min slot.
