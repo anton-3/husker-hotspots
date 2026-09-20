@@ -17,7 +17,7 @@ cd ..
 FLASK_APP=backend.app flask run
 ```
 
-The API runs at `http://localhost:5000` by default. It serves combined density heatmap data and building timelines.
+The API runs at `http://localhost:5000` by default. It serves combined density heatmap data and building timelines. CORS is open by default for this public read-only API, so the frontend may be deployed on a different domain. To restrict it in production, set `CORS_ORIGINS` to a comma-separated list of allowed frontend origins (for example, `https://husker-hotspots.example`).
 
 ### Frontend (Next.js)
 
@@ -30,6 +30,18 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). The map requires a [Mapbox access token](https://account.mapbox.com/).
+
+### Production deployment
+
+Configure the hosting service to use `frontend/` as its root directory, then use:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm build
+pnpm start
+```
+
+The deployment start command must be `pnpm start`, not `pnpm dev`. `pnpm dev` starts Next's development runtime and is only for local development; Next 16 can crash there with `_interop_require_wildcard._ is not a function`.
 
 ---
 
